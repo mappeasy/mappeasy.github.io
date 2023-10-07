@@ -1,2 +1,2 @@
 ## Mappeasy
-** Basic Leaflet PowerBI Custom Visual
+* Basic Leaflet PowerBI Custom Visual
