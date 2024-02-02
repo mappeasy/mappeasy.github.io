@@ -74,7 +74,8 @@
 		border-radius: 4px;
 		background: rgba(76, 175, 80, 0.8);
 		color: white;
-		cursor: pointer
+		cursor: pointer;
+		display:none;
 	}
 
 	/* Responsive adjustments for mobile screens */
@@ -84,12 +85,12 @@
 			right: 10px; /* Adjusted to provide right margin */
 			top: 10px;
 			transform: none; /* Remove the transform property */
-			flex-direction: row; /* Stack elements vertically */
 		}
 		.search-input,
 		.search-button {
 			width: calc(100% - 20px); /* Full width minus the left and right padding */
 			margin-right: 0; /* Remove margin for button */
+			display:none;
 		}
 		.search-input {
 			margin-bottom: 5px; /* Add margin at the bottom of the input */
