@@ -79,23 +79,22 @@
 	}
 
 	/* Responsive adjustments for mobile screens */
-	@media (max-width: 600px) {
-		.search-box {
-			left: 10px; /* Adjusted to start a bit away from the left edge */
-			right: 10px; /* Adjusted to provide right margin */
-			top: 10px;
-			transform: none; /* Remove the transform property */
-		}
-		.search-input,
-		.search-button {
-			width: calc(100% - 20px); /* Full width minus the left and right padding */
-			margin-right: 0; /* Remove margin for button */
-			display:none;
-		}
-		.search-input {
-			margin-bottom: 5px; /* Add margin at the bottom of the input */
-		}
-	}
+@media (max-width: 600px) {
+    .search-box {
+        left: 10px; /* Adjusted to start a bit away from the left edge */
+        right: 10px; /* Adjusted to provide right margin */
+        top: 10px;
+        transform: none; /* Remove the transform property */
+    }
+    .search-input {
+        width: calc(100% - 20px); /* Full width minus the left and right padding */
+        display: block; /* Ensure the input is visible */
+        margin-bottom: 5px; /* Add margin at the bottom of the input */
+    }
+    .search-button {
+        display: none; /* Keep the button hidden */
+    }
+}
         .ol-popup {
             position: absolute;
             background-color: white;
