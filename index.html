@@ -80,15 +80,15 @@
 	/* Responsive adjustments for mobile screens */
 	@media (max-width: 600px) {
 		.search-box {
-			left: 10px;
-			right: 10px;
+			left: 10px; /* Adjusted to start a bit away from the left edge */
+			right: 10px; /* Adjusted to provide right margin */
 			top: 10px;
-			transform: none;
-			flex-direction: column; /* Stack elements vertically on smaller screens */
+			transform: none; /* Remove the transform property */
+			flex-direction: column; /* Stack elements vertically */
 		}
 		.search-input,
 		.search-button {
-			width: 100%; /* Full width for input and button */
+			width: calc(100% - 20px); /* Full width minus the left and right padding */
 			margin-right: 0; /* Remove margin for button */
 		}
 		.search-input {
