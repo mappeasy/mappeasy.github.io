@@ -75,6 +75,7 @@
 		background: rgba(76, 175, 80, 0.8);
 		color: white;
 		cursor: pointer;
+		display: none; 
 	}
 
 	/* Responsive adjustments for mobile screens */
@@ -90,6 +91,7 @@
 		.search-button {
 			width: calc(100% - 20px); /* Full width minus the left and right padding */
 			margin-right: 0; /* Remove margin for button */
+			display: none; 
 		}
 		.search-input {
 			margin-bottom: 5px; /* Add margin at the bottom of the input */
@@ -228,6 +230,7 @@ var currentMarker = null;
             }),				
             // Add more layers here
         ],
+		controls: [], 
         view: new ol.View({
             center: ol.proj.fromLonLat([-95.3698, 29.7604]),
             zoom: 11
