@@ -240,6 +240,26 @@ var currentMarker = null;
             offset: [0, -20]
         })]
     });
+	
+        // Function to handle successful retrieval of the location
+        function success(position) {
+            var coordinates = [position.coords.longitude, position.coords.latitude];
+            var olCoordinates = ol.proj.fromLonLat(coordinates);
+            map.getView().animate({center: olCoordinates, zoom: 17});
+        }
+
+        // Function to handle errors in geolocation
+        function error(err) {
+            console.warn(`ERROR(${err.code}): ${err.message}`);
+            alert('Error: Geolocation failed. ' + err.message);
+        }
+
+        // Check if geolocation is supported
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(success, error);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
 var geolocation = new ol.Geolocation({
     tracking: true,
     trackingOptions: {
