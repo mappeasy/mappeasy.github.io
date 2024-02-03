@@ -39,15 +39,15 @@
 
         .toggle-button {
             position: absolute;
-            bottom: 10px;
-            right: 10px;
+            bottom: 5px;
+            right: 5px;
             z-index: 1001;
             cursor: pointer;
-            background-color: rgba(0, 60, 136, 0.7);
-            color: white;
-            padding: 10px 15px;
+            background-color: rgba(189, 208, 231, 0.8);
+            color: blue;
+            padding: 5px 5px;
             /* Increased padding */
-            border-radius: 8px;
+            border-radius: 5px;
             /* Slightly larger border radius */
             font-size: 20px;
             /* Larger font size */
@@ -117,6 +117,51 @@
                 display: none;
                 /* Keep the button hidden */
             }
+/* Toggle Switch Style */
+.location-toggle {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #333;
+}
+
+.location-toggle input[type="checkbox"] {
+    height: 0;
+    width: 0;
+    visibility: hidden;
+}
+
+.location-toggle label {
+    cursor: pointer;
+    text-indent: -9999px;
+    width: 50px;
+    height: 25px;
+    background: grey;
+    display: block;
+    border-radius: 100px;
+    position: relative;
+}
+
+.location-toggle label:after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 21px;
+    height: 21px;
+    background: #fff;
+    border-radius: 90px;
+    transition: 0.3s;
+}
+
+.location-toggle input:checked + label {
+    background: #bada55;
+}
+
+.location-toggle input:checked + label:after {
+    left: calc(100% - 2px);
+    transform: translateX(-100%);
+}            
         }
     </style>
 </head>
@@ -128,24 +173,18 @@
         <button id="search-button" class="search-button">Search</button>
     </div>
 
-    <div class="toggle-button" id="toggle-button">Layers</div>
-    <div class="custom-layer-switcher" id="layer-switcher">
-        <div class="layer-group">
-            <div class="layer-group-title">Layers</div>
-            <div><input type="checkbox" id="gravity-main-checkbox" checked> Gravity Main</div>
-            <div><input type="checkbox" id="gravity-main-label-checkbox" checked> Gravity Main Label</div>
-            <div><input type="checkbox" id="manhole-checkbox" checked> Manhole</div>
-            <div><input type="checkbox" id="manhole-label-checkbox" checked> Manhole Label</div>
-            <div><input type="checkbox" id="layer5-checkbox" checked> LS/WWTP</div>
-            <div><input type="checkbox" id="layer6-checkbox" checked> LS/WWTP Label</div>
-            <!-- Add more layers as needed -->
-        </div>
+    <div class="location-toggle" style="position: absolute; bottom: 20px; left: 10px; z-index: 1001;">
+        <input type="checkbox" id="location-toggle" />
+        <label for="location-toggle">Track Location</label>
     </div>
     <!-- Include Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/esri-leaflet"></script>
     <script>
         var currentMarker = null; // Variable to store the current marker
+        var isFollowing = false; // Variable to track follow state
+        var watchID = null; // Variable to store the watch ID       
+        var locationWatcher = null; 
 // SVG code for the person icon
     var personSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="blue" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="8" r="4"></circle> <!-- Head -->
@@ -203,7 +242,8 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(customLayers);
 
         // Handle Search (update this part for Leaflet)
-        function handleSearch() {
+    // Handle Search without removing the person icon
+    function handleSearch() {
             var address = document.getElementById('search-input').value;
             fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(address))
                 .then(function (response) { return response.json(); })
@@ -211,15 +251,10 @@
                     if (json.length > 0) {
                         var latlng = L.latLng(json[0].lat, json[0].lon);
                         map.setView(latlng, 17);
-
-                        // Remove the existing marker if there is one
                         if (currentMarker) {
-                            map.removeLayer(currentMarker);
+                            currentMarker.setLatLng(latlng);
+                            currentMarker.bindPopup('<b></b><br>' + json[0].display_name).openPopup();
                         }
-
-                        // Create a new marker and add it to the map
-                        currentMarker = L.marker(latlng).addTo(map);
-                        currentMarker.bindPopup('<b>Address:</b><br>' + json[0].display_name).openPopup();
                     } else {
                         alert('Address not found.');
                     }
@@ -267,6 +302,7 @@
             }
         }
         // Function to show the user's position
+ // Function to show the user's position
         function showPosition(position) {
             var userLat = position.coords.latitude;
             var userLng = position.coords.longitude;
@@ -278,8 +314,34 @@
                 currentMarker = L.marker(userLatLng, {icon: personIcon}).addTo(map);
             }
 
-            map.setView(userLatLng, 17);
+            if (isFollowing) {
+                map.setView(userLatLng, map.getZoom());
+            }
         }
+        // Function to toggle following user's location
+        function toggleLocationTracking() {
+            if (document.getElementById('location-toggle').checked) {
+                if (navigator.geolocation) {
+                    locationWatcher = navigator.geolocation.watchPosition(showPosition, showError, {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    });
+                } else {
+                    alert("Geolocation is not supported by this browser.");
+                }
+            } else {
+                if (locationWatcher !== null) {
+                    navigator.geolocation.clearWatch(locationWatcher);
+                    locationWatcher = null;
+                    if (currentMarker) {
+                        map.removeLayer(currentMarker);
+                        currentMarker = null;
+                    }
+                }
+            }
+        }  
+        document.getElementById('location-toggle').addEventListener('change', toggleLocationTracking);           
         // Function to handle location errors
         function showError(error) {
             switch (error.code) {
@@ -305,7 +367,8 @@
             enableHighAccuracy: true,
             timeout: 5000,
             maximumAge: 0
-        });               
+        });
+       //document.getElementById('toggle-button').style.right = 'auto';       
     </script>
 </body>
 
