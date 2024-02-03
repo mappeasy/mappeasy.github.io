@@ -324,13 +324,14 @@
             }
 
             if (isFollowing) {
-                map.setView(userLatLng, map.getZoom());
+                map.once('moveend', function () { // Use 'once' to listen for the end of the map move
+                    map.setView(userLatLng, map.getZoom(), {animate: false}); // Disable animation for smoother experience
+                });
             }
         }
                 // Function to toggle following user's location
-        function toggleLocationTracking() {
+                function toggleLocationTracking() {
             if (document.getElementById('location-toggle').checked) {
-                // Start tracking and show marker
                 isFollowing = true;
                 if (!locationWatcher) {
                     locationWatcher = navigator.geolocation.watchPosition(showPosition, showError, {
@@ -340,7 +341,6 @@
                     });
                 }
             } else {
-                // Stop tracking and remove marker
                 isFollowing = false;
                 if (locationWatcher !== null) {
                     navigator.geolocation.clearWatch(locationWatcher);
