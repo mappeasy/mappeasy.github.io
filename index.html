@@ -319,42 +319,44 @@
             var userLng = position.coords.longitude;
             var userLatLng = L.latLng(userLat, userLng);
 
+            // Update the current marker or create a new one if it doesn't exist
             if (currentMarker) {
                 currentMarker.setLatLng(userLatLng);
             } else {
                 currentMarker = L.marker(userLatLng, { icon: personIcon }).addTo(map);
             }
 
+            // Update the map view if following is enabled
             if (isFollowing) {
-                // Only set the view if the user position is outside the current bounds
-                if (!map.getBounds().contains(userLatLng)) {
-                    map.setView(userLatLng, map.getZoom(), { animate: false });
-                }
+                map.setView(userLatLng, map.getZoom(), { animate: false });
             }
         }
         // Function to toggle following user's location
-                function toggleLocationTracking() {
-            if (document.getElementById('location-toggle').checked) {
-                isFollowing = true;
-                if (!locationWatcher) {
-                    locationWatcher = navigator.geolocation.watchPosition(showPosition, showError, {
-                        enableHighAccuracy: true,
-                        timeout: 5000,
-                        maximumAge: 0
-                    });
-                }
-            } else {
-                isFollowing = false;
-                if (locationWatcher !== null) {
-                    navigator.geolocation.clearWatch(locationWatcher);
-                    locationWatcher = null;
-                }
-                if (currentMarker) {
-                    map.removeLayer(currentMarker);
-                    currentMarker = null;
+        // Function to toggle location tracking
+        function toggleLocationTracking() {
+                if (document.getElementById('location-toggle').checked) {
+                    // Start tracking and show marker
+                    isFollowing = true;
+                    if (!watchID) {
+                        watchID = navigator.geolocation.watchPosition(showPosition, showError, {
+                            enableHighAccuracy: true,
+                            timeout: 5000,
+                            maximumAge: 0
+                        });
+                    }
+                } else {
+                    // Stop tracking and remove marker
+                    isFollowing = false;
+                    if (watchID) {
+                        navigator.geolocation.clearWatch(watchID);
+                        watchID = null;
+                    }
+                    if (currentMarker) {
+                        map.removeLayer(currentMarker);
+                        currentMarker = null;
+                    }
                 }
             }
-        }
         document.getElementById('location-toggle').addEventListener('change', toggleLocationTracking);           
         // Function to handle location errors
         function showError(error) {
@@ -377,11 +379,6 @@
         // Call locateUser to get the initial location
         toggleLocationTracking();
         // Set up a watcher to update the location as the user moves
-        var watchID = navigator.geolocation.watchPosition(showPosition, showError, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-        });
        //document.getElementById('toggle-button').style.right = 'auto';       
     </script>
 </body>
