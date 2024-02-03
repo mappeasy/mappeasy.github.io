@@ -293,17 +293,19 @@
         // Adjust the locateUser function
         function locateUser() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError, {
-                    enableHighAccuracy: true,
-                    timeout: 5000,
-                    maximumAge: 0
-                });
-                if (locationWatcher === null) {
-                    locationWatcher = navigator.geolocation.watchPosition(showPosition, showError, {
-                        enableHighAccuracy: true,
-                        timeout: 5000,
-                        maximumAge: 0
-                    });
+                if (isFollowing) {
+                    if (!locationWatcher) {
+                        locationWatcher = navigator.geolocation.watchPosition(showPosition, showError, {
+                            enableHighAccuracy: true,
+                            timeout: 5000,
+                            maximumAge: 0
+                        });
+                    }
+                } else {
+                    if (locationWatcher) {
+                        navigator.geolocation.clearWatch(locationWatcher);
+                        locationWatcher = null;
+                    }
                 }
             } else {
                 alert("Geolocation is not supported by this browser.");
@@ -320,16 +322,13 @@
             if (currentMarker) {
                 currentMarker.setLatLng(userLatLng);
             } else {
-                currentMarker = L.marker(userLatLng, {icon: personIcon}).addTo(map);
+                currentMarker = L.marker(userLatLng, { icon: personIcon }).addTo(map);
             }
 
             if (isFollowing) {
-                map.once('moveend', function () { // Use 'once' to listen for the end of the map move
-                    map.setView(userLatLng, map.getZoom(), {animate: false}); // Disable animation for smoother experience
-                });
+                map.setView(userLatLng, map.getZoom(), { animate: false });
             }
-        }
-                // Function to toggle following user's location
+        }  // Function to toggle following user's location
                 function toggleLocationTracking() {
             if (document.getElementById('location-toggle').checked) {
                 isFollowing = true;
