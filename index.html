@@ -165,8 +165,11 @@
         popupAnchor: [0, -30]
     });                
         // Create Leaflet Map
-        var map = L.map('mapid').setView([29.7604, -95.3698], 11);
-
+        var map = L.map('mapid', {
+            zoomControl: false, // This will remove the default zoom control
+            center: [29.7604, -95.3698],
+            zoom: 11
+        });
         // Add OpenStreetMap Base Layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -193,7 +196,9 @@
             "LiftStation/WWTP": lsWwtpLayer,
         };
 
-        L.control.layers(null, overlays).addTo(map);
+        L.control.layers(null, overlays, {
+                position: 'bottomright' // This will position the layer control at the bottom right
+            }).addTo(map);
         // Example: Adding a custom Tile Layer (replace with your own)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(customLayers);
 
