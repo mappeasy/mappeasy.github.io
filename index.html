@@ -298,7 +298,7 @@
                     timeout: 5000,
                     maximumAge: 0
                 });
-                if (!locationWatcher) {
+                if (locationWatcher === null) {
                     locationWatcher = navigator.geolocation.watchPosition(showPosition, showError, {
                         enableHighAccuracy: true,
                         timeout: 5000,
