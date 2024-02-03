@@ -2,8 +2,10 @@
 <html>
 
 <head>
-    <title>Mappeasy Toolbox for Local Assets</title>
+    <title>Local Assets With Local Easy Peasy Map tool</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Include Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
         #mapid {
             position: absolute;
@@ -33,11 +35,6 @@
         .layer-group-title {
             font-weight: bold;
             margin-bottom: 5px;
-        }
-
-        .ol-attribution {
-            bottom: 10px;
-            left: 10px;
         }
 
         .toggle-button {
@@ -121,62 +118,7 @@
                 /* Keep the button hidden */
             }
         }
-
-        .ol-popup {
-            position: absolute;
-            background-color: white;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #cccccc;
-            bottom: 12px;
-            left: -50px;
-            min-width: 280px;
-        }
-
-        .ol-popup:after,
-        .ol-popup:before {
-            top: 100%;
-            border: solid transparent;
-            content: ' ';
-            height: 0;
-            width: 0;
-            position: absolute;
-            pointer-events: none;
-        }
-
-        .ol-popup:after {
-            border-top-color: white;
-            border-width: 10px;
-            left: 48px;
-            margin-left: -10px;
-        }
-
-        .ol-popup:before {
-            border-top-color: #cccccc;
-            border-width: 11px;
-            left: 48px;
-            margin-left: -11px;
-        }
-
-        .ol-marker {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background-color: red;
-            opacity: 0.9;
-        }
-
-        #popup-close-btn {
-            border: none;
-            background-color: transparent;
-            font-weight: bold;
-            font-size: 1em;
-        }
     </style>
-    <link rel="stylesheet" href="https://openlayers.org/en/v6.5.0/css/ol.css" type="text/css">
-    <script src="https://openlayers.org/en/v6.5.0/build/ol.js" type="text/javascript"></script>
-
 </head>
 
 <body>
@@ -185,193 +127,94 @@
         <input type="text" id="search-input" class="search-input" placeholder="Enter an address">
         <button id="search-button" class="search-button">Search</button>
     </div>
-    <div id="popup" class="ol-popup">
-        <button id="popup-close-btn" style="float: right; cursor: pointer;">X</button>
-    </div>
 
     <div class="toggle-button" id="toggle-button">Layers</div>
     <div class="custom-layer-switcher" id="layer-switcher">
         <div class="layer-group">
             <div class="layer-group-title">Layers</div>
-            <div><input type="checkbox" id="layer1-checkbox" checked> Gravity Main</div>
-            <div><input type="checkbox" id="layer2-checkbox" checked> Gravity Main Label</div>
-            <div><input type="checkbox" id="layer3-checkbox" checked> Manhole</div>
-            <div><input type="checkbox" id="layer4-checkbox" checked> Manhole Label</div>
+            <div><input type="checkbox" id="gravity-main-checkbox" checked> Gravity Main</div>
+            <div><input type="checkbox" id="gravity-main-label-checkbox" checked> Gravity Main Label</div>
+            <div><input type="checkbox" id="manhole-checkbox" checked> Manhole</div>
+            <div><input type="checkbox" id="manhole-label-checkbox" checked> Manhole Label</div>
             <div><input type="checkbox" id="layer5-checkbox" checked> LS/WWTP</div>
             <div><input type="checkbox" id="layer6-checkbox" checked> LS/WWTP Label</div>
             <!-- Add more layers as needed -->
         </div>
     </div>
-
+    <!-- Include Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/esri-leaflet"></script>
     <script>
-        var currentMarker = null;
-        var map = new ol.Map({
-            target: 'mapid',
-            layers: [
-                new ol.layer.Tile({
-                    source: new ol.source.OSM(),
-                    title: 'Base Layer'
-                }),
-                new ol.layer.Tile({
-                    source: new ol.source.TileArcGISRest({
-                        url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
-                        params: { LAYERS: 'show:1' }
-                    }),
-                    title: 'Gravity Main',
-                    visible: true // Initially hidden
-                }),
-                new ol.layer.Tile({
-                    source: new ol.source.TileArcGISRest({
-                        url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
-                        params: { LAYERS: 'show:2' }
-                    }),
-                    title: 'Gravity Main Label',
-                    visible: true // Initially hidden
-                }),
-                new ol.layer.Tile({
-                    source: new ol.source.TileArcGISRest({
-                        url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
-                        params: { LAYERS: 'show:12' }
-                    }),
-                    title: 'Manhole',
-                    visible: true // Initially hidden
-                }),
-                new ol.layer.Tile({
-                    source: new ol.source.TileArcGISRest({
-                        url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
-                        params: { LAYERS: 'show:13' }
-                    }),
-                    title: 'Manhole Label',
-                    visible: true // Initially hidden
-                }),
-                new ol.layer.Tile({
-                    source: new ol.source.TileArcGISRest({
-                        url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
-                        params: { LAYERS: 'show:16' }
-                    }),
-                    title: 'LS/WWTP Label',
-                    visible: true // Initially hidden
-                }),
-                new ol.layer.Tile({
-                    source: new ol.source.TileArcGISRest({
-                        url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
-                        params: { LAYERS: 'show:17' }
-                    }),
-                    title: 'LS/WWTP Label',
-                    visible: true // Initially hidden
-                }),
-                // Add more layers here
-            ],
-            controls: [],
-            view: new ol.View({
-                center: ol.proj.fromLonLat([-95.3698, 29.7604]),
-                zoom: 11
-            }),
-            overlays: [new ol.Overlay({
-                element: document.getElementById('popup'),
-                positioning: 'bottom-center',
-                stopEvent: false,
-                offset: [0, -20]
-            })]
-        });
+        var currentMarker = null; // Variable to store the current marker
+// SVG code for the person icon
+    var personSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="blue" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="4"></circle> <!-- Head -->
+                    <line x1="12" y1="12" x2="12" y2="20"></line> <!-- Body -->
+                    <line x1="12" y1="20" x2="9" y2="23"></line> <!-- Left leg -->
+                    <line x1="12" y1="20" x2="15" y2="23"></line> <!-- Right leg -->
+                    <line x1="12" y1="14" x2="9" y2="16"></line> <!-- Left arm -->
+                    <line x1="12" y1="14" x2="15" y2="16"></line> <!-- Right arm -->
+                </svg>
+                `;
+    // Custom divIcon for the person-shaped marker
+    var personIcon = L.divIcon({
+        className: 'custom-person-icon',
+        html: personSvg,
+        iconSize: [30, 30],
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30]
+    });                
+        // Create Leaflet Map
+        var map = L.map('mapid').setView([29.7604, -95.3698], 11);
 
-        // Function to handle successful retrieval of the location
-        function success(position) {
-            var coordinates = [position.coords.longitude, position.coords.latitude];
-            var olCoordinates = ol.proj.fromLonLat(coordinates);
-            map.getView().animate({ center: olCoordinates, zoom: 17 });
-        }
+        // Add OpenStreetMap Base Layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
 
-        // Function to handle errors in geolocation
-        function error(err) {
-            console.warn(`ERROR(${err.code}): ${err.message}`);
-            alert('Error: Geolocation failed. ' + err.message);
-        }
+        //L.esri.dynamicMapLayer
+        // Add the GIS layers
+        var gravityMainLayer = L.esri.dynamicMapLayer({ url: "https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", layers: [1] }).addTo(map);;
+        var gravityMainLabelLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [2] }).addTo(map);;
+        var manholeLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [12] }).addTo(map);;
+        var manholeLabelLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [13] }).addTo(map);;
+        var lsWwtpLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [16] }).addTo(map);;
+        var lsWwtpLabelLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [17] }).addTo(map);;
 
-        // Check if geolocation is supported
-        if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(success, error);
-        } else {
-            alert("Geolocation is not supported by this browser.");
-        }
-        var geolocation = new ol.Geolocation({
-            tracking: true,
-            trackingOptions: {
-                enableHighAccuracy: true,
-                maximumAge: 10000,
-                timeout: 600000
-            },
-            projection: map.getView().getProjection()
-        });
+        // Create a Layer Group for your custom layers
+        var customLayers = L.layerGroup().addTo(map);
+        var overlays = {
+            "Manhole Label": manholeLabelLayer,
+            "Gravity Main Label": gravityMainLabelLayer,
+            "LiftStation/WWTP Label": lsWwtpLabelLayer,
+            "Manhole": manholeLayer,
+            "Gravity Main": gravityMainLayer,
+            "LiftStation/WWTP": lsWwtpLayer,
+        };
 
-        // handle geolocation error.
-        geolocation.on('error', function (error) {
-            alert('Geolocation error: ' + error.message);
-        });
+        L.control.layers(null, overlays).addTo(map);
+        // Example: Adding a custom Tile Layer (replace with your own)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(customLayers);
 
-        var accuracyFeature = new ol.Feature();
-        geolocation.on('change:accuracyGeometry', function () {
-            accuracyFeature.setGeometry(geolocation.getAccuracyGeometry());
-        });
-
-        var positionFeature = new ol.Feature();
-        positionFeature.setStyle(new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: 6,
-                fill: new ol.style.Fill({
-                    color: '#3399CC'
-                }),
-                stroke: new ol.style.Stroke({
-                    color: '#fff',
-                    width: 2
-                })
-            })
-        }));
-
-        geolocation.on('change:position', function () {
-            var coordinates = geolocation.getPosition();
-            positionFeature.setGeometry(coordinates ?
-                new ol.geom.Point(coordinates) : null);
-            map.getView().animate({ center: coordinates, zoom: 17 });
-        });
-        new ol.layer.Vector({
-            map: map,
-            source: new ol.source.Vector({
-                features: [accuracyFeature, positionFeature]
-            })
-        });
-        var popupElement = document.getElementById('popup');
-
+        // Handle Search (update this part for Leaflet)
         function handleSearch() {
             var address = document.getElementById('search-input').value;
             fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(address))
                 .then(function (response) { return response.json(); })
                 .then(function (json) {
                     if (json.length > 0) {
-                        var coordinates = ol.proj.fromLonLat([json[0].lon, json[0].lat]);
-                        map.getView().animate({ center: coordinates, zoom: 17 });
+                        var latlng = L.latLng(json[0].lat, json[0].lon);
+                        map.setView(latlng, 17);
 
-                        var markerElement = document.createElement('div');
-                        markerElement.className = 'ol-marker';
-                        var marker = new ol.Overlay({
-                            position: coordinates,
-                            element: markerElement
-                        });
+                        // Remove the existing marker if there is one
                         if (currentMarker) {
-                            map.removeOverlay(currentMarker);
+                            map.removeLayer(currentMarker);
                         }
-                        currentMarker = marker;
-                        map.addOverlay(marker);
 
-                        popupElement.innerHTML = '<b>Address:</b><br>' + json[0].display_name;
-                        var popup = new ol.Overlay({
-                            element: popupElement,
-                            positioning: 'bottom-center',
-                            stopEvent: false,
-                            offset: [0, -20]
-                        });
-                        popup.setPosition(coordinates);
-                        map.addOverlay(popup);
+                        // Create a new marker and add it to the map
+                        currentMarker = L.marker(latlng).addTo(map);
+                        currentMarker.bindPopup('<b>Address:</b><br>' + json[0].display_name).openPopup();
                     } else {
                         alert('Address not found.');
                     }
@@ -380,56 +223,84 @@
                     alert('Error during search: ' + error.message);
                 });
         }
-        document.getElementById('popup-close-btn').addEventListener('click', function () {
-            if (currentMarker) {
-                map.removeOverlay(currentMarker);
-                currentMarker = null;
-            }
-            popupElement.style.display = 'none';
-        });
+
+        // Add Event Listeners (similar to your existing code)
         document.getElementById('search-button').addEventListener('click', handleSearch);
         document.getElementById('search-input').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 handleSearch();
             }
         });
+        function updateLayerVisibility() {
+            var currentZoom = map.getZoom();
+            console.log("Current Zoom Level:", currentZoom);
+            var isVisibleFeature = currentZoom >= 15;
+            var isVisibleLabel = currentZoom >= 17;
 
-        document.getElementById('layer1-checkbox').addEventListener('change', function (e) {
-            map.getLayers().item(1).setVisible(e.target.checked);
-        });
-        document.getElementById('layer2-checkbox').addEventListener('change', function (e) {
-            map.getLayers().item(2).setVisible(e.target.checked);
-        });
-        document.getElementById('layer3-checkbox').addEventListener('change', function (e) {
-            map.getLayers().item(3).setVisible(e.target.checked);
-        });
-        document.getElementById('layer4-checkbox').addEventListener('change', function (e) {
-            map.getLayers().item(4).setVisible(e.target.checked);
-        });
-        document.getElementById('layer5-checkbox').addEventListener('change', function (e) {
-            map.getLayers().item(5).setVisible(e.target.checked);
-        });
-        document.getElementById('layer6-checkbox').addEventListener('change', function (e) {
-            map.getLayers().item(6).setVisible(e.target.checked);
-        });
+            // Toggle each layer based on zoom level
+            gravityMainLayer.setOpacity(isVisibleFeature ? 1 : 0);
+            manholeLayer.setOpacity(isVisibleFeature ? 1 : 0);
+            lsWwtpLayer.setOpacity(isVisibleFeature ? 1 : 0);
+            gravityMainLabelLayer.setOpacity(isVisibleLabel ? 1 : 0);
+            manholeLabelLayer.setOpacity(isVisibleLabel ? 1 : 0);
+            lsWwtpLabelLayer.setOpacity(isVisibleLabel ? 1 : 0);
+        }
+        // Attach the function to the map's zoomend event
+        map.on('zoomend', updateLayerVisibility);
 
-        // Toggle layer switcher visibility
-        document.getElementById('toggle-button').addEventListener('click', function () {
-            var layerSwitcher = document.getElementById('layer-switcher');
-            layerSwitcher.style.display = layerSwitcher.style.display === 'none' ? 'block' : 'none';
-        });
-
-        // Click outside to collapse the layer switcher
-        document.addEventListener('click', function (event) {
-            var layerSwitcher = document.getElementById('layer-switcher');
-            var toggleButton = document.getElementById('toggle-button');
-            var isClickInsideElement = layerSwitcher.contains(event.target) || toggleButton.contains(event.target);
-            if (!isClickInsideElement) {
-                layerSwitcher.style.display = 'none';
+        // Call the function initially to set the correct visibility
+        updateLayerVisibility();
+        function locateUser() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError, {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
             }
-        });
+        }
+        // Function to show the user's position
+        function showPosition(position) {
+            var userLat = position.coords.latitude;
+            var userLng = position.coords.longitude;
+            var userLatLng = L.latLng(userLat, userLng);
 
+            if (currentMarker) {
+                currentMarker.setLatLng(userLatLng);
+            } else {
+                currentMarker = L.marker(userLatLng, {icon: personIcon}).addTo(map);
+            }
 
+            map.setView(userLatLng, 17);
+        }
+        // Function to handle location errors
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
+        // Call locateUser to get the initial location
+        locateUser();
+
+        // Set up a watcher to update the location as the user moves
+        var watchID = navigator.geolocation.watchPosition(showPosition, showError, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        });               
     </script>
 </body>
 
