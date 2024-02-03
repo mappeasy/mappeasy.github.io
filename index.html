@@ -326,9 +326,13 @@
             }
 
             if (isFollowing) {
-                map.setView(userLatLng, map.getZoom(), { animate: false });
+                // Only set the view if the user position is outside the current bounds
+                if (!map.getBounds().contains(userLatLng)) {
+                    map.setView(userLatLng, map.getZoom(), { animate: false });
+                }
             }
-        }  // Function to toggle following user's location
+        }
+        // Function to toggle following user's location
                 function toggleLocationTracking() {
             if (document.getElementById('location-toggle').checked) {
                 isFollowing = true;
