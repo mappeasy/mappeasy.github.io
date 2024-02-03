@@ -174,15 +174,15 @@
     </div>
 
     <div class="location-toggle" style="position: absolute; bottom: 20px; left: 10px; z-index: 1001;">
-        <input type="checkbox" id="location-toggle" />
-        <label for="location-toggle">Track Location</label>
+        <input type="checkbox" id="location-toggle" checked /> <!-- Set checked attribute -->
+        <label for="location-toggle">Follow</label>
     </div>
     <!-- Include Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/esri-leaflet"></script>
     <script>
         var currentMarker = null; // Variable to store the current marker
-        var isFollowing = false; // Variable to track follow state
+        var isFollowing = true; // Variable to track follow state
         var watchID = null; // Variable to store the watch ID       
         var locationWatcher = null; 
 // SVG code for the person icon
@@ -290,6 +290,7 @@
 
         // Call the function initially to set the correct visibility
         updateLayerVisibility();
+        // Adjust the locateUser function
         function locateUser() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(showPosition, showError, {
@@ -297,12 +298,20 @@
                     timeout: 5000,
                     maximumAge: 0
                 });
+                if (!locationWatcher) {
+                    locationWatcher = navigator.geolocation.watchPosition(showPosition, showError, {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    });
+                }
             } else {
                 alert("Geolocation is not supported by this browser.");
             }
         }
         // Function to show the user's position
- // Function to show the user's position
+        // Function to show the user's position
+        // Adjust the showPosition function to account for following the user
         function showPosition(position) {
             var userLat = position.coords.latitude;
             var userLng = position.coords.longitude;
@@ -318,29 +327,31 @@
                 map.setView(userLatLng, map.getZoom());
             }
         }
-        // Function to toggle following user's location
+                // Function to toggle following user's location
         function toggleLocationTracking() {
             if (document.getElementById('location-toggle').checked) {
-                if (navigator.geolocation) {
+                // Start tracking and show marker
+                isFollowing = true;
+                if (!locationWatcher) {
                     locationWatcher = navigator.geolocation.watchPosition(showPosition, showError, {
                         enableHighAccuracy: true,
                         timeout: 5000,
                         maximumAge: 0
                     });
-                } else {
-                    alert("Geolocation is not supported by this browser.");
                 }
             } else {
+                // Stop tracking and remove marker
+                isFollowing = false;
                 if (locationWatcher !== null) {
                     navigator.geolocation.clearWatch(locationWatcher);
                     locationWatcher = null;
-                    if (currentMarker) {
-                        map.removeLayer(currentMarker);
-                        currentMarker = null;
-                    }
+                }
+                if (currentMarker) {
+                    map.removeLayer(currentMarker);
+                    currentMarker = null;
                 }
             }
-        }  
+        }
         document.getElementById('location-toggle').addEventListener('change', toggleLocationTracking);           
         // Function to handle location errors
         function showError(error) {
@@ -359,9 +370,9 @@
                     break;
             }
         }
-        // Call locateUser to get the initial location
         locateUser();
-
+        // Call locateUser to get the initial location
+        toggleLocationTracking();
         // Set up a watcher to update the location as the user moves
         var watchID = navigator.geolocation.watchPosition(showPosition, showError, {
             enableHighAccuracy: true,
