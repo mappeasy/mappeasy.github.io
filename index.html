@@ -1,104 +1,131 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>OpenLayers Map with Custom Layer Control and Search</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-		#mapid {
+        #mapid {
             position: absolute;
             top: 0;
             bottom: 0;
             left: 0;
             right: 0;
         }
+
         .custom-layer-switcher {
             position: absolute;
-            bottom: 40px; /* Adjusted to make room for the toggle button */
+            bottom: 40px;
+            /* Adjusted to make room for the toggle button */
             right: 10px;
             background: rgba(255, 255, 255, 0.8);
             border-radius: 4px;
             padding: 5px;
             z-index: 1000;
-            display: none; /* Initially hidden */
+            display: none;
+            /* Initially hidden */
         }
+
         .layer-group {
             margin-bottom: 5px;
         }
+
         .layer-group-title {
             font-weight: bold;
             margin-bottom: 5px;
         }
+
         .ol-attribution {
             bottom: 10px;
             left: 10px;
         }
-		.toggle-button {
-			position: absolute;
-			bottom: 10px;
-			right: 10px;
-			z-index: 1001;
-			cursor: pointer;
-			background-color: rgba(0, 60, 136, 0.7);
-			color: white;
-			padding: 10px 15px; /* Increased padding */
-			border-radius: 8px; /* Slightly larger border radius */
-			font-size: 20px; /* Larger font size */
-			width: auto; /* Auto width to accommodate larger text */
-			height: auto; /* Auto height for flexible sizing */
-		}
-	.search-box {
-		position: absolute;
-		top: 10px;
-		left: 50%;
-		transform: translateX(-50%);
-		z-index: 1002;
-		background: rgba(255, 255, 255, 0.1);
-		border-radius: 4px;
-		padding: 5px;
-		display: flex;
-		max-width: 400px; /* Maximum width */
-	}
-	.search-input {
-		padding: 5px;
-		font-size: 16px;
-		background: rgba(255, 255, 255, 0.7);
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		flex-grow: 1;
-		margin-right: 5px;
-	}
-	.search-button {
-		padding: 5px 10px;
-		font-size: 16px;
-		border: none;
-		border-radius: 4px;
-		background: rgba(76, 175, 80, 0.8);
-		color: white;
-		cursor: pointer;
-		display:none;
-	}
 
-	/* Responsive adjustments for mobile screens */
-@media (max-width: 600px) {
-    .search-box {
-        left: 10px; /* Adjusted to start a bit away from the left edge */
-        right: 10px; /* Adjusted to provide right margin */
-        top: 10px;
-        transform: none; /* Remove the transform property */
-    }
-    .search-input {
-        width: calc(100% - 20px); /* Full width minus the left and right padding */
-        display: block; /* Ensure the input is visible */
-        margin-bottom: 5px; /* Add margin at the bottom of the input */
-    }
-    .search-button {
-        display: none; /* Keep the button hidden */
-    }
-}
+        .toggle-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1001;
+            cursor: pointer;
+            background-color: rgba(0, 60, 136, 0.7);
+            color: white;
+            padding: 10px 15px;
+            /* Increased padding */
+            border-radius: 8px;
+            /* Slightly larger border radius */
+            font-size: 20px;
+            /* Larger font size */
+            width: auto;
+            /* Auto width to accommodate larger text */
+            height: auto;
+            /* Auto height for flexible sizing */
+        }
+
+        .search-box {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1002;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            padding: 5px;
+            display: flex;
+            max-width: 400px;
+            /* Maximum width */
+        }
+
+        .search-input {
+            padding: 5px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex-grow: 1;
+            margin-right: 5px;
+        }
+
+        .search-button {
+            padding: 5px 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(76, 175, 80, 0.8);
+            color: white;
+            cursor: pointer;
+            display: none;
+        }
+
+        /* Responsive adjustments for mobile screens */
+        @media (max-width: 600px) {
+            .search-box {
+                left: 10px;
+                /* Adjusted to start a bit away from the left edge */
+                right: 10px;
+                /* Adjusted to provide right margin */
+                top: 10px;
+                transform: none;
+                /* Remove the transform property */
+            }
+
+            .search-input {
+                width: calc(100% - 20px);
+                /* Full width minus the left and right padding */
+                display: block;
+                /* Ensure the input is visible */
+                margin-bottom: 5px;
+                /* Add margin at the bottom of the input */
+            }
+
+            .search-button {
+                display: none;
+                /* Keep the button hidden */
+            }
+        }
+
         .ol-popup {
             position: absolute;
             background-color: white;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
             padding: 15px;
             border-radius: 10px;
             border: 1px solid #cccccc;
@@ -106,7 +133,9 @@
             left: -50px;
             min-width: 280px;
         }
-        .ol-popup:after, .ol-popup:before {
+
+        .ol-popup:after,
+        .ol-popup:before {
             top: 100%;
             border: solid transparent;
             content: ' ';
@@ -115,18 +144,21 @@
             position: absolute;
             pointer-events: none;
         }
+
         .ol-popup:after {
             border-top-color: white;
             border-width: 10px;
             left: 48px;
             margin-left: -10px;
         }
+
         .ol-popup:before {
             border-top-color: #cccccc;
             border-width: 11px;
             left: 48px;
             margin-left: -11px;
         }
+
         .ol-marker {
             width: 20px;
             height: 20px;
@@ -134,118 +166,120 @@
             background-color: red;
             opacity: 0.9;
         }
-		#popup-close-btn {
-    border: none;
-    background-color: transparent;
-    font-weight: bold;
-    font-size: 1em;
-}
+
+        #popup-close-btn {
+            border: none;
+            background-color: transparent;
+            font-weight: bold;
+            font-size: 1em;
+        }
     </style>
     <link rel="stylesheet" href="https://openlayers.org/en/v6.5.0/css/ol.css" type="text/css">
     <script src="https://openlayers.org/en/v6.5.0/build/ol.js" type="text/javascript"></script>
 
 </head>
+
 <body>
-<div id="mapid"></div>
-<div class="search-box">
-    <input type="text" id="search-input" class="search-input" placeholder="Enter an address">
-    <button id="search-button" class="search-button">Search</button>
-</div>
-<div id="popup" class="ol-popup">
-<button id="popup-close-btn" style="float: right; cursor: pointer;">X</button>
-</div>
-
-<div class="toggle-button" id="toggle-button">Layers</div>
-<div class="custom-layer-switcher" id="layer-switcher">
-    <div class="layer-group">
-        <div class="layer-group-title">Layers</div>
-        <div><input type="checkbox" id="layer1-checkbox" checked> Gravity Main</div>
-        <div><input type="checkbox" id="layer2-checkbox" checked> Gravity Main Label</div>
-        <div><input type="checkbox" id="layer3-checkbox" checked> Manhole</div>
-        <div><input type="checkbox" id="layer4-checkbox" checked> Manhole Label</div>
-        <div><input type="checkbox" id="layer5-checkbox" checked> LS/WWTP</div>
-        <div><input type="checkbox" id="layer6-checkbox" checked> LS/WWTP Label</div>
-        <!-- Add more layers as needed -->
+    <div id="mapid"></div>
+    <div class="search-box">
+        <input type="text" id="search-input" class="search-input" placeholder="Enter an address">
+        <button id="search-button" class="search-button">Search</button>
     </div>
-</div>
+    <div id="popup" class="ol-popup">
+        <button id="popup-close-btn" style="float: right; cursor: pointer;">X</button>
+    </div>
 
-<script>
-var currentMarker = null;
-    var map = new ol.Map({
-        target: 'mapid',
-        layers: [
-            new ol.layer.Tile({
-                source: new ol.source.OSM(),
-                title: 'Base Layer'
+    <div class="toggle-button" id="toggle-button">Layers</div>
+    <div class="custom-layer-switcher" id="layer-switcher">
+        <div class="layer-group">
+            <div class="layer-group-title">Layers</div>
+            <div><input type="checkbox" id="layer1-checkbox" checked> Gravity Main</div>
+            <div><input type="checkbox" id="layer2-checkbox" checked> Gravity Main Label</div>
+            <div><input type="checkbox" id="layer3-checkbox" checked> Manhole</div>
+            <div><input type="checkbox" id="layer4-checkbox" checked> Manhole Label</div>
+            <div><input type="checkbox" id="layer5-checkbox" checked> LS/WWTP</div>
+            <div><input type="checkbox" id="layer6-checkbox" checked> LS/WWTP Label</div>
+            <!-- Add more layers as needed -->
+        </div>
+    </div>
+
+    <script>
+        var currentMarker = null;
+        var map = new ol.Map({
+            target: 'mapid',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM(),
+                    title: 'Base Layer'
+                }),
+                new ol.layer.Tile({
+                    source: new ol.source.TileArcGISRest({
+                        url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
+                        params: { LAYERS: 'show:1' }
+                    }),
+                    title: 'Gravity Main',
+                    visible: true // Initially hidden
+                }),
+                new ol.layer.Tile({
+                    source: new ol.source.TileArcGISRest({
+                        url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
+                        params: { LAYERS: 'show:2' }
+                    }),
+                    title: 'Gravity Main Label',
+                    visible: true // Initially hidden
+                }),
+                new ol.layer.Tile({
+                    source: new ol.source.TileArcGISRest({
+                        url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
+                        params: { LAYERS: 'show:12' }
+                    }),
+                    title: 'Manhole',
+                    visible: true // Initially hidden
+                }),
+                new ol.layer.Tile({
+                    source: new ol.source.TileArcGISRest({
+                        url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
+                        params: { LAYERS: 'show:13' }
+                    }),
+                    title: 'Manhole Label',
+                    visible: true // Initially hidden
+                }),
+                new ol.layer.Tile({
+                    source: new ol.source.TileArcGISRest({
+                        url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
+                        params: { LAYERS: 'show:16' }
+                    }),
+                    title: 'LS/WWTP Label',
+                    visible: true // Initially hidden
+                }),
+                new ol.layer.Tile({
+                    source: new ol.source.TileArcGISRest({
+                        url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
+                        params: { LAYERS: 'show:17' }
+                    }),
+                    title: 'LS/WWTP Label',
+                    visible: true // Initially hidden
+                }),
+                // Add more layers here
+            ],
+            controls: [],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([-95.3698, 29.7604]),
+                zoom: 11
             }),
-            new ol.layer.Tile({
-                source: new ol.source.TileArcGISRest({
-                    url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
-                    params: {LAYERS: 'show:1'}
-                }),
-                title: 'Gravity Main',
-                visible: true // Initially hidden
-            }),
-            new ol.layer.Tile({
-                source: new ol.source.TileArcGISRest({
-                    url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
-                    params: {LAYERS: 'show:2'}
-                }),
-                title: 'Gravity Main Label',
-                visible: true // Initially hidden
-            }),
-			new ol.layer.Tile({
-                source: new ol.source.TileArcGISRest({
-                    url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
-                    params: {LAYERS: 'show:12'}
-                }),
-                title: 'Manhole',
-                visible: true // Initially hidden
-            }),
-            new ol.layer.Tile({
-                source: new ol.source.TileArcGISRest({
-                    url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
-                    params: {LAYERS: 'show:13'}
-                }),
-                title: 'Manhole Label',
-                visible: true // Initially hidden
-            }),	
-			new ol.layer.Tile({
-                source: new ol.source.TileArcGISRest({
-                    url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
-                    params: {LAYERS: 'show:16'}
-                }),
-                title: 'LS/WWTP Label',
-                visible: true // Initially hidden
-            }),
-            new ol.layer.Tile({
-                source: new ol.source.TileArcGISRest({
-                    url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer',
-                    params: {LAYERS: 'show:17'}
-                }),
-                title: 'LS/WWTP Label',
-                visible: true // Initially hidden
-            }),				
-            // Add more layers here
-        ],
-		controls: [], 
-        view: new ol.View({
-            center: ol.proj.fromLonLat([-95.3698, 29.7604]),
-            zoom: 11
-        }),
-        overlays: [new ol.Overlay({
-            element: document.getElementById('popup'),
-            positioning: 'bottom-center',
-            stopEvent: false,
-            offset: [0, -20]
-        })]
-    });
-	
+            overlays: [new ol.Overlay({
+                element: document.getElementById('popup'),
+                positioning: 'bottom-center',
+                stopEvent: false,
+                offset: [0, -20]
+            })]
+        });
+
         // Function to handle successful retrieval of the location
         function success(position) {
             var coordinates = [position.coords.longitude, position.coords.latitude];
             var olCoordinates = ol.proj.fromLonLat(coordinates);
-            map.getView().animate({center: olCoordinates, zoom: 17});
+            map.getView().animate({ center: olCoordinates, zoom: 17 });
         }
 
         // Function to handle errors in geolocation
@@ -260,142 +294,143 @@ var currentMarker = null;
         } else {
             alert("Geolocation is not supported by this browser.");
         }
-var geolocation = new ol.Geolocation({
-    tracking: true,
-    trackingOptions: {
-        enableHighAccuracy: true,
-        maximumAge: 10000,
-        timeout: 600000
-    },
-    projection: map.getView().getProjection()
-});
+        var geolocation = new ol.Geolocation({
+            tracking: true,
+            trackingOptions: {
+                enableHighAccuracy: true,
+                maximumAge: 10000,
+                timeout: 600000
+            },
+            projection: map.getView().getProjection()
+        });
 
-// handle geolocation error.
-geolocation.on('error', function(error) {
-    alert('Geolocation error: ' + error.message);
-});
+        // handle geolocation error.
+        geolocation.on('error', function (error) {
+            alert('Geolocation error: ' + error.message);
+        });
 
-var accuracyFeature = new ol.Feature();
-geolocation.on('change:accuracyGeometry', function() {
-    accuracyFeature.setGeometry(geolocation.getAccuracyGeometry());
-});
+        var accuracyFeature = new ol.Feature();
+        geolocation.on('change:accuracyGeometry', function () {
+            accuracyFeature.setGeometry(geolocation.getAccuracyGeometry());
+        });
 
-var positionFeature = new ol.Feature();
-positionFeature.setStyle(new ol.style.Style({
-    image: new ol.style.Circle({
-        radius: 6,
-        fill: new ol.style.Fill({
-            color: '#3399CC'
-        }),
-        stroke: new ol.style.Stroke({
-            color: '#fff',
-            width: 2
-        })
-    })
-}));
-
-geolocation.on('change:position', function() {
-    var coordinates = geolocation.getPosition();
-    positionFeature.setGeometry(coordinates ?
-        new ol.geom.Point(coordinates) : null);
-    map.getView().animate({center: coordinates, zoom: 17});
-});
-new ol.layer.Vector({
-    map: map,
-    source: new ol.source.Vector({
-        features: [accuracyFeature, positionFeature]
-    })
-});
-    var popupElement = document.getElementById('popup');
-
-    function handleSearch() {
-        var address = document.getElementById('search-input').value;
-        fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(address))
-            .then(function(response) { return response.json(); })
-            .then(function(json) {
-                if (json.length > 0) {
-                    var coordinates = ol.proj.fromLonLat([json[0].lon, json[0].lat]);
-                    map.getView().animate({center: coordinates, zoom: 17});
-
-                    var markerElement = document.createElement('div');
-                    markerElement.className = 'ol-marker';
-                    var marker = new ol.Overlay({
-                        position: coordinates,
-                        element: markerElement
-                    });
-					if (currentMarker) {
-							map.removeOverlay(currentMarker);
-						}
-						currentMarker = marker;
-					map.addOverlay(marker);
-
-                    popupElement.innerHTML = '<b>Address:</b><br>' + json[0].display_name;
-                    var popup = new ol.Overlay({
-                        element: popupElement,
-                        positioning: 'bottom-center',
-                        stopEvent: false,
-                        offset: [0, -20]
-                    });
-                    popup.setPosition(coordinates);
-                    map.addOverlay(popup);
-                } else {
-                    alert('Address not found.');
-                }
+        var positionFeature = new ol.Feature();
+        positionFeature.setStyle(new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 6,
+                fill: new ol.style.Fill({
+                    color: '#3399CC'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: '#fff',
+                    width: 2
+                })
             })
-            .catch(function(error) {
-                alert('Error during search: ' + error.message);
-            });
-    }
-	document.getElementById('popup-close-btn').addEventListener('click', function() {
-		if (currentMarker) {
-			map.removeOverlay(currentMarker);
-			currentMarker = null;
-		}
-		popupElement.style.display = 'none';
-	});
-    document.getElementById('search-button').addEventListener('click', handleSearch);
-    document.getElementById('search-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            handleSearch();
+        }));
+
+        geolocation.on('change:position', function () {
+            var coordinates = geolocation.getPosition();
+            positionFeature.setGeometry(coordinates ?
+                new ol.geom.Point(coordinates) : null);
+            map.getView().animate({ center: coordinates, zoom: 17 });
+        });
+        new ol.layer.Vector({
+            map: map,
+            source: new ol.source.Vector({
+                features: [accuracyFeature, positionFeature]
+            })
+        });
+        var popupElement = document.getElementById('popup');
+
+        function handleSearch() {
+            var address = document.getElementById('search-input').value;
+            fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(address))
+                .then(function (response) { return response.json(); })
+                .then(function (json) {
+                    if (json.length > 0) {
+                        var coordinates = ol.proj.fromLonLat([json[0].lon, json[0].lat]);
+                        map.getView().animate({ center: coordinates, zoom: 17 });
+
+                        var markerElement = document.createElement('div');
+                        markerElement.className = 'ol-marker';
+                        var marker = new ol.Overlay({
+                            position: coordinates,
+                            element: markerElement
+                        });
+                        if (currentMarker) {
+                            map.removeOverlay(currentMarker);
+                        }
+                        currentMarker = marker;
+                        map.addOverlay(marker);
+
+                        popupElement.innerHTML = '<b>Address:</b><br>' + json[0].display_name;
+                        var popup = new ol.Overlay({
+                            element: popupElement,
+                            positioning: 'bottom-center',
+                            stopEvent: false,
+                            offset: [0, -20]
+                        });
+                        popup.setPosition(coordinates);
+                        map.addOverlay(popup);
+                    } else {
+                        alert('Address not found.');
+                    }
+                })
+                .catch(function (error) {
+                    alert('Error during search: ' + error.message);
+                });
         }
-    });
+        document.getElementById('popup-close-btn').addEventListener('click', function () {
+            if (currentMarker) {
+                map.removeOverlay(currentMarker);
+                currentMarker = null;
+            }
+            popupElement.style.display = 'none';
+        });
+        document.getElementById('search-button').addEventListener('click', handleSearch);
+        document.getElementById('search-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
 
-    document.getElementById('layer1-checkbox').addEventListener('change', function (e) {
-        map.getLayers().item(1).setVisible(e.target.checked);
-    });
-    document.getElementById('layer2-checkbox').addEventListener('change', function (e) {
-        map.getLayers().item(2).setVisible(e.target.checked);
-    });
-    document.getElementById('layer3-checkbox').addEventListener('change', function (e) {
-        map.getLayers().item(3).setVisible(e.target.checked);
-    });
-    document.getElementById('layer4-checkbox').addEventListener('change', function (e) {
-        map.getLayers().item(4).setVisible(e.target.checked);
-    });
-    document.getElementById('layer5-checkbox').addEventListener('change', function (e) {
-        map.getLayers().item(5).setVisible(e.target.checked);
-    });
-    document.getElementById('layer6-checkbox').addEventListener('change', function (e) {
-        map.getLayers().item(6).setVisible(e.target.checked);
-    });	
+        document.getElementById('layer1-checkbox').addEventListener('change', function (e) {
+            map.getLayers().item(1).setVisible(e.target.checked);
+        });
+        document.getElementById('layer2-checkbox').addEventListener('change', function (e) {
+            map.getLayers().item(2).setVisible(e.target.checked);
+        });
+        document.getElementById('layer3-checkbox').addEventListener('change', function (e) {
+            map.getLayers().item(3).setVisible(e.target.checked);
+        });
+        document.getElementById('layer4-checkbox').addEventListener('change', function (e) {
+            map.getLayers().item(4).setVisible(e.target.checked);
+        });
+        document.getElementById('layer5-checkbox').addEventListener('change', function (e) {
+            map.getLayers().item(5).setVisible(e.target.checked);
+        });
+        document.getElementById('layer6-checkbox').addEventListener('change', function (e) {
+            map.getLayers().item(6).setVisible(e.target.checked);
+        });
 
-    // Toggle layer switcher visibility
-    document.getElementById('toggle-button').addEventListener('click', function() {
-        var layerSwitcher = document.getElementById('layer-switcher');
-        layerSwitcher.style.display = layerSwitcher.style.display === 'none' ? 'block' : 'none';
-    });
+        // Toggle layer switcher visibility
+        document.getElementById('toggle-button').addEventListener('click', function () {
+            var layerSwitcher = document.getElementById('layer-switcher');
+            layerSwitcher.style.display = layerSwitcher.style.display === 'none' ? 'block' : 'none';
+        });
 
-    // Click outside to collapse the layer switcher
-    document.addEventListener('click', function(event) {
-        var layerSwitcher = document.getElementById('layer-switcher');
-        var toggleButton = document.getElementById('toggle-button');
-        var isClickInsideElement = layerSwitcher.contains(event.target) || toggleButton.contains(event.target);
-        if (!isClickInsideElement) {
-            layerSwitcher.style.display = 'none';
-        }
-    });
+        // Click outside to collapse the layer switcher
+        document.addEventListener('click', function (event) {
+            var layerSwitcher = document.getElementById('layer-switcher');
+            var toggleButton = document.getElementById('toggle-button');
+            var isClickInsideElement = layerSwitcher.contains(event.target) || toggleButton.contains(event.target);
+            if (!isClickInsideElement) {
+                layerSwitcher.style.display = 'none';
+            }
+        });
 
 
-</script>
+    </script>
 </body>
+
 </html>
