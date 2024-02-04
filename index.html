@@ -289,9 +289,9 @@
                 currentMarker = L.marker(userLatLng, { icon: personIcon }).addTo(map);
             }
 
-            // Update the map view if following is enabled
+            // Only update the map view if following is enabled
             if (isFollowing) {
-                map.setView(userLatLng, map.getZoom(), { animate: false });
+                map.setView(userLatLng, map.getZoom(), { animate: true });
             }
         }
         // Function to toggle following user's location
