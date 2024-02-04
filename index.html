@@ -15,10 +15,7 @@
             right: 0;
         }
 
-        .custom-layer-switcher,
-        .toggle-button,
-        .search-box,
-        .location-toggle {
+        .custom-layer-switcher, .toggle-button, .search-box, .location-toggle {
             position: absolute;
             z-index: 1001;
             background: rgba(255, 255, 255, 0.8);
@@ -50,8 +47,7 @@
             background-color: rgba(189, 208, 231, 0.1);
         }
 
-        .search-input,
-        .search-button {
+        .search-input, .search-button {
             padding: 5px;
             font-size: 16px;
             border-radius: 4px;
@@ -122,14 +118,14 @@
             transition: 0.3s;
         }
 
-        .location-toggle input:checked+label {
+        .location-toggle input:checked + label {
             background: #bada55;
         }
 
-        .location-toggle input:checked+label:after {
+        .location-toggle input:checked + label:after {
             left: calc(100% - 2px);
             transform: translateX(-100%);
-        }
+        }            
     </style>
 </head>
 
@@ -151,9 +147,9 @@
         var currentMarker = null; // Variable to store the current marker
         var isFollowing = true; // Variable to track follow state
         var watchID = null; // Variable to store the watch ID       
-        var locationWatcher = null;
-        // SVG code for the person icon
-        var personSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="blue" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        var locationWatcher = null; 
+// SVG code for the person icon
+    var personSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="blue" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="8" r="4"></circle> <!-- Head -->
                     <line x1="12" y1="12" x2="12" y2="20"></line> <!-- Body -->
                     <line x1="12" y1="20" x2="9" y2="23"></line> <!-- Left leg -->
@@ -162,14 +158,14 @@
                     <line x1="12" y1="14" x2="15" y2="16"></line> <!-- Right arm -->
                 </svg>
                 `;
-        // Custom divIcon for the person-shaped marker
-        var personIcon = L.divIcon({
-            className: 'custom-person-icon',
-            html: personSvg,
-            iconSize: [30, 30],
-            iconAnchor: [15, 30],
-            popupAnchor: [0, -30]
-        });
+    // Custom divIcon for the person-shaped marker
+    var personIcon = L.divIcon({
+        className: 'custom-person-icon',
+        html: personSvg,
+        iconSize: [30, 30],
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30]
+    });                
         // Create Leaflet Map
         var map = L.map('mapid', {
             zoomControl: false, // This will remove the default zoom control
@@ -203,14 +199,14 @@
         };
 
         L.control.layers(null, overlays, {
-            position: 'bottomright' // This will position the layer control at the bottom right
-        }).addTo(map);
+                position: 'bottomright' // This will position the layer control at the bottom right
+            }).addTo(map);
         // Example: Adding a custom Tile Layer (replace with your own)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(customLayers);
 
         // Handle Search (update this part for Leaflet)
-        // Handle Search without removing the person icon
-        function handleSearch() {
+    // Handle Search without removing the person icon
+    function handleSearch() {
             var address = document.getElementById('search-input').value;
             fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(address))
                 .then(function (response) { return response.json(); })
@@ -301,30 +297,30 @@
         // Function to toggle following user's location
         // Function to toggle location tracking
         function toggleLocationTracking() {
-            if (document.getElementById('location-toggle').checked) {
-                // Start tracking and show marker
-                isFollowing = true;
-                if (!watchID) {
-                    watchID = navigator.geolocation.watchPosition(showPosition, showError, {
-                        enableHighAccuracy: true,
-                        timeout: 5000,
-                        maximumAge: 0
-                    });
-                }
-            } else {
-                // Stop tracking and remove marker
-                isFollowing = false;
-                if (watchID) {
-                    navigator.geolocation.clearWatch(watchID);
-                    watchID = null;
-                }
-                if (currentMarker) {
-                    map.removeLayer(currentMarker);
-                    currentMarker = null;
+                if (document.getElementById('location-toggle').checked) {
+                    // Start tracking and show marker
+                    isFollowing = true;
+                    if (!watchID) {
+                        watchID = navigator.geolocation.watchPosition(showPosition, showError, {
+                            enableHighAccuracy: true,
+                            timeout: 5000,
+                            maximumAge: 0
+                        });
+                    }
+                } else {
+                    // Stop tracking and remove marker
+                    isFollowing = false;
+                    if (watchID) {
+                        navigator.geolocation.clearWatch(watchID);
+                        watchID = null;
+                    }
+                    if (currentMarker) {
+                        map.removeLayer(currentMarker);
+                        currentMarker = null;
+                    }
                 }
             }
-        }
-        document.getElementById('location-toggle').addEventListener('change', toggleLocationTracking);
+        document.getElementById('location-toggle').addEventListener('change', toggleLocationTracking);           
         // Function to handle location errors
         function showError(error) {
             switch (error.code) {
@@ -346,36 +342,8 @@
         // Call locateUser to get the initial location
         toggleLocationTracking();
         // Set up a watcher to update the location as the user moves
-        //document.getElementById('toggle-button').style.right = 'auto';       
-
-        function onFeatureClick(e) {
-            console.log("esting")
-            var layer = e.layer;
-            var layerUrl = layer.options.url;
-
-            // Query for the feature data
-            L.esri.query({ url: layerUrl })
-                .nearby(e.latlng, 10) // You may need to adjust the tolerance
-                .run(function (error, featureCollection) {
-                    if (error) {
-                        console.log(error);
-                        return;
-                    }
-
-                    if (featureCollection.features.length > 0) {
-                        var featureProperties = featureCollection.features[0].properties;
-                        var popupContent = "<div>Manhole ID: " + featureProperties.ID + "</div>"; // Modify as per your attribute names
-                        // More attributes can be added to popupContent here
-
-                        // Show the popup
-                        L.popup()
-                            .setLatLng(e.latlng)
-                            .setContent(popupContent)
-                            .openOn(map);
-                    }
-                });
-        }
-        manholeLayer.on('click', onFeatureClick);
+       //document.getElementById('toggle-button').style.right = 'auto';       
+       
     </script>
 </body>
 
