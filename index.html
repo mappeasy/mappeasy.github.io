@@ -201,8 +201,6 @@
         L.control.layers(null, overlays, {
                 position: 'bottomright' // This will position the layer control at the bottom right
             }).addTo(map);
-        // Example: Adding a custom Tile Layer (replace with your own)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(customLayers);
 
         // Handle Search (update this part for Leaflet)
     // Handle Search without removing the person icon
@@ -274,52 +272,45 @@
                 alert("Geolocation is not supported by this browser.");
             }
         }
-        // Function to show the user's position
-        // Function to show the user's position
-        // Adjust the showPosition function to account for following the user
         function showPosition(position) {
-            var userLat = position.coords.latitude;
-            var userLng = position.coords.longitude;
-            var userLatLng = L.latLng(userLat, userLng);
+    var userLat = position.coords.latitude;
+    var userLng = position.coords.longitude;
+    var userLatLng = L.latLng(userLat, userLng);
 
-            // Update the current marker or create a new one if it doesn't exist
-            if (currentMarker) {
-                currentMarker.setLatLng(userLatLng);
-            } else {
-                currentMarker = L.marker(userLatLng, { icon: personIcon }).addTo(map);
-            }
+    if (!currentMarker) {
+        currentMarker = L.marker(userLatLng, { icon: personIcon }).addTo(map);
+    } else {
+        currentMarker.setLatLng(userLatLng);
+    }
 
-            // Only update the map view if following is enabled
-            if (isFollowing) {
-                map.setView(userLatLng, map.getZoom(), { animate: true });
-            }
+    if (isFollowing) {
+        map.setView(userLatLng, map.getZoom(), { animate: true });
+    }
+}
+            // Function to toggle location tracking
+// Function to start or stop following the user's location
+function toggleLocationTracking() {
+    isFollowing = document.getElementById('location-toggle').checked;
+
+    if (isFollowing) {
+        if (!watchID) {
+            watchID = navigator.geolocation.watchPosition(showPosition, showError, {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            });
         }
-        // Function to toggle following user's location
-        // Function to toggle location tracking
-        function toggleLocationTracking() {
-                if (document.getElementById('location-toggle').checked) {
-                    // Start tracking and show marker
-                    isFollowing = true;
-                    if (!watchID) {
-                        watchID = navigator.geolocation.watchPosition(showPosition, showError, {
-                            enableHighAccuracy: true,
-                            timeout: 5000,
-                            maximumAge: 0
-                        });
-                    }
-                } else {
-                    // Stop tracking and remove marker
-                    isFollowing = false;
-                    if (watchID) {
-                        navigator.geolocation.clearWatch(watchID);
-                        watchID = null;
-                    }
-                    if (currentMarker) {
-                        map.removeLayer(currentMarker);
-                        currentMarker = null;
-                    }
-                }
-            }
+    } else {
+        if (watchID) {
+            navigator.geolocation.clearWatch(watchID);
+            watchID = null;
+        }
+        if (currentMarker) {
+            map.removeLayer(currentMarker);
+            currentMarker = null;
+        }
+    }
+}
         document.getElementById('location-toggle').addEventListener('change', toggleLocationTracking);           
         // Function to handle location errors
         function showError(error) {
