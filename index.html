@@ -2,202 +2,238 @@
 <html>
 
 <head>
-    <title>Leaflet Map with OpenStreetMap Nominatim Geocoding</title>
-    <meta charset="utf-8" />
+    <title>Local Assets With Local Easy Peasy Map tool</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Leaflet CSS -->
+    <!-- Include Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-
     <style>
-        body,
-        html {
-            padding: 0;
-            margin: 0;
-            height: 100%;
+        #mapid {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
         }
 
-        #map {
-            width: 100vw;
-            height: 100vh;
+        .custom-layer-switcher, .toggle-button, .search-box, .location-toggle {
+            position: absolute;
+            z-index: 1001;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 4px;
+            padding: 5px;
+        }
+
+        .custom-layer-switcher {
+            bottom: 40px;
+            right: 10px;
+            display: none;
+        }
+
+        .toggle-button {
+            bottom: 5px;
+            right: 5px;
+            cursor: pointer;
+            background-color: rgba(189, 208, 231, 0.8);
+            color: blue;
+            font-size: 20px;
         }
 
         .search-box {
-            position: absolute;
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 1002;
-            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            max-width: 400px;
+            background-color: rgba(189, 208, 231, 0.1);
+        }
+
+        .search-input, .search-button {
             padding: 5px;
-            border-radius: 5px;
+            font-size: 16px;
+            border-radius: 4px;
         }
 
-        #search-input {
-            padding: 5px;
-            width: 300px;
-            background: rgba(255, 255, 255, 0.5);
+        .search-input {
+            flex-grow: 1;
+            margin-right: 5px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid #ccc;
         }
 
-        .gps-switch-container {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            z-index: 1000;
-        }
-
-        /* The switch - the box around the slider */
-        .gps-switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        /* Hide default HTML checkbox */
-        .gps-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        /* The slider */
-        .slider {
-            position: absolute;
+        .search-button {
+            display: none;
+            background: rgba(76, 175, 80, 0.8);
+            color: white;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            -webkit-transition: .4s;
-            transition: .4s;
+            border: none;
         }
 
-        .slider:before {
+        @media (max-width: 600px) {
+            .search-box {
+                left: 10px;
+                right: 10px;
+                top: 10px;
+                transform: none;
+            }
+
+            .search-input {
+                width: calc(100% - 20px);
+                margin-bottom: 5px;
+            }
+        }
+
+        .location-toggle {
+            bottom: 20px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0);
+        }
+
+        /* Simplified toggle switch styles */
+        .location-toggle input[type="checkbox"] {
+            height: 0;
+            width: 0;
+            visibility: hidden;
+        }
+
+        .location-toggle label {
+            cursor: pointer;
+            text-indent: -9999px;
+            width: 50px;
+            height: 25px;
+            background: grey;
+            display: block;
+            border-radius: 100px;
+            position: relative;
+        }
+
+        .location-toggle label:after {
+            content: '';
             position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            -webkit-transition: .4s;
-            transition: .4s;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 21px;
+            background: #fff;
+            border-radius: 90px;
+            transition: 0.3s;
         }
 
-        input:checked+.slider {
-            background-color: #2196F3;
+        .location-toggle input:checked + label {
+            background: #bada55;
         }
 
-        input:focus+.slider {
-            box-shadow: 0 0 1px #2196F3;
-        }
-
-        input:checked+.slider:before {
-            -webkit-transform: translateX(26px);
-            -ms-transform: translateX(26px);
-            transform: translateX(26px);
-        }
-
-        /* Rounded sliders */
-        .slider.round {
-            border-radius: 34px;
-        }
-
-        .slider.round:before {
-            border-radius: 50%;
-        }
+        .location-toggle input:checked + label:after {
+            left: calc(100% - 2px);
+            transform: translateX(-100%);
+        }            
     </style>
 </head>
 
 <body>
-
-    <div id="map"></div>
+    <div id="mapid"></div>
     <div class="search-box">
-        <input type="text" id="search-input" placeholder="Enter an address...">
+        <input type="text" id="search-input" class="search-input" placeholder="Enter an address">
+        <button id="search-button" class="search-button">Search</button>
     </div>
-    <div class="gps-switch-container">
-        <label class="gps-switch">
-            <input type="checkbox" id="gps-toggle">
-            <span class="slider round"></span>
-        </label>
+
+    <div class="location-toggle" style="position: absolute; bottom: 20px; left: 10px; z-index: 1001;">
+        <input type="checkbox" id="location-toggle" checked /> <!-- Set checked attribute -->
+        <label for="location-toggle">Follow</label>
     </div>
-    <!-- Leaflet JavaScript -->
+    <!-- Include Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-
-    <!-- Esri Leaflet -->
     <script src="https://unpkg.com/esri-leaflet"></script>
-
     <script>
+        var currentMarker = null; // Variable to store the current marker
+        var isFollowing = true; // Variable to track follow state
+        var watchID = null; // Variable to store the watch ID       
+        var locationWatcher = null; 
+// SVG code for the person icon
+    var personSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="blue" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="4"></circle> <!-- Head -->
+                    <line x1="12" y1="12" x2="12" y2="20"></line> <!-- Body -->
+                    <line x1="12" y1="20" x2="9" y2="23"></line> <!-- Left leg -->
+                    <line x1="12" y1="20" x2="15" y2="23"></line> <!-- Right leg -->
+                    <line x1="12" y1="14" x2="9" y2="16"></line> <!-- Left arm -->
+                    <line x1="12" y1="14" x2="15" y2="16"></line> <!-- Right arm -->
+                </svg>
+                `;
+    // Custom divIcon for the person-shaped marker
+    var personIcon = L.divIcon({
+        className: 'custom-person-icon',
+        html: personSvg,
+        iconSize: [30, 30],
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30]
+    });                
         // Create Leaflet Map
-        var map = L.map('map', {
+        var map = L.map('mapid', {
             zoomControl: false, // This will remove the default zoom control
             center: [29.7604, -95.3698],
             zoom: 11
         });
-
-        // Base layer
+        // Add OpenStreetMap Base Layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Esri layers
-        var gravityMainLayer = L.esri.dynamicMapLayer({ url: "https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", layers: [1] }).addTo(map);
-        var gravityMainLabelLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [2] }).addTo(map);
-        var manholeLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [12] }).addTo(map);
-        var manholeLabelLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [13] }).addTo(map);
-        var lsWwtpLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [16] }).addTo(map);
-        var lsWwtpLabelLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [17] }).addTo(map);
+        //L.esri.dynamicMapLayer
+        // Add the GIS layers
+        var gravityMainLayer = L.esri.dynamicMapLayer({ url: "https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", layers: [1] }).addTo(map);;
+        var gravityMainLabelLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [2] }).addTo(map);;
+        var manholeLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [12] }).addTo(map);;
+        var manholeLabelLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [13] }).addTo(map);;
+        var lsWwtpLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [16] }).addTo(map);;
+        var lsWwtpLabelLayer = L.esri.dynamicMapLayer({ url: 'https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', layers: [17] }).addTo(map);;
 
-        // Layer control
-        var baseLayers = {
-            "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
-        };
+        // Create a Layer Group for your custom layers
+        var customLayers = L.layerGroup().addTo(map);
         var overlays = {
+            "Manhole Label": manholeLabelLayer,
+            "Gravity Main Label": gravityMainLabelLayer,
+            "LiftStation/WWTP Label": lsWwtpLabelLayer,
+            "Manhole": manholeLayer,
             "Gravity Main": gravityMainLayer,
-            "Gravity Main Labels": gravityMainLabelLayer,
-            "Manholes": manholeLayer,
-            "Manhole Labels": manholeLabelLayer,
-            "Lift Stations": lsWwtpLayer,
-            "Lift Station Labels": lsWwtpLabelLayer
+            "LiftStation/WWTP": lsWwtpLayer,
         };
-        L.control.layers(baseLayers, overlays, { position: 'bottomright' }).addTo(map);
 
-        // Nominatim Geocoding
-        var marker;
-        function geocode() {
-            var input = document.getElementById('search-input').value;
-            var url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input)}`;
+        L.control.layers(null, overlays, {
+                position: 'bottomright' // This will position the layer control at the bottom right
+            }).addTo(map);
+        // Example: Adding a custom Tile Layer (replace with your own)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(customLayers);
 
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.length > 0) {
-                        var place = data[0];
-                        if (marker) {
-                            map.removeLayer(marker);
+        // Handle Search (update this part for Leaflet)
+    // Handle Search without removing the person icon
+    function handleSearch() {
+            var address = document.getElementById('search-input').value;
+            fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(address))
+                .then(function (response) { return response.json(); })
+                .then(function (json) {
+                    if (json.length > 0) {
+                        var latlng = L.latLng(json[0].lat, json[0].lon);
+                        map.setView(latlng, 17);
+                        if (currentMarker) {
+                            currentMarker.setLatLng(latlng);
+                            currentMarker.bindPopup('<b></b><br>' + json[0].display_name).openPopup();
                         }
-                        marker = L.marker([place.lat, place.lon]).addTo(map);
-                        marker.bindPopup('<b></b><br>' + data[0].display_name).openPopup();
-                        map.setView([place.lat, place.lon], 15);
                     } else {
-                        alert("Address not found");
+                        alert('Address not found.');
                     }
                 })
-                .catch(err => {
-                    console.error(err);
-                    alert("Error searching for address");
+                .catch(function (error) {
+                    alert('Error during search: ' + error.message);
                 });
         }
-        document.getElementById('search-input').addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                geocode();
+
+        // Add Event Listeners (similar to your existing code)
+        document.getElementById('search-button').addEventListener('click', handleSearch);
+        document.getElementById('search-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                handleSearch();
             }
         });
-
         function updateLayerVisibility() {
             var currentZoom = map.getZoom();
             console.log("Current Zoom Level:", currentZoom);
@@ -217,55 +253,98 @@
 
         // Call the function initially to set the correct visibility
         updateLayerVisibility();
-
-        var gpsMarker;
-        var watchID;
-        var humanIcon = L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/mappeasy/mappeasy.github.io/main/person_map_blue.svg',
-            iconSize: [18, 30],
-            iconAnchor: [18, 30],
-            popupAnchor: [0, -30]
-        });
-        document.getElementById('gps-toggle').addEventListener('change', function () {
-            if (this.checked) {
-                startGPSTracking();
-            } else {
-                stopGPSTracking();
-            }
-        });
-        function startGPSTracking() {
+        // Adjust the locateUser function
+        function locateUser() {
             if (navigator.geolocation) {
-                watchID = navigator.geolocation.watchPosition(function (position) {
-                    var latlng = L.latLng(position.coords.latitude, position.coords.longitude);
-                    if (!gpsMarker) {
-                        gpsMarker = L.marker(latlng, { icon: humanIcon }).addTo(map);
-                    } else {
-                        gpsMarker.setLatLng(latlng);
+                if (isFollowing) {
+                    if (!locationWatcher) {
+                        locationWatcher = navigator.geolocation.watchPosition(showPosition, showError, {
+                            enableHighAccuracy: true,
+                            timeout: 5000,
+                            maximumAge: 0
+                        });
                     }
-                    map.setView(latlng, map.getZoom());
-                }, function (err) {
-                    console.warn(`ERROR(${err.code}): ${err.message}`);
-                }, {
-                    enableHighAccuracy: true,
-                    timeout: 5000,
-                    maximumAge: 0
-                });
+                } else {
+                    if (locationWatcher) {
+                        navigator.geolocation.clearWatch(locationWatcher);
+                        locationWatcher = null;
+                    }
+                }
             } else {
                 alert("Geolocation is not supported by this browser.");
             }
         }
+        // Function to show the user's position
+        // Function to show the user's position
+        // Adjust the showPosition function to account for following the user
+        function showPosition(position) {
+            var userLat = position.coords.latitude;
+            var userLng = position.coords.longitude;
+            var userLatLng = L.latLng(userLat, userLng);
 
-        function stopGPSTracking() {
-            if (navigator.geolocation) {
-                navigator.geolocation.clearWatch(watchID);
+            // Update the current marker or create a new one if it doesn't exist
+            if (currentMarker) {
+                currentMarker.setLatLng(userLatLng);
+            } else {
+                currentMarker = L.marker(userLatLng, { icon: personIcon }).addTo(map);
             }
-            if (gpsMarker) {
-                map.removeLayer(gpsMarker);
-                gpsMarker = null;
+
+            // Only update the map view if following is enabled
+            if (isFollowing) {
+                map.setView(userLatLng, map.getZoom(), { animate: true });
             }
         }
+        // Function to toggle following user's location
+        // Function to toggle location tracking
+        function toggleLocationTracking() {
+                if (document.getElementById('location-toggle').checked) {
+                    // Start tracking and show marker
+                    isFollowing = true;
+                    if (!watchID) {
+                        watchID = navigator.geolocation.watchPosition(showPosition, showError, {
+                            enableHighAccuracy: true,
+                            timeout: 5000,
+                            maximumAge: 0
+                        });
+                    }
+                } else {
+                    // Stop tracking and remove marker
+                    isFollowing = false;
+                    if (watchID) {
+                        navigator.geolocation.clearWatch(watchID);
+                        watchID = null;
+                    }
+                    if (currentMarker) {
+                        map.removeLayer(currentMarker);
+                        currentMarker = null;
+                    }
+                }
+            }
+        document.getElementById('location-toggle').addEventListener('change', toggleLocationTracking);           
+        // Function to handle location errors
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
+        locateUser();
+        // Call locateUser to get the initial location
+        toggleLocationTracking();
+        // Set up a watcher to update the location as the user moves
+       //document.getElementById('toggle-button').style.right = 'auto';       
+       
     </script>
-
 </body>
 
 </html>
