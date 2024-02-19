@@ -5,20 +5,20 @@ html, body {
 }
 .top-center-text {
     position: absolute;
-    top: 2%;
+    top: 2%;  /* Position it slightly lower from the top */
     left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.7); /* Darker background for contrast */
-    color: #ffffff; /* White text for visibility */
-    padding: 15px 20px;
-    border-radius: 10px;
+    transform: translate(-50%, -10%); /* Adjust for center alignment */
+    background-color: rgba(255, 255, 255, 0.7); /* Slightly more opaque for better visibility */
+    padding: 5px 20px; /* Reduced top/bottom padding, more side padding */
+    border-radius: 5px;
     text-align: center;
-    z-index: 1000;
-    font-size: 12px; /* Larger font size */
-    font-weight: bold; /* Bold font */
-    animation: fadeIn 2s; /* Animation for fade in effect */
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    z-index: 1000; /* Ensure it's above other elements */
+    font-weight: bold; /* Make the font bold */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add subtle shadow for depth */
+    color: #333; /* Darker text for contrast */
+    font-size: 1.1em; /* Slightly larger text */
 }
+
 
 /* Add @keyframes for fadeIn animation */
 @keyframes fadeIn {
