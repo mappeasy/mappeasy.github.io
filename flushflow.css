@@ -5,7 +5,7 @@ html, body {
 }
 .top-center-text {
     position: absolute;
-    top: 2%;  /* Position it slightly lower from the top */
+    top: 10%;  /* Position it slightly lower from the top */
     left: 50%;
     transform: translate(-50%, -10%); /* Adjust for center alignment */
     background-color: rgba(255, 255, 255, 0.7); /* Slightly more opaque for better visibility */
@@ -18,7 +18,6 @@ html, body {
     color: #333; /* Darker text for contrast */
     font-size: 1.1em; /* Slightly larger text */
 }
-
 
 /* Add @keyframes for fadeIn animation */
 @keyframes fadeIn {
