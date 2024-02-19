@@ -14,7 +14,7 @@ html, body {
     border-radius: 10px;
     text-align: center;
     z-index: 1000;
-    font-size: 20px; /* Larger font size */
+    font-size: 12px; /* Larger font size */
     font-weight: bold; /* Bold font */
     animation: fadeIn 2s; /* Animation for fade in effect */
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
