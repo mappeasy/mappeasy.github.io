@@ -34,9 +34,9 @@
 				Houston's collection system boasts over 380 lift stations - it's like an elevator network for water, but with no elevator music.
 				<br/> And hold onto your hats, because there are over 6,500 miles of pipelines! That's Gravity Main and Force Main, folks.
 				<br/>Think of it as the underground highways for H2O. These pipes range from teeny-tiny 2 inches all the way up to a gigantic 144 inches in diameter.
-				<br/>If you lined them up, you could make a round trip from DC to Seattle – talk about a cross-country water slide!
+				<br/>If you lined them up, you could make <b>a round trip from DC to Seattle </b>– talk about a cross-country water slide!
 
-				<br/>So, next time you're in Houston, remember there's a whole water world adventure happening right beneath your feet! 🌊💧🚀</p>
+				<br/> <b>So, next time you're in Houston, remember there's a whole water world adventure happening right beneath your feet! 🌊💧🚀</b></p>
 			</div>
 		</div>
 	</div>
@@ -251,7 +251,7 @@
                         
                     } else {
                         console.log(firstLS)
-                        generalRoute  = "The flush will be tranported by sanitary sewer lines and picked up by List Station "+firstLS.info.FACILITYNAME + " at " + firstLS.info.ADDRESS + " and then transfered through the network to WWTP at " + lastStopPoint_Result.info.ADDRESS;
+                        generalRoute  = "The flush will be tranported by sanitary sewer lines and picked up by first Lift Station "+firstLS.info.FACILITYNAME + " at " + firstLS.info.ADDRESS + " and then transfered through the network to WWTP at " + lastStopPoint_Result.info.ADDRESS;
                         placeMarker(firstLS.location.y,firstLS.location.x,firstLS.info.FACILITYNAME,"LS");
                     }
                     placeMarker(lastStopPoint_Result.location.y,lastStopPoint_Result.location.x,lastStopPoint_Result.info.FACILITYNAME,"WWTP")
