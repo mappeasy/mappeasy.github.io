@@ -8,7 +8,7 @@ html, body {
     top: 2%;  /* Position it slightly lower from the top */
     left: 50%;
     transform: translate(-50%, -10%); /* Adjust for center alignment */
-    background-color: rgba(255, 255, 255, 0.7); /* Slightly more opaque for better visibility */
+    background-color: rgba(255, 255, 255, 0.5); /* Slightly more opaque for better visibility */
     padding: 5px 20px; /* Reduced top/bottom padding, more side padding */
     border-radius: 5px;
     text-align: center;
