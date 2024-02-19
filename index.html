@@ -1,0 +1,322 @@
+<html>
+
+<head>
+	<title>Flush FLow Frenzy: Follow the FLush </title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Leaflet CSS -->
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+	<link rel="stylesheet" href="flushflow.css" />
+	<!-- Leaflet Esri Plugin -->
+	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+	<script src="https://unpkg.com/esri-leaflet"></script>
+
+	<!-- Your JavaScript file -->
+	<script src="script.js"></script>
+	<script src="https://unpkg.com/leaflet-control-geocoder"></script>
+</head>
+
+<body>
+	<div id="loadingModal" class="modal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2>Following Flush . . .</h2>
+				<i class="fa fa-cog fa-spin fa-5x fa-fw"></i>
+			</div>
+			<div class="modal-body">
+				<p>Wastewater network: 40 wastewater treatment plants (WWTPs), three (3) wet weather facilities, a
+					collection system with over 380 lift stations and over 6,100 miles of pipelines, ranging in size
+					from 2 to 144 inches in diameter located throughout the Houston area.</p>
+			</div>
+		</div>
+	</div>
+	<div id="summaryCard" class="summary-card">
+        <div class="card-note" id="card-note-notification">Below's what happens when you flush from</div> <!-- Add your note text here -->
+		<div class="card-content">
+			<h2 id = "cardHeader">Where Flush Goes</h2>
+            <sub id = "notification"><font color='gray'><i>There are a lot of factors that might contribute to the rate of flow; this estimate assumes a flow of between 1 and 3 feet/second in Gravity Main; between 2 to 8 feet/second in Forcemain.</i></font></sub>
+			<hr />
+            <p id="generalRoute_container"><strong>General Route:</strong> <span id="generalRoute">0 feet</span></p>
+			<p id="distanceTraveled_container"><strong>Distance Traveled:</strong> <span id="distanceTraveled">0 feet</span></p>
+			<p id="timeToWWTP_container"><strong>Time to WWTP:</strong> <span id="timeToWWTP">0 hours</span></p>
+			<p id="communitiesPassed_"><strong>Epic Journey of the Flush:</strong></p>
+			<ul id="communitiesPassed">
+				<!-- List items will be added dynamically -->
+			</ul>
+			<button onclick="closeSummaryCard()">Close</button>
+            
+		</div>
+	</div>  
+	<div id="map"></div>
+    <button id="lastFlushButton"><i class="fas fa-water"></i> LastFlush</button>
+
+	<script>
+    // Configuration
+    const config = {
+        mapCenter: [29.76, -95.37], // Houston's coordinates
+        initialZoom: 13,
+        layerTransparency: 0.4,
+        minimumZoomLevel: 16,
+        geoJsonStyle: {
+            color: "#0000FF",
+            weight: 12,
+            opacity: 0.4
+        }
+    };
+
+    var mainData = {
+		};
+    closeSummaryCard();    
+    var currentGeoJsonLayer = null;
+    document.getElementById("loadingModal").style.display = "none";
+    // Initialize Map
+    const map = L.map('map').setView(config.mapCenter, config.initialZoom);
+    L.esri.basemapLayer('Streets').addTo(map);
+
+    // Layer Definitions
+    const gravityMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [1], config.layerTransparency);
+    const forceMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [4], config.layerTransparency);
+    const lsWwtpLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [16], config.layerTransparency);
+    const lsWwtpLabelLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [17], config.layerTransparency);
+
+
+    L.Control.MapLegend = L.Control.extend({
+        onAdd: function(map) {
+        var div = L.DomUtil.create('div', 'info legend');
+        div.innerHTML += '<h4>Map Legend</h4>';
+        div.innerHTML += '<i style="background: #0000FF; width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.4;"></i> Flush Flow<br>';
+        div.innerHTML += '<i class="fa fa-map-marker" aria-hidden="true" style="color: #2E85CB;"></i> LS/WWTP<br>';
+        return div;
+    }
+        });
+
+        L.control.mapLegend = function(opts) {
+            return new L.Control.MapLegend(opts);
+        }
+        L.control.mapLegend({ position: 'bottomleft' }).addTo(map);
+    // Utility Functions
+    function createEsriLayer(url, layers, opacity) {
+        return L.esri.dynamicMapLayer({ url, layers, opacity }).addTo(map);
+    }
+    document.getElementById('lastFlushButton').addEventListener('click', function() {
+        if(Object.keys(mainData).length === 0){
+            var NoData = {
+                    header: "Let's Go and Flush - Click on any location on map", // Add your header text here
+                    distance: 'Flush to see the journey',
+                    time: 'Flush to travel in time',
+                    communities: ['Traveling']
+                };
+            showSummaryCard(NoData,true);
+        } else {
+            showSummaryCard(mainData,false);
+        }
+    });
+    function showSummaryCard(data, notification) {
+        if(notification === false){
+			document.getElementById('distanceTraveled_container').style.display='';
+			document.getElementById('timeToWWTP_container').style.display='';
+			document.getElementById('communitiesPassed').style.display='';
+            document.getElementById('card-note-notification').style.display='';
+            document.getElementById('notification').style.display='';
+            document.getElementById('communitiesPassed_').style.display='';            
+            document.getElementById('generalRoute_container').style.display='';            
+			// Populate the summary card with data
+			// Populate the summary card with data
+            document.getElementById('cardHeader').textContent = data.header;
+			document.getElementById('distanceTraveled').textContent = data.distance;
+			document.getElementById('timeToWWTP').textContent = data.time;
+			document.getElementById('generalRoute').textContent = data.generalRoute;
+			document.getElementById('communitiesPassed').innerHTML = data.communities.map(c => `<li>${c}</li>`).join('');
+        } else {
+            document.getElementById('cardHeader').textContent = data.header;
+			document.getElementById('distanceTraveled_container').style.display='none';
+			document.getElementById('timeToWWTP_container').style.display='none';
+			document.getElementById('communitiesPassed').style.display='none';
+            document.getElementById('card-note-notification').style.display='none';
+            document.getElementById('notification').style.display='none';
+            document.getElementById('communitiesPassed_').style.display='none';
+            document.getElementById('generalRoute_container').style.display='none';  
+        }
+			// Show the summary card
+			document.getElementById('summaryCard').style.display = 'block';
+	}
+
+    function closeSummaryCard() {
+			document.getElementById('summaryCard').style.display = 'none';
+	}
+
+    function showModal() {
+        document.getElementById('loadingModal').style.display = 'flex'; // Use 'flex' to enable flexbox properties
+    }
+    function hideModal() {
+			document.getElementById('loadingModal').style.display = 'none';
+	} 
+
+    // Function to add GeoJSON to the map
+    function addGeoJsonToMap(geojsonData) {
+        // Remove the previous GeoJSON layer if it exists
+        if (currentGeoJsonLayer) {
+            map.removeLayer(currentGeoJsonLayer);
+        }
+
+        currentGeoJsonLayer = L.geoJSON(geojsonData, {
+            style: function (feature) {
+                return {
+                    color: "#0000FF", // Red color
+                    weight: 12,       // Thickness of the line
+                    opacity: 0.4     // Transparency
+                };
+            }
+        }).addTo(map);
+    }
+
+    function checkZoomLevel() {
+        const currentZoom = map.getZoom();
+        if (currentZoom < config.minimumZoomLevel) {
+            setLayerVisibility(0); // Hide layers
+        } else {
+            setLayerVisibility(config.layerTransparency); // Show layers
+        }
+    }
+
+    function setLayerVisibility(opacity) {
+        gravityMainLayer.setOpacity(opacity);
+        forceMainLayer.setOpacity(opacity);
+        lsWwtpLayer.setOpacity(opacity);
+        lsWwtpLabelLayer.setOpacity(opacity);
+    }
+    var LScurrentMarker = null; // This will hold the current marker
+    var WWTPcurrentMarker = null; // This will hold the current marker
+    async function  runTrace(lng,lat){
+        showModal();
+        // Remove the previous GeoJSON layer if it exists
+        if (currentGeoJsonLayer) {
+            map.removeLayer(currentGeoJsonLayer);
+            map.removeLayer(LScurrentMarker);
+            map.removeLayer(WWTPcurrentMarker);
+            LScurrentMarker = null;
+            WWTPcurrentMarker = null;
+            currentGeoJsonLayer = null;
+        }
+        try {
+            const initialUnitId = await findNearestFeatureUnitId(lng, lat);
+            if (initialUnitId) {
+                //15: LS
+                const result = await queryFeaturesAndGetGeoJson(initialUnitId, 98);
+                if (result && result.geojson) {
+                    let street = [];
+                    let generalRoute = "";
+                    addGeoJsonToMap(result.geojson);
+                    console.log(result.ufidArray);
+                    console.log(result.stopPoints);
+                    console.log(result.geojson);
+                    hideModal();
+                    //find first LiftStation
+                    let firstLS = result.stopPoints.find(obj => obj.type === 15);
+                    if(firstLS != null){
+                         firstLS = await findLSWWTP(firstLS.type,firstLS.unitID);
+                    }
+
+                    let lastStopPoint = result.stopPoints[result.stopPoints.length - 1];
+                    let lastStopPoint_Result = await findLSWWTP(lastStopPoint.type,lastStopPoint.unitID);
+                    if(lastStopPoint_Result == null){ //get
+                        lastStopPoint_Result = await findLSWWTP(lastStopPoint.type,lastStopPoint.unitID);
+                        for (let i = result.geojson.features.length - 1; i >= 0; i--) {
+                            lastStopPoint_Result = await findLSWWTP(result.geojson.features[i].properties.MAINCOMP2,result.geojson.features[i].properties.UNITID2);
+                            if(lastStopPoint_Result != null){
+                                break;
+                            }
+                        }
+                    }
+                    if( firstLS == null){
+                        generalRoute = "The flush will ge transfered to the treatment plant directly "+lastStopPoint_Result.info.FACILITYNAME + " at " + lastStopPoint_Result.info.ADDRESS;
+                        
+                    } else {
+                        console.log(firstLS)
+                        generalRoute  = "The flush will be tranported by sanitary sewer lines and picked up by List Station "+firstLS.info.FACILITYNAME + " at " + firstLS.info.ADDRESS + " and then transfered through the network to WWTP at " + lastStopPoint_Result.info.ADDRESS;
+                        placeMarker(firstLS.location.y,firstLS.location.x,firstLS.info.FACILITYNAME,"LS");
+                    }
+                    placeMarker(lastStopPoint_Result.location.y,lastStopPoint_Result.location.x,lastStopPoint_Result.info.FACILITYNAME,"WWTP")
+                    let calculation = await calculateRoute(result.geojson.features);
+                    mainData = {
+                        header: "Near By " + result.geojson.features[0].properties.ADDRESS, // Add your header text here
+                        generalRoute: generalRoute,
+                        distance: `The flush travels ${calculation.total_len_ft} feet (${calculation.total_len_mi}  miles) through the sewer network before reaching the COH treatment facility.`,
+                        time: `It could take anywhere between ${calculation.total_hour_min} hours to ${calculation.total_hour_max}  hours for your flush to reach the treatment plant during typical dry-weather operations.`,
+                        communities: getUniqueStreetNames(result.geojson.features)
+                    };
+                    showSummaryCard(mainData,false);
+                } else {
+                    console.log('No GeoJSON data found.');
+                }
+            } else if(initialUnitId == null ||  initialUnitId == "") {
+                var noConnection = {
+                    header: "Likely, you are not connecting to any City of Houston Sanitary Sewer System", // Add your header text here
+                    distance: 'Not Applicable',
+                    time: 'Not Applicable',
+                    communities: ['Not Available']
+                };
+                hideModal();
+                showSummaryCard(noConnection,true);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+
+    }
+    function placeMarker(lat,long,text,type){
+        try{
+            if(type == "LS"){
+                markerOptions = { icon: new L.Icon.Default() }; 
+                LScurrentMarker = L.marker([lat, long],markerOptions);
+                LScurrentMarker.addTo(map);
+                LScurrentMarker.bindPopup(text).openPopup();   
+                LScurrentMarker.bindTooltip(text).openTooltip();
+            } else {
+                WWTPcurrentMarker = L.marker([lat, long]);
+                WWTPcurrentMarker.addTo(map);
+                WWTPcurrentMarker.bindPopup(text).openPopup();   
+                WWTPcurrentMarker.bindTooltip(text).openTooltip();
+            } 
+        }catch(e){
+            console.log(e);
+        }
+    }
+    map.on('click', async function (e) {
+        closeSummaryCard();
+        runTrace(e.latlng.lng,e.latlng.lat)
+	});
+    // Event Listeners
+    map.on('zoomend', checkZoomLevel);
+    checkZoomLevel(); // Initial check
+	var searchMarker = null;
+		var geocoder = L.Control.geocoder({
+			position: 'topright',
+			defaultMarkGeocode: false
+		}).addTo(map);
+
+		geocoder.on('markgeocode', function (e) {
+			var bbox = e.geocode.bbox;
+			var latLng = e.geocode.center; // Latitude and Longitude of the searched location
+			map.panTo(latLng);
+			if (searchMarker) {
+				map.removeLayer(searchMarker);
+			}
+			// Add a new search marker
+			searchMarker = L.marker(latLng).addTo(map).bindPopup(e.geocode.name).openPopup();
+
+			// Clear previous GeoJSON layer
+			if (currentGeoJsonLayer) {
+				map.removeLayer(currentGeoJsonLayer);
+			}
+            runTrace(latLng.lng, latLng.lat)
+
+		});    
+	</script>
+</body>
+
+</html>
