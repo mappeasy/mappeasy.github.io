@@ -4,7 +4,7 @@
 	<title>Flush FLow Frenzy: Follow the FLush </title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap" rel="stylesheet">
 	<!-- Leaflet CSS -->
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 	<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
@@ -21,6 +21,7 @@
 </head>
 
 <body>
+    <div class="top-center-text">Click any where in Houston to Flush or Search by Address</div>
 	<div id="loadingModal" class="modal">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -52,6 +53,7 @@
 		</div>
 	</div>  
 	<div id="map"></div>
+    
     <button id="lastFlushButton"><i class="fas fa-water"></i> LastFlush</button>
 
 	<script>
