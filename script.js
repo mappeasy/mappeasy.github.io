@@ -1,11 +1,7 @@
-
-
-
 async function queryFeaturesByEndPoint(mapServer, unitID) {
     // Step 1: Query to get the endpoint of the line
     let endPoint = null;
     const queryUrl = `${mapServer}/query?where=UNITID='${unitID}'&outFields=FACILITYID,UPSTREAMMANHOLENUMBER,DOWNSTREAMMANHOLENUMBER,DIAMETER,UNITID,UNITID2,MAINCOMP2,UFID,SHAPE.STLength()&outSR=4326&f=pjson`;
-    console.log("hoang:" + queryUrl)
     try {
         let response = await fetch(queryUrl);
         let data = await response.json();
@@ -27,7 +23,6 @@ async function queryFeaturesByEndPoint(mapServer, unitID) {
 
     // Step 2: Query to find intersecting features at the endpoint, excluding the original UNITID
     const intersectQueryUrl = `${mapServer}/query?geometry={"x": ${endPoint[0]}, "y": ${endPoint[1]}}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=FACILITYID,UPSTREAMMANHOLENUMBER,DOWNSTREAMMANHOLENUMBER,DIAMETER,UNITID,UNITID2,MAINCOMP2,UFID,SHAPE.STLength()&outSR=4326&f=pjson`;
-    console.log(intersectQueryUrl)
     try {
         let intersectResponse = await fetch(intersectQueryUrl);
         let intersectData = await intersectResponse.json();
@@ -43,7 +38,6 @@ async function queryFeature2AtFeature1(mapServerFeature1, mapServerFeature2, uni
     // Step 1: Query to get the endpoint of the line
     let endPoint = null;
     const queryUrl = `${mapServerFeature1}/query?where=UNITID='${unitID}'&outFields=${outfieldLine}&outSR=4326&f=pjson`;
-    console.log("hoang:" + queryUrl)
     try {
         let response = await fetch(queryUrl);
         let data = await response.json();
@@ -65,7 +59,6 @@ async function queryFeature2AtFeature1(mapServerFeature1, mapServerFeature2, uni
 
     // Step 2: Query to find intersecting features at the endpoint, excluding the original UNITID
     const intersectQueryUrl = `${mapServerFeature2}/query?geometry={"x": ${endPoint[0]}, "y": ${endPoint[1]}}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=${outfieldLine}&outSR=4326&f=pjson`;
-    console.log(intersectQueryUrl)
     try {
         let intersectResponse = await fetch(intersectQueryUrl);
         let intersectData = await intersectResponse.json();
@@ -108,23 +101,17 @@ async function queryFeaturesAndGetGeoJson(initialUnitId, stopPoint) {
             break;
         }
         try {
-            //check by UnitID first
-            console.log(queryUrl_gravitymain)
             let response = await fetch(queryUrl_gravitymain);
 
             let data = await response.json();
 
             //if data by UnitID2 is empty then check by downstream
             if (data.features.length === 0) {
-                console.log("Called query by endpoint - gravityMain_layer gravityMain_layer")
                 let tmp_data = await queryFeature2AtFeature1(gravityMain_layer, forceMain_layer, currentUnitId_ups, outfieldLine);
-                console.log(tmp_data)
                 if (tmp_data.length > 0) {
                     data.features = tmp_data;
                 } else {
-                    console.log("Called query by endpoint - gravityMain_layer forceMain_layer")
                     tmp_data = await queryFeature2AtFeature1(gravityMain_layer, gravityMain_layer, currentUnitId_ups, outfieldLine);
-                    console.log(tmp_data)
                     if (tmp_data.length > 0) {
                         data.features = tmp_data;
                     }
@@ -139,27 +126,20 @@ async function queryFeaturesAndGetGeoJson(initialUnitId, stopPoint) {
                 if (data.features.length === 0) {
                     response = await fetch(queryUrl_forcemain);
                     data = await response.json();
-                    console.log("Found force main by Unitid");
-                    console.log(queryUrl_forcemain)
                 }
                 if (data.features.length === 0) {
                     response = await fetch(queryUrl_by_DNS_forcemain);
                     data = await response.json();
-                    console.log("Found force main by manhole number");
                 }
 
                 if (data.features.length === 0) {
                     let tmp_data = await queryFeature2AtFeature1(forceMain_layer, forceMain_layer, currentUnitId_ups, outfieldLine);
-                    console.log("Called query by endpoint: Forcemain to Force Main")
-                    console.log(tmp_data)
                     if (tmp_data.length > 0) {
                         data.features = tmp_data;
                     }
                 }
                 if (data.features.length === 0) {
                     let tmp_data = await queryFeature2AtFeature1(forceMain_layer, gravityMain_layer, currentUnitId_ups, outfieldLine);
-                    console.log("Called query by endpoint: Forcemain to Gravitymain")
-                    console.log(tmp_data)
                     if (tmp_data.length > 0) {
                         data.features = tmp_data;
                     }
@@ -195,7 +175,6 @@ async function queryFeaturesAndGetGeoJson(initialUnitId, stopPoint) {
 
                 if (ufidArray.includes(selectedFeature.attributes.UFID)) {
                     loopCount = loopCount + 1;
-                    console.log("loop detected");
                 } else {
                     loopCount = 0;
                     // Add to arrays and GeoJSON features
@@ -212,7 +191,6 @@ async function queryFeaturesAndGetGeoJson(initialUnitId, stopPoint) {
                         properties: selectedFeature.attributes,
                         geometry: geojsonGeometry
                     });
-                    console.log('Selected Feature:', selectedFeature);
                 }
                 if (!ufidArray.includes(selectedFeature.attributes.UNITID)) {
                     unitidArray.push(selectedFeature.attributes.UNITID);
@@ -226,7 +204,6 @@ async function queryFeaturesAndGetGeoJson(initialUnitId, stopPoint) {
 
                 // Check MAINCOMP2 value
                 if (selectedFeature.attributes.UNITID2 === currentUnitId) {
-                    console.log('Next UNITID2 is the same as current UNITID, stopping to prevent infinite loop.');
                     lastDownstreamManholeNumber = selectedFeature.attributes.DOWNSTREAMMANHOLENUMBER
                     currentUnitId = "SameUNITID"
                     //keepQuerying = false;
@@ -237,11 +214,9 @@ async function queryFeaturesAndGetGeoJson(initialUnitId, stopPoint) {
                     lastDownstreamManholeNumber = selectedFeature.attributes.DOWNSTREAMMANHOLENUMBER;
                 }
                 if (currentUnitId == "" && lastDownstreamManholeNumber === "") {
-                    console.log("next UnitID2 and downstream number is empty, stopping!");
                     keepQuerying = false;
                 }
-                if ([98].includes(selectedFeature.attributes.MAINCOMP2) || [98].includes(selectedFeature.attributes.MAINCOMP1)) {
-                    console.log('Required MAINCOMP2 value found, stopping.');                
+                if ([98].includes(selectedFeature.attributes.MAINCOMP2) || [98].includes(selectedFeature.attributes.MAINCOMP1)) {          
                     keepQuerying = false;
                 }
 
@@ -302,7 +277,6 @@ async function findLSWWTP(assetType, unitID) {
          let queryUrl_manhole = `https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer/12/query?where=UNITID='${unitID}'&outFields=TREATMENTPLANTID&f=pjson&outSR=4326`;
          let response = await fetch(queryUrl_manhole);
          let data = await response.json();
-         console.log(queryUrl_manhole)
          if (data.features.length > 0) {
              let refID =  data.features[0].attributes.TREATMENTPLANTID;
              refID = "0"+refID.toString();
@@ -311,7 +285,6 @@ async function findLSWWTP(assetType, unitID) {
             return null;
          }
     }
-    console.log(queryUrl)
     try {
         let response = await fetch(queryUrl);
         let data = await response.json();
@@ -368,31 +341,3 @@ function calculateRoute(data) {
     let total_hour_max = roundToDecimals(toal_second_max / 3600, 2);
     return {total_len_ft,total_len_mi,total_hour_min,total_hour_max};
 }
-// Example usage
-//findNearestFeatureUnitId(-95.382, 29.756).then(unitId => {
-//    if (unitId) {
-//        console.log('Found UNITID:', unitId);
-//        // You can now use this UNITID with your queryFeaturesAndGetGeoJson function
-//    } else {
-//        console.log('No UNITID found within the search area.');
-//    }
-//});
-
-// Start the query with the initial UNITID
-//queryFeaturesAndGetGeoJson('2551480') // Replace '1' with your actual initial UNITID
-//.then(result => {
-//    console.log('UFID Array:', result.ufidArray);
-//    console.log('UNITID Array:', result.unitidArray);
-//    console.log(JSON.stringify(result.geojson));
-//});
-
-// Start the query with the initial UNITID
-//findLSWWTP(22,7405296) // Replace '1' with your actual initial UNITID
-//.then(result => {
- //   console.log(result);
-//});
-
-//findLSWWTP(15,5731990) // Replace '1' with your actual initial UNITID
-//.then(result => {
- //   console.log(result);
-//});
