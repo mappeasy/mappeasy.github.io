@@ -58,8 +58,9 @@
 		</div>
 	</div>  
 	<div id="map"></div>
-    <button id="currentLocationButton" title="Use my location"><i class="fa fa-location-arrow"></i></button>
-    <button id="lastFlushButton"><i class="fas fa-water"></i> LastFlush</button>
+    <button id="currentLocationButton" title="Your Current Location"><i class="fa fa-location"></i> My Flush</button>
+    <button id="lastFlushButton"><i class="fas fa-water"></i> Last Flush</button>
+    
 
 	<script>
     // Configuration
@@ -69,6 +70,7 @@
         initialZoom: 13,
         layerTransparency: 0.4,
         minimumZoomLevel: 16,
+        zoomControl: false,
         geoJsonStyle: {
             color: "#0000FF",
             weight: 12,
@@ -82,7 +84,11 @@
     var currentGeoJsonLayer = null;
     document.getElementById("loadingModal").style.display = "none";
     // Initialize Map
-    const map = L.map('map').setView(config.mapCenter, config.initialZoom);
+    const map = L.map('map', {
+        center: config.mapCenter,
+        zoom: config.initialZoom,
+        zoomControl: config.zoomControl // Disable the default zoom control
+    });    
     if(config.esri_basemap===true){
         L.esri.basemapLayer('Streets').addTo(map);}
     else{
@@ -336,16 +342,16 @@
 
 		});
         document.getElementById('currentLocationButton').addEventListener('click', function() {
-  map.locate({setView: true, maxZoom: config.initialZoom});
+            map.locate({setView: true, maxZoom: config.initialZoom});
 
-  map.on('locationfound', function(e) {
-    runTrace(e.latlng.lng, e.latlng.lat);
-  });
+            map.on('locationfound', function(e) {
+                runTrace(e.latlng.lng, e.latlng.lat);
+            });
 
-  map.on('locationerror', function(e) {
-    alert("Location access denied.");
-  });
-});
+            map.on('locationerror', function(e) {
+                alert("Location access denied.");
+            });
+        });
 	</script>
 </body>
 
