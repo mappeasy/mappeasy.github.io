@@ -346,7 +346,7 @@
                             generalRoute = "The flush will ge transfered to the treatment plant directly " + lastStopPoint_Result.info.FACILITYNAME + " at " + lastStopPoint_Result.info.ADDRESS;
 
                         } else {
-                            generalRoute = "The flush will be tranported by sanitary sewer lines and picked up by first Lift Station " + firstLS.info.FACILITYNAME + " at " + firstLS.info.ADDRESS + " and then transfered through the network to WWTP at " + lastStopPoint_Result.info.ADDRESS;
+                            generalRoute = "The flush will be transported by sanitary sewer lines and picked up by first Lift Station " + firstLS.info.FACILITYNAME + " at " + firstLS.info.ADDRESS + " and then transfered through the network to WWTP at " + lastStopPoint_Result.info.ADDRESS;
                             placeMarker(firstLS.location.y, firstLS.location.x, firstLS.info.FACILITYNAME, "LS");
                         }
                         placeMarker(lastStopPoint_Result.location.y, lastStopPoint_Result.location.x, lastStopPoint_Result.info.FACILITYNAME, "WWTP")
