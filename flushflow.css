@@ -77,7 +77,6 @@ html, body {
     opacity: 1; /* Full opacity on hover */
 }
 .leaflet-control-geocoder {
-    width: 300px;
     /* Adjust width for larger screens */
     max-width: 100%;
     /* Ensure it doesn't overflow on small screens */
@@ -90,7 +89,7 @@ html, body {
 .leaflet-control-geocoder-form input {
     width: 100%;
     box-sizing: border-box;
-    font-size: 20px;
+    font-size: 18px;
     /* Increase font size */
 }
 
