@@ -14,7 +14,7 @@
     <!-- Leaflet Esri Plugin -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/esri-leaflet"></script>
-
+    <script src="https://unpkg.com/leaflet-ant-path" type="text/javascript"></script>
     <!-- Your JavaScript file -->
     <script src="script.js"></script>
     <script src="https://unpkg.com/leaflet-control-geocoder"></script>
@@ -90,7 +90,7 @@
     <script>
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -98,7 +98,7 @@
             zoomControl: false,
             geoJsonStyle: {
                 color: "#0000FF",
-                weight: 12,
+                weight: 8,
                 opacity: 0.4
             }
         };
@@ -108,6 +108,8 @@
         closeSummaryCard('aboutMe');
         closeSummaryCard('summaryCard');
         var currentGeoJsonLayer = null;
+        var currentLocationIcon = null;
+        var currentGeoJsonLayerLine = null;
         document.getElementById("loadingModal").style.display = "none";
         // Initialize Map
         const map = L.map('map', {
@@ -115,6 +117,13 @@
             zoom: config.initialZoom,
             zoomControl: config.zoomControl // Disable the default zoom control
         });
+        // Add a toilet marker
+        var toiletIcon = L.divIcon({
+            className: 'fa-icon',
+            html: '<i class="fa-solid fa-toilet-paper fa-3x" style="color: #74C0FC;"></i>',
+            iconSize: [30, 30], // size of the icon in pixels
+            iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
+            });     
         if (config.esri_basemap === true) {
             L.esri.basemapLayer('Streets').addTo(map);
         }
@@ -228,20 +237,51 @@
 
         // Function to add GeoJSON to the map
         function addGeoJsonToMap(geojsonData) {
+
             // Remove the previous GeoJSON layer if it exists
             if (currentGeoJsonLayer) {
                 map.removeLayer(currentGeoJsonLayer);
+                map.removeLayer(currentLocationIcon);
+                map.removeLayer(currentGeoJsonLayerLine);
             }
 
             currentGeoJsonLayer = L.geoJSON(geojsonData, {
-                style: function (feature) {
-                    return {
-                        color: "#0000FF", // Red color
-                        weight: 12,       // Thickness of the line
-                        opacity: 0.4     // Transparency
-                    };
-                }
-            }).addTo(map);
+            style: function(feature) {
+                return {
+                    color: config.geoJsonStyle.color, // Example color
+                    weight: config.geoJsonStyle.weight,
+                    opacity: config.geoJsonStyle.opacity,
+                    lineCap: 'round',
+                    dashArray: '10, 20',
+                    dashOffset: '0',
+                    className: (feature.properties.SUBTYPECD ==1 || feature.properties.SUBTYPECD ==2 ) ? 'heavy-traffic-animation' : 'light-traffic-animation'
+                };
+            }
+            }).addTo(map); 
+            currentGeoJsonLayerLine = L.geoJSON(geojsonData, {
+            style: function (feature) {
+                return {
+                    color: "#0000FF", 
+                    weight: 12,       // Thickness of the line
+                    opacity: 0.2     // Transparency
+                };
+            }
+        }).addTo(map);            
+                // Zoom to the bounds of the GeoJSON layer
+            if (geojsonData.features && geojsonData.features.length > 0) {
+                var bounds = currentGeoJsonLayer.getBounds();
+                map.fitBounds(bounds);
+            }
+
+            console.log("hoang");
+            console.log(geojsonData.features[0].geometry.coordinates[0]);
+            let flusingPoint = geojsonData.features[0].geometry.coordinates[0];
+            currentLocationIcon= L.marker([flusingPoint[1], flusingPoint[0]], { icon: toiletIcon })
+                .addTo(map)
+                .bindPopup('Your flush starts here!')
+                //.bindTooltip('flush Location', { permanent: true, direction: 'top' })
+                .bindTooltip('flush Location')
+                .openTooltip(); // Use this if you want the tooltip to be open by default;            
         }
 
         function checkZoomLevel() {
