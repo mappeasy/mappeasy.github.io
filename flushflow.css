@@ -329,3 +329,22 @@ html, body {
     margin: 0 0 5px;
     color: #777;
 }
+
+@keyframes flowAnimation {
+    from {
+        stroke-dashoffset: 30;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+.flow-line-animation {
+    animation: flowAnimation 2s linear infinite;
+}
+.heavy-traffic-animation {
+    animation: flowAnimation 0.35s linear infinite;
+}
+
+.light-traffic-animation {
+    animation: flowAnimation 0.9s linear infinite;
+}
