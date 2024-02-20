@@ -326,9 +326,9 @@ html, body {
     border: none;
     border-radius: 2px;
     padding: 2px; /* Increase padding for a bigger button */
-    box-shadow: 0 1px 1px rgba(0,0,0,0.4);
+    box-shadow: 0 1px 1px rgba(0,0,0,0.5);
     cursor: pointer;
-    font-size: 28px; /* Increase font size for the icon */
+    font-size: 27px; /* Increase font size for the icon */
 }
 
 #currentLocationButton i {
@@ -339,14 +339,14 @@ html, body {
 #currentLocationButton:hover::after {
     content: 'Use my location'; /* Tooltip text */
     position: absolute;
-    top: 2%; /* Position above the button */
+    top: 100%; /* Position above the button */
     left: 50%;
     transform: translateX(-50%);
-    background-color: #333;
-    color: white;
+    background-color:rgba(255,255,255,0.5);
+    color: black;
     padding:  2px;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 15px;
     white-space: nowrap;
     box-shadow: 0 1px 5px rgba(255,255,255,0.8);
     z-index: 1001;
