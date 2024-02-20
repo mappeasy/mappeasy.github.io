@@ -76,7 +76,7 @@
         <!-- Add your note text here -->
         <div class="card-content">
             <h2 id="cardHeader_about">About this Project</h2>
-            <p id="generalRoute_container_about"><span id="generalRoute_about">This is purely for learning fun – a chance to track the splashy journey of our flushes from the loo to the lab! It's our way of teaching the kiddos the swirling path of their flush – from toilet twirls to treatment thrills! 🚽💦🎢</span></p>
+            <p id="generalRoute_container_about"><span id="generalRoute_about">This is purely for learning purpose – a chance to track the splashy journey of our flushes from the loo to the lab! It's our way of teaching the kiddos the swirling path of their flush – from toilet twirls to treatment thrills! 🚽💦🎢</span></p>
             <p id="distanceTraveled_container_about"><span id="distanceTraveled_about">Made with <i class="fa-solid fa-heart" style="color: #d31717;"></i> by WWO<br></span></p>
             <button onclick="closeSummaryCard('aboutMe')">Close</button>
 
@@ -105,6 +105,7 @@
 
         var mainData = {
         };
+        closeSummaryCard('aboutMe');
         closeSummaryCard('summaryCard');
         var currentGeoJsonLayer = null;
         document.getElementById("loadingModal").style.display = "none";
