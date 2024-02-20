@@ -239,10 +239,12 @@
         function addGeoJsonToMap(geojsonData) {
 
             // Remove the previous GeoJSON layer if it exists
-            if (currentGeoJsonLayer) {
+            try{
                 map.removeLayer(currentGeoJsonLayer);
                 map.removeLayer(currentLocationIcon);
                 map.removeLayer(currentGeoJsonLayerLine);
+            } catch (e) {
+                console.log(e);
             }
 
             currentGeoJsonLayer = L.geoJSON(geojsonData, {
@@ -258,15 +260,16 @@
                 };
             }
             }).addTo(map); 
+
             currentGeoJsonLayerLine = L.geoJSON(geojsonData, {
-            style: function (feature) {
-                return {
-                    color: "#0000FF", 
-                    weight: 12,       // Thickness of the line
-                    opacity: 0.2     // Transparency
-                };
-            }
-        }).addTo(map);            
+                style: function (feature) {
+                    return {
+                        color: "#0000FF", 
+                        weight: 12,       // Thickness of the line
+                        opacity: 0.2     // Transparency
+                    };
+                }
+            }).addTo(map);            
                 // Zoom to the bounds of the GeoJSON layer
             if (geojsonData.features && geojsonData.features.length > 0) {
                 var bounds = currentGeoJsonLayer.getBounds();
@@ -305,9 +308,13 @@
                 map.removeLayer(currentGeoJsonLayer);
                 map.removeLayer(LScurrentMarker);
                 map.removeLayer(WWTPcurrentMarker);
+                map.removeLayer(currentGeoJsonLayerLine);
+                map.removeLayer(currentLocationIcon);
                 LScurrentMarker = null;
                 WWTPcurrentMarker = null;
                 currentGeoJsonLayer = null;
+                currentGeoJsonLayerLine = null;
+                currentLocationIcon = null;
             }
             try {
                 const initialUnitId = await findNearestFeatureUnitId(lng, lat);
