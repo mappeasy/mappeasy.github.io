@@ -112,12 +112,6 @@ html, body {
     box-sizing: border-box;
 }
 
-@media (max-width: 600px) {
-    .leaflet - control - geocoder {
-        width: 100%;
-        /* Full width on smaller screens */
-    }
-}
 
 .modal {
     display: none;
