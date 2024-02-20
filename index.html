@@ -315,7 +315,7 @@
         async function runTrace(lng, lat) {
             showModal();
             // Remove the previous GeoJSON layer if it exists
-            removeAllLayer();
+            await removeAllLayer();
             try {
                 const initialUnitId = await findNearestFeatureUnitId(lng, lat);
                 if (initialUnitId) {
@@ -350,7 +350,7 @@
                             generalRoute = "The flush will be transported by sanitary sewer lines and picked up by first Lift Station " + firstLS.info.FACILITYNAME + " at " + firstLS.info.ADDRESS + " and then transfered through the network to WWTP at " + lastStopPoint_Result.info.ADDRESS;
                             placeMarker(firstLS.location.y, firstLS.location.x, firstLS.info.FACILITYNAME, "LS");
                         }
-                        placeMarker(lastStopPoint_Result.location.y, lastStopPoint_Result.location.x, lastStopPoint_Result.info.FACILITYNAME, "WWTP")
+                        await placeMarker(lastStopPoint_Result.location.y, lastStopPoint_Result.location.x, lastStopPoint_Result.info.FACILITYNAME, "WWTP")
                         let calculation = await calculateRoute(result.geojson.features);
                         mainData = {
                             header: "Near By " + result.geojson.features[0].properties.ADDRESS, // Add your header text here
