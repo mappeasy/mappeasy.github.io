@@ -5,7 +5,7 @@ html, body {
 }
 .top-center-text {
     position: absolute;
-    top: 1%;  /* Position it slightly lower from the top */
+    bottom: 1%;  /* Position it slightly lower from the top */
     left: 50%;
     transform: translate(-50%, -10%); /* Adjust for center alignment */
     background-color: rgba(255, 255, 255, 0.5); /* Slightly more opaque for better visibility */
@@ -29,8 +29,8 @@ html, body {
 }
 #lastFlushButton {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
+    bottom: 2%;
+    right: 0.5%;
     z-index: 1000;
     background-color: rgba(0, 123, 255, 0.8); /* Semi-transparent blue */
     color: white;
@@ -311,4 +311,43 @@ html, body {
 .info.legend h4 {
     margin: 0 0 5px;
     color: #777;
+}
+/* Custom style for the geocoder to add right margin */
+.leaflet-control-geocoder {
+    margin-right: 1px; /* Adjust the space for the button */
+}
+
+#currentLocationButton {
+    position: absolute;
+    top: 1.6%; /* Adjust top position */
+    right: 315px; /* Position to the left of the geocoder */
+    z-index: 1000; /* Ensure it's above map layers */
+    background-color: rgba(255,255,255,0.4);
+    border: none;
+    border-radius: 2px;
+    padding: 2px; /* Increase padding for a bigger button */
+    box-shadow: 0 1px 1px rgba(0,0,0,0.4);
+    cursor: pointer;
+    font-size: 28px; /* Increase font size for the icon */
+}
+
+#currentLocationButton i {
+    color: blue;
+}
+
+/* Tooltip styling */
+#currentLocationButton:hover::after {
+    content: 'Use my location'; /* Tooltip text */
+    position: absolute;
+    top: 2%; /* Position above the button */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding:  2px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 0 1px 5px rgba(255,255,255,0.8);
+    z-index: 1001;
 }
