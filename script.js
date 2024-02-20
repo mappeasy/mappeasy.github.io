@@ -317,6 +317,12 @@ async function findLSWWTP(assetType, unitID) {
         let data = await response.json();
         if (data.features.length > 0) {
             let info = data.features[0].attributes;
+            if(info.ADDRESS.includes("3005 GALVESTON")){
+                info.FACILITYNAME = "SIMS BAYOU SOUTH";
+            }
+            try{
+                info.FACILITYNAME = info.FACILITYNAME.replace("SLUDGE","WWTP");
+            } catch (error) {}
             let location = data.features[0].geometry;
             return {info,location};
         }
