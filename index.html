@@ -237,12 +237,12 @@
 
         function removeAllLayer(){
             try {
-                if (currentGeoJsonLayer === null) map.removeLayer(currentGeoJsonLayer);
-                if (LScurrentMarker === null) map.removeLayer(LScurrentMarker);
-                if (WWTPcurrentMarker === null) map.removeLayer(WWTPcurrentMarker);
-                if (currentGeoJsonLayerLine === null) map.removeLayer(currentGeoJsonLayerLine);
-                if (currentLocationIcon === null) map.removeLayer(currentLocationIcon);
-                if (searchMarker === null) map.removeLayer(searchMarker);
+                if (currentGeoJsonLayer !== null) map.removeLayer(currentGeoJsonLayer);
+                if (LScurrentMarker !== null) map.removeLayer(LScurrentMarker);
+                if (WWTPcurrentMarker !== null) map.removeLayer(WWTPcurrentMarker);
+                if (currentGeoJsonLayerLine !== null) map.removeLayer(currentGeoJsonLayerLine);
+                if (currentLocationIcon !== null) map.removeLayer(currentLocationIcon);
+                if (searchMarker !== null) map.removeLayer(searchMarker);
                 LScurrentMarker = null;
                 WWTPcurrentMarker = null;
                 currentGeoJsonLayer = null;
