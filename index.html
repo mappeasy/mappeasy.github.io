@@ -90,7 +90,7 @@
     <script>
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -272,9 +272,6 @@
                 var bounds = currentGeoJsonLayer.getBounds();
                 map.fitBounds(bounds);
             }
-
-            console.log("hoang");
-            console.log(geojsonData.features[0].geometry.coordinates[0]);
             let flusingPoint = geojsonData.features[0].geometry.coordinates[0];
             currentLocationIcon= L.marker([flusingPoint[1], flusingPoint[0]], { icon: toiletIcon })
                 .addTo(map)
@@ -321,9 +318,6 @@
                         let street = [];
                         let generalRoute = "";
                         addGeoJsonToMap(result.geojson);
-                        console.log(result.ufidArray);
-                        console.log(result.stopPoints);
-                        console.log(result.geojson);
                         hideModal();
                         //find first LiftStation
                         let firstLS = result.stopPoints.find(obj => obj.type === 15);
@@ -346,7 +340,6 @@
                             generalRoute = "The flush will ge transfered to the treatment plant directly " + lastStopPoint_Result.info.FACILITYNAME + " at " + lastStopPoint_Result.info.ADDRESS;
 
                         } else {
-                            console.log(firstLS)
                             generalRoute = "The flush will be tranported by sanitary sewer lines and picked up by first Lift Station " + firstLS.info.FACILITYNAME + " at " + firstLS.info.ADDRESS + " and then transfered through the network to WWTP at " + lastStopPoint_Result.info.ADDRESS;
                             placeMarker(firstLS.location.y, firstLS.location.x, firstLS.info.FACILITYNAME, "LS");
                         }
