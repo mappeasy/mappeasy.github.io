@@ -319,20 +319,24 @@ html, body {
 
 #currentLocationButton {
     position: absolute;
-    top: 1.6%; /* Adjust top position */
-    right: 315px; /* Position to the left of the geocoder */
+    top: 10px; /* Adjust top position */
+    right: 316px; /* Position to the left of the geocoder */
     z-index: 1000; /* Ensure it's above map layers */
-    background-color: rgba(255,255,255,0.4);
+    background-color: rgba(255,255,255,0.7);
     border: none;
     border-radius: 2px;
-    padding: 2px; /* Increase padding for a bigger button */
-    box-shadow: 0 1px 1px rgba(0,0,0,0.5);
+    padding: 0px; /* Increase padding for a bigger button */
+    box-shadow: 0 1px 1px rgba(0,0,0,0.7);
     cursor: pointer;
-    font-size: 27px; /* Increase font size for the icon */
+    font-size: 32px; /* Increase font size for the icon */
+    height: 32px; /* Adjust this to match the search bar's height */
+    line-height: 31px; /* Typically the same as height for vertical centering */
+    padding: 0 5px; /* Horizontal padding; adjust as needed */
 }
 
 #currentLocationButton i {
     color: blue;
+    
 }
 
 /* Tooltip styling */
