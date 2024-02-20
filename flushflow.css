@@ -29,14 +29,14 @@ html, body {
 }
 #lastFlushButton {
     position: absolute;
-    bottom: 2%;
+    bottom: 10px;
     right: 0.5%;
     z-index: 1000;
     background-color: rgba(0, 123, 255, 0.8); /* Semi-transparent blue */
     color: white;
     border: none;
     border-radius: 5px;
-    padding: 10px 15px;
+    padding: 10px 15px; /* Adjust padding for better appearance */
     font-size: 16px;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.5);
@@ -51,6 +51,30 @@ html, body {
 #lastFlushButton i {
     margin-right: 5px;
     font-size: 20px; /* Slightly larger icon for emphasis */
+}
+
+#currentLocationButton {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    background-color: rgba(0, 123, 255, 0.8); /* Semi-transparent blue */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    transition: background-color 0.3s, opacity 0.3s;
+    text-transform: none; /* Add this line */
+}
+
+
+/* Tooltip styling */
+#currentLocationButton:hover {
+    background-color: rgba(0, 86, 179, 0.8); /* Slightly darker on hover */
+    opacity: 1; /* Full opacity on hover */
 }
 .leaflet-control-geocoder {
     width: 300px;
@@ -311,47 +335,4 @@ html, body {
 .info.legend h4 {
     margin: 0 0 5px;
     color: #777;
-}
-/* Custom style for the geocoder to add right margin */
-.leaflet-control-geocoder {
-    margin-right: 1px; /* Adjust the space for the button */
-}
-
-#currentLocationButton {
-    position: absolute;
-    top: 10px; /* Adjust top position */
-    right: 316px; /* Position to the left of the geocoder */
-    z-index: 1000; /* Ensure it's above map layers */
-    background-color: rgba(255,255,255,0.7);
-    border: none;
-    border-radius: 2px;
-    padding: 0px; /* Increase padding for a bigger button */
-    box-shadow: 0 1px 1px rgba(0,0,0,0.7);
-    cursor: pointer;
-    font-size: 32px; /* Increase font size for the icon */
-    height: 32px; /* Adjust this to match the search bar's height */
-    line-height: 31px; /* Typically the same as height for vertical centering */
-    padding: 0 5px; /* Horizontal padding; adjust as needed */
-}
-
-#currentLocationButton i {
-    color: blue;
-    
-}
-
-/* Tooltip styling */
-#currentLocationButton:hover::after {
-    content: 'Use my location'; /* Tooltip text */
-    position: absolute;
-    top: 100%; /* Position above the button */
-    left: 50%;
-    transform: translateX(-50%);
-    background-color:rgba(255,255,255,0.5);
-    color: black;
-    padding:  2px;
-    border-radius: 4px;
-    font-size: 15px;
-    white-space: nowrap;
-    box-shadow: 0 1px 5px rgba(255,255,255,0.8);
-    z-index: 1001;
 }
