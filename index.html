@@ -235,17 +235,27 @@
             document.getElementById('loadingModal').style.display = 'none';
         }
 
+        function removeAllLayer(){
+            try {
+                map.removeLayer(currentGeoJsonLayer);
+                map.removeLayer(LScurrentMarker);
+                map.removeLayer(WWTPcurrentMarker);
+                map.removeLayer(currentGeoJsonLayerLine);
+                map.removeLayer(currentLocationIcon);
+                LScurrentMarker = null;
+                WWTPcurrentMarker = null;
+                currentGeoJsonLayer = null;
+                currentGeoJsonLayerLine = null;
+                currentLocationIcon = null;
+            } catch (e) {
+                console.log(e);
+            }
+        }
         // Function to add GeoJSON to the map
         function addGeoJsonToMap(geojsonData) {
 
             // Remove the previous GeoJSON layer if it exists
-            try{
-                map.removeLayer(currentGeoJsonLayer);
-                map.removeLayer(currentLocationIcon);
-                map.removeLayer(currentGeoJsonLayerLine);
-            } catch (e) {
-                console.log(e);
-            }
+            removeAllLayer();
 
             currentGeoJsonLayer = L.geoJSON(geojsonData, {
             style: function(feature) {
@@ -304,18 +314,7 @@
         async function runTrace(lng, lat) {
             showModal();
             // Remove the previous GeoJSON layer if it exists
-            if (currentGeoJsonLayer) {
-                map.removeLayer(currentGeoJsonLayer);
-                map.removeLayer(LScurrentMarker);
-                map.removeLayer(WWTPcurrentMarker);
-                map.removeLayer(currentGeoJsonLayerLine);
-                map.removeLayer(currentLocationIcon);
-                LScurrentMarker = null;
-                WWTPcurrentMarker = null;
-                currentGeoJsonLayer = null;
-                currentGeoJsonLayerLine = null;
-                currentLocationIcon = null;
-            }
+            removeAllLayer();
             try {
                 const initialUnitId = await findNearestFeatureUnitId(lng, lat);
                 if (initialUnitId) {
@@ -420,9 +419,7 @@
             searchMarker = L.marker(latLng).addTo(map).bindPopup(e.geocode.name).openPopup();
 
             // Clear previous GeoJSON layer
-            if (currentGeoJsonLayer) {
-                map.removeLayer(currentGeoJsonLayer);
-            }
+            removeAllLayer();
             runTrace(latLng.lng, latLng.lat)
 
         });
