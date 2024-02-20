@@ -299,12 +299,12 @@
                 markerOptions = { icon: new L.Icon.Default() }; 
                 LScurrentMarker = L.marker([lat, long],markerOptions);
                 LScurrentMarker.addTo(map);
-                LScurrentMarker.bindPopup(text).openPopup();   
+                LScurrentMarker.bindPopup(text);
                 LScurrentMarker.bindTooltip(text).openTooltip();
             } else {
                 WWTPcurrentMarker = L.marker([lat, long]);
                 WWTPcurrentMarker.addTo(map);
-                WWTPcurrentMarker.bindPopup(text).openPopup();   
+                WWTPcurrentMarker.bindPopup(text);
                 WWTPcurrentMarker.bindTooltip(text).openTooltip();
             } 
         }catch(e){
