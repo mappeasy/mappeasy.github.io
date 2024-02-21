@@ -26,7 +26,6 @@ html, body {
 }
 #map {
     height: 100vh;
-    overflow: auto; /* Add this to handle overflowing content */
 }
 #lastFlushButton {
     position: absolute;
