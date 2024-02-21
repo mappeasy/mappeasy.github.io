@@ -120,17 +120,23 @@
         // Add a toilet marker
         var toiletIcon = L.divIcon({
             className: 'fa-icon',
-            html: '<i class="fa-solid fa-toilet-paper fa-3x" style="color: #74C0FC;"></i>',
+            html: '<i class="fa-solid fa-poo fa-3x" style="color: #74C0FC;"></i>',
             iconSize: [30, 30], // size of the icon in pixels
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
             });     
 
         var pumpIcon = L.divIcon({
             className: 'fa-icon',
-            html: '<i class="fa-solid fa-pump  fa-3x" style="color: #1c81ce;"></i>',
+            html: '<i class="fa-solid fa-tent-arrows-down  fa-3x" style="color: #3d0de7;"></i>',
             iconSize: [30, 30], // size of the icon in pixels
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
             });   
+        var wwtpIcon = L.divIcon({
+            className: 'fa-icon',
+            html: '<i class="fa-solid fa-city  fa-3x" style="color: #22a7c9;"></i>',
+            iconSize: [30, 30], // size of the icon in pixels
+            iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
+            });           
         
         if (config.esri_basemap === true) {
             L.esri.basemapLayer('Streets').addTo(map);
@@ -395,7 +401,7 @@
                     LScurrentMarker.bindPopup(text);
                     LScurrentMarker.bindTooltip(text).openTooltip();
                 } else {
-                    WWTPcurrentMarker = L.marker([lat, long]);
+                    WWTPcurrentMarker = L.marker([lat, long], { icon: wwtpIcon });//wwtpIcon
                     WWTPcurrentMarker.addTo(map);
                     WWTPcurrentMarker.bindPopup(text);
                     WWTPcurrentMarker.bindTooltip(text).openTooltip();
