@@ -398,8 +398,8 @@
                     markerOptions = { icon: new L.Icon.Default() };
                     LScurrentMarker = L.marker([lat, long], { icon: pumpIcon }); //pumpIcon L.marker([flusingPoint[1], flusingPoint[0]], { icon: toiletIcon })
                     LScurrentMarker.addTo(map);
-                    LScurrentMarker.bindPopup(text);
-                    LScurrentMarker.bindTooltip(text).openTooltip();
+                    LScurrentMarker.bindPopup(text +" LS");
+                    LScurrentMarker.bindTooltip(text +" LS").openTooltip();
                 } else {
                     WWTPcurrentMarker = L.marker([lat, long], { icon: wwtpIcon });//wwtpIcon
                     WWTPcurrentMarker.addTo(map);
