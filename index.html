@@ -124,6 +124,14 @@
             iconSize: [30, 30], // size of the icon in pixels
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
             });     
+
+        var pumpIcon = L.divIcon({
+            className: 'fa-icon',
+            html: '<i class="fa-solid fa-pump  fa-3x" style="color: #1c81ce;"></i>',
+            iconSize: [30, 30], // size of the icon in pixels
+            iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
+            });   
+        
         if (config.esri_basemap === true) {
             L.esri.basemapLayer('Streets').addTo(map);
         }
@@ -382,7 +390,7 @@
             try {
                 if (type == "LS") {
                     markerOptions = { icon: new L.Icon.Default() };
-                    LScurrentMarker = L.marker([lat, long], markerOptions);
+                    LScurrentMarker = L.marker([lat, long], { icon: pumpIcon }); //pumpIcon L.marker([flusingPoint[1], flusingPoint[0]], { icon: toiletIcon })
                     LScurrentMarker.addTo(map);
                     LScurrentMarker.bindPopup(text);
                     LScurrentMarker.bindTooltip(text).openTooltip();
