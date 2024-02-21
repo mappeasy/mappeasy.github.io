@@ -396,7 +396,7 @@
             try {
                 if (type == "LS") {
                     markerOptions = { icon: new L.Icon.Default() };
-                    LScurrentMarker = L.marker([lat, long], { icon: pumpIcon }); //pumpIcon L.marker([flusingPoint[1], flusingPoint[0]], { icon: toiletIcon })
+                    LScurrentMarker = L.marker([lat, long], { icon: pumpIcon });
                     LScurrentMarker.addTo(map);
                     LScurrentMarker.bindPopup(text +" LS");
                     LScurrentMarker.bindTooltip(text +" LS").openTooltip();
