@@ -181,7 +181,7 @@
         function createEsriLayer(url, layers, opacity) {
             return L.esri.dynamicMapLayer({ url, layers, opacity }).addTo(map);
         }
-        document.getElementById('lastFlushButton').addEventListener('click', function () {
+        document.getElementById('lastFlushButton').addEventListener('dblclick', function () {
             if (Object.keys(mainData).length === 0) {
                 var NoData = {
                     header: "Let's Go and Flush - Click on any location on map", // Add your header text here
