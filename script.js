@@ -343,22 +343,27 @@ function calculateRoute(data) {
 }
 
 function makeDraggable(dragHandle, draggableElement) {
+    var offsetX, offsetY, initialMouseX, initialMouseY;
+
     dragHandle.addEventListener('mousedown', function(e) {
-        var offsetX = e.clientX - draggableElement.getBoundingClientRect().left;
-        var offsetY = e.clientY - draggableElement.getBoundingClientRect().top;
-
-        function onMouseMove(e) {
-            draggableElement.style.position = 'fixed';
-            draggableElement.style.top = (e.clientY - offsetY) + 'px';
-            draggableElement.style.left = (e.clientX - offsetX) + 'px';
-        }
-
-        function onMouseUp() {
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
-        }
+        offsetX = draggableElement.offsetLeft;
+        offsetY = draggableElement.offsetTop;
+        initialMouseX = e.clientX;
+        initialMouseY = e.clientY;
 
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
+
+        e.preventDefault(); // Prevents text selection during drag
     });
+
+    function onMouseMove(e) {
+        draggableElement.style.left = offsetX + e.clientX - initialMouseX + 'px';
+        draggableElement.style.top = offsetY + e.clientY - initialMouseY + 'px';
+    }
+
+    function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+    }
 }
