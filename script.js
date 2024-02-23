@@ -342,9 +342,9 @@ function calculateRoute(data) {
     return {total_len_ft,total_len_mi,total_hour_min,total_hour_max};
 }
 
-function makeDraggable(elementId,modalheader) {
+function makeDraggable(elementId,modalheaderId) {
     var element = document.getElementById(elementId);
-    var dragItem = element.querySelector(modalheader);
+    var dragItem = document.getElementById(modalheaderId);
 
     dragItem.addEventListener('mousedown', function(e) {
         var offsetX = e.clientX - element.getBoundingClientRect().left;
