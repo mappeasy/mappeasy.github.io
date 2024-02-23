@@ -341,26 +341,39 @@ function calculateRoute(data) {
     let total_hour_max = roundToDecimals(toal_second_max / 3600, 2);
     return {total_len_ft,total_len_mi,total_hour_min,total_hour_max};
 }
-function makeDraggable(dragHandle, draggableElement) {}
-/*
-function makeDraggable(dragHandle, draggableElement) {
-    dragHandle.addEventListener('mousedown', function(e) {
-        var offsetX = e.clientX - draggableElement.getBoundingClientRect().left;
-        var offsetY = e.clientY - draggableElement.getBoundingClientRect().top;
+document.addEventListener('DOMContentLoaded', function() {
+    function makeDraggable(dragHandle, draggableElement) {
+        var offsetX, offsetY, initialMouseX, initialMouseY;
+
+        dragHandle.addEventListener('mousedown', function(e) {
+            offsetX = draggableElement.offsetLeft;
+            offsetY = draggableElement.offsetTop;
+            initialMouseX = e.clientX;
+            initialMouseY = e.clientY;
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+
+            e.preventDefault(); // Prevents text selection during drag
+        });
 
         function onMouseMove(e) {
-            draggableElement.style.position = 'fixed';
-            draggableElement.style.top = (e.clientY - offsetY) + 'px';
-            draggableElement.style.left = (e.clientX - offsetX) + 'px';
+            draggableElement.style.left = offsetX + e.clientX - initialMouseX + 'px';
+            draggableElement.style.top = offsetY + e.clientY - initialMouseY + 'px';
         }
 
         function onMouseUp() {
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
         }
+    }
 
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
-    });
-}
-*/
+    var modalHeader = document.getElementById('modalHeader');
+    var loadingModal = document.getElementById('loadingModal');
+
+    if (modalHeader && loadingModal) {
+        makeDraggable(modalHeader, loadingModal);
+    } else {
+        console.error("Elements not found");
+    }
+});
