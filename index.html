@@ -33,7 +33,7 @@
     <div id="loadingModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Following Flush . . .</h2>
+                <h2>Following The Flush . . .</h2>
                 <i class="fa fa-cog fa-spin fa-5x fa-fw"></i>
             </div>
             <div class="modal-body">
@@ -58,20 +58,18 @@
         </div>
     </div>
     <div id="summaryCard" class="summary-card">
-        <div class="card-note" id="card-note-notification">Below's what happens when you flush from</div>
+        <div class="card-note" id="card-note-notification">Adventure Begins: From Flush to Final Splash! Flushing at</div>
         <!-- Add your note text here -->
         <div class="card-content">
             <h2 id="cardHeader">Where Flush Goes</h2>
             <sub id="notification">
-                <font color='gray'><i>There are a lot of factors that might contribute to the rate of flow; this
-                        estimate assumes a flow of between 1 and 3 feet/second in Gravity Main; between 2 to 8
-                        feet/second in Forcemain.</i></font>
+                <font color='gray'><i>"Imagine this: In our underground water race, the flow zooms from 1 to 3 feet per second in the Gravity Main, like a lazy river, and then dashes from 2 to 8 feet per second in the Forcemain, like a super-speedy waterslide!</i></font>
             </sub>
             <hr />
             <p id="generalRoute_container"><strong>General Route:</strong> <span id="generalRoute">0 feet</span></p>
-            <p id="distanceTraveled_container"><strong>Distance Traveled:</strong> <span id="distanceTraveled">0
+            <p id="distanceTraveled_container"><strong>Zooming Adventure:</strong> <span id="distanceTraveled">0
                     feet</span></p>
-            <p id="timeToWWTP_container"><strong>Time to WWTP:</strong> <span id="timeToWWTP">0 hours</span></p>
+            <p id="timeToWWTP_container"><strong>Speedy Splash:</strong> <span id="timeToWWTP">0 hours</span></p>
             <p id="communitiesPassed_"><strong>Epic Journey of the Flush:</strong></p>
             <ul id="communitiesPassed">
                 <!-- List items will be added dynamically -->
@@ -367,10 +365,10 @@
                             }
                         }
                         if (firstLS == null) {
-                            generalRoute = "The flush will ge transfered to the treatment plant directly " + lastStopPoint_Result.info.FACILITYNAME + " at " + lastStopPoint_Result.info.ADDRESS;
+                            generalRoute = "Guess what happens when you flush? It's like a water race to the 'Clean Team Castle', zooming directly to the treatment plant " + lastStopPoint_Result.info.FACILITYNAME + " at " + lastStopPoint_Result.info.ADDRESS +"for a super splashy makeover";
 
                         } else {
-                            generalRoute = "The flush will be transported by sanitary sewer lines and picked up by first Lift Station " + firstLS.info.FACILITYNAME + " at " + firstLS.info.ADDRESS + " and then transfered through the network to WWTP at " + lastStopPoint_Result.info.ADDRESS;
+                            generalRoute = "Every time you flush, it's like a mini-water slide adventure for the water! It zooms down to the 'Super Lift Station' " + firstLS.info.FACILITYNAME + " at " + firstLS.info.ADDRESS + "  then whooshes through secret tunnels all the way to the 'Clean-up Club' WWTP at  " + lastStopPoint_Result.info.ADDRESS;
                             placeMarker(firstLS.location.y, firstLS.location.x, firstLS.info.FACILITYNAME, "LS");
                         }
                         await placeMarker(lastStopPoint_Result.location.y, lastStopPoint_Result.location.x, lastStopPoint_Result.info.FACILITYNAME, "WWTP")
