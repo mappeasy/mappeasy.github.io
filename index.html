@@ -106,18 +106,8 @@
                 weight: 8,
                 opacity: 0.4
             }
-        };
-        document.addEventListener('DOMContentLoaded', function() {
-            var modalHeader = document.getElementById('summaryCard');
-            var loadingModal = document.getElementById('cardHeader');
-        
-            if (modalHeader && loadingModal) {
-                makeDraggable(modalHeader,loadingModal);
-            } else {
-                console.error("Elements not found");
-            }
-        });        
-        
+        };   
+        makeDraggable('summaryCard','cardHeader');
         var mainData = {
         };
         closeSummaryCard('aboutMe');
