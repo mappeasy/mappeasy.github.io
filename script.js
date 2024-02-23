@@ -341,3 +341,27 @@ function calculateRoute(data) {
     let total_hour_max = roundToDecimals(toal_second_max / 3600, 2);
     return {total_len_ft,total_len_mi,total_hour_min,total_hour_max};
 }
+
+function makeDraggable(elementId,modalheader) {
+    var element = document.getElementById(elementId);
+    var dragItem = element.querySelector(modalheader);
+
+    dragItem.addEventListener('mousedown', function(e) {
+        var offsetX = e.clientX - element.getBoundingClientRect().left;
+        var offsetY = e.clientY - element.getBoundingClientRect().top;
+
+        function onMouseMove(e) {
+            element.style.position = 'absolute';
+            element.style.top = e.clientY - offsetY + 'px';
+            element.style.left = e.clientX - offsetX + 'px';
+        }
+
+        function onMouseUp() {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    });
+}
