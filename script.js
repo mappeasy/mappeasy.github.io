@@ -343,6 +343,8 @@ function calculateRoute(data) {
 }
 document.addEventListener('DOMContentLoaded', function() {
     function makeDraggable(dragHandle, draggableElement) {
+        var dragHandle = document.getElementById('dragHandle');
+        var draggableElement = document.getElementById('loadingModal');
         var offsetX, offsetY, initialMouseX, initialMouseY;
 
         dragHandle.addEventListener('mousedown', function(e) {
