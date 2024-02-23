@@ -341,7 +341,8 @@ function calculateRoute(data) {
     let total_hour_max = roundToDecimals(toal_second_max / 3600, 2);
     return {total_len_ft,total_len_mi,total_hour_min,total_hour_max};
 }
-
+function makeDraggable(dragHandle, draggableElement) {}
+/*
 function makeDraggable(dragHandle, draggableElement) {
     dragHandle.addEventListener('mousedown', function(e) {
         var offsetX = e.clientX - draggableElement.getBoundingClientRect().left;
@@ -362,3 +363,4 @@ function makeDraggable(dragHandle, draggableElement) {
         document.addEventListener('mouseup', onMouseUp);
     });
 }
+*/
