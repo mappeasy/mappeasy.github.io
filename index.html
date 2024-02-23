@@ -107,7 +107,17 @@
                 opacity: 0.4
             }
         };
-        makeDraggable('summaryCard','cardHeader');
+        document.addEventListener('DOMContentLoaded', function() {
+            var modalHeader = document.getElementById('summaryCard');
+            var loadingModal = document.getElementById('cardHeader');
+        
+            if (modalHeader && loadingModal) {
+                makeDraggable('summaryCard','cardHeader');
+            } else {
+                console.error("Elements not found");
+            }
+        });        
+        
         var mainData = {
         };
         closeSummaryCard('aboutMe');
