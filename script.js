@@ -14,7 +14,6 @@ async function queryFeaturesByEndPoint(mapServer, unitID) {
         console.error('Error fetching endpoint:', error);
         return null;
     }
-
     // Check if endPoint was successfully retrieved
     if (!endPoint) {
         console.log('No endpoint found for the given UNITID.');
