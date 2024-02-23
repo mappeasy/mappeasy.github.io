@@ -386,7 +386,7 @@
                             header: "Near By " + result.geojson.features[0].properties.ADDRESS, // Add your header text here
                             generalRoute: generalRoute,
                             distance: `The flush travels ${calculation.total_len_ft} feet (${calculation.total_len_mi}  miles) through the sewer network before reaching the COH treatment facility.`,
-                            time: `It could take anywhere between ${calculation.total_hour_min} hours to ${calculation.total_hour_max}  hours for your flush to reach the treatment plant during typical dry-weather operations.`,
+                            time: `Your flush goes on a wild ride! It could zip to the treatment plant in just  ${calculation.total_hour_min} hours, , or take a leisurely journey up to ${calculation.total_hour_max} hours during sunny weather fun times.`,
                             communities: getUniqueStreetNames(result.geojson.features)
                         };
                         showSummaryCard(mainData, false);
