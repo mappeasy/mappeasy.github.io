@@ -92,7 +92,7 @@
 
 
     <script>
-        makeDraggable('summaryCard','cardHeader');
+        
         // Configuration
         const config = {
             esri_basemap: false,
@@ -108,7 +108,9 @@
             }
         };   
         var mainData = {
-        };
+        };;
+        makeDraggable(document.getElementById('cardHeader'),document.getElementById('summaryCard'));
+        
         closeSummaryCard('aboutMe');
         closeSummaryCard('summaryCard');
         var currentGeoJsonLayer = null;
