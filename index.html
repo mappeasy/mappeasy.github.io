@@ -106,7 +106,6 @@
                 opacity: 0.4
             }
         };   
-        makeDraggable('summaryCard','cardHeader');
         var mainData = {
         };
         closeSummaryCard('aboutMe');
@@ -121,6 +120,7 @@
             zoom: config.initialZoom,
             zoomControl: config.zoomControl // Disable the default zoom control
         });
+        makeDraggable('summaryCard','cardHeader');
         // Add a toilet marker
         var toiletIcon = L.divIcon({
             className: 'fa-icon',
