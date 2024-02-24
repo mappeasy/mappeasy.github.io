@@ -366,7 +366,7 @@ function makeDraggable(dragHandleId, draggableElementId) {
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
 
-        e.preventDefault(); // Prevents text selection during drag
+        //e.preventDefault(); // Prevents text selection during drag
     });
 }
 
