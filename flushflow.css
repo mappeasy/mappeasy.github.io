@@ -365,15 +365,15 @@ html, body {
 
 .legend-content {
     position: fixed;
-    bottom: 65px; /* Height of toggleButton + its bottom spacing */
+    bottom: 60px; /* Height of toggleButton + its bottom spacing */
     left: 0.5%; /* Same as toggleButton */
     background: rgba(255, 255, 255, 0.9);
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    padding: 15px;
+    padding: 10px;
     z-index: 999; /* Just below the toggleButton */
     display: none; /* Initially hidden */
-    max-width: 250px;
+    max-width: 300px;
     box-sizing: border-box; /* To include padding in the width */
 }
 
@@ -412,8 +412,8 @@ html, body {
 /* The slider */
 .toggle-switch-label {
     display: inline-block;
-    width: 40px; /* Smaller width */
-    height: 22px; /* Smaller height */
+    width: 45px; /* Smaller width */
+    height: 29px; /* Smaller height */
     position: relative;
     background-color: #ccc;
     border-radius: 22px; /* Adjusted for smaller height */
@@ -424,8 +424,8 @@ html, body {
 .toggle-switch-label:after {
     content: "";
     display: block;
-    width: 18px; /* Smaller width */
-    height: 18px; /* Smaller height */
+    width: 25px; /* Smaller width */
+    height: 25px; /* Smaller height */
     background-color: white;
     position: absolute;
     top: 2px; /* Adjusted for smaller height */
@@ -441,4 +441,17 @@ html, body {
 
 .toggle-switch-checkbox:checked + .toggle-switch-label:after {
     transform: translateX(18px); /* Adjusted for smaller width */
+}
+.icon-text-table {
+    width: 100%; /* Adjust the width as needed */
+    border-collapse: collapse; /* For cleaner appearance */
+}
+
+.icon-text-table td {
+    padding: 5px; /* Spacing inside each cell */
+    vertical-align: middle; /* Align content vertically in the middle */
+}
+
+.icon-text-table td:first-child {
+    width: 50px; /* Adjust the width of the icon column as needed */
 }
