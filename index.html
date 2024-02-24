@@ -104,12 +104,50 @@
     <div id="map"></div>
     <button id="currentLocationButton" title="Your Current Location"><i class="fa fa-location"></i></button>
     <button id="lastFlushButton"><i class="fas fa-water"></i> Last Flush</button>
+    <div id="toggleButton" class="collapsible-button"> <i class="fas fa-chevron-down"></i> Legend</div>
+    <div id="legendContent" class="legend-content">
+        <h4>Map Legend</h4>
+        <i style="background: #0000FF; width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.4;"></i>
+        Flush Flow<br>
+        <i class="fa fa-map-marker" aria-hidden="true" style="color: #2E85CB;"></i> LS/WWTP<br>
+        <!-- About button -->
+        <button id="aboutButton" class="legend-button">About</button>
+        <!-- Toggle switch for manhole layers -->
+        <div class="switch-container">
+            <h4>Label</h4>
+            <input type="checkbox" class="toggle-switch-checkbox" id="manholeToggle">
+            <label class="toggle-switch-label" for="manholeToggle"></label>
+        </div>
+    </div>
 
     <script>
+        document.getElementById('legendContent').style.display = 'none';
+        document.getElementById('toggleButton').onclick = function() {
+            var contentDiv = document.getElementById('legendContent');
+            var isHidden = contentDiv.style.display === 'none';
+            contentDiv.style.display = isHidden ? 'block' : 'none';
 
+            var icon = this.querySelector('i');
+            if (isHidden) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        };
+
+        document.getElementById('aboutButton').onclick = function () {
+            closeSummaryCard('summaryCard');
+            document.getElementById('aboutMe').style.display = 'block';
+        };
+
+        document.getElementById('manholeToggle').onchange = function () {
+            toggleManholeLayers();
+        };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -177,90 +215,24 @@
             }).addTo(map);
         }
         // Layer Definitions
-        const gravityMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [1], config.layerTransparency,true);
-        const forceMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [4], config.layerTransparency,true);
-        const lsWwtpLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [16], config.layerTransparency,true);
-        const lsWwtpLabelLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [17], config.layerTransparency,true);
+        const gravityMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [1], config.layerTransparency, true);
+        const forceMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [4], config.layerTransparency, true);
+        const lsWwtpLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [16], config.layerTransparency, true);
+        const lsWwtpLabelLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [17], config.layerTransparency, true);
 
-        const gravityMainLayerlabel = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [2], config.layerTransparency,false);
-        const manholeLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [12], config.layerTransparencyView,false);
+        const gravityMainLayerlabel = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [2], config.layerTransparency, false);
+        const manholeLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [12], config.layerTransparencyView, false);
 
-        const manholeLayerLabel = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [13], config.layerTransparencyView,false);
+        const manholeLayerLabel = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [13], config.layerTransparencyView, false);
 
 
-
-        L.Control.MapLegend = L.Control.extend({
-            onAdd: function (map) {
-                var container  = L.DomUtil.create('div', 'info legend');
-                // Toggle button to show/hide the legend
-                var toggleButton = L.DomUtil.create('button', 'legend-toggle', container);
-                toggleButton.innerHTML = 'Legend ▼'; // Or use an icon
-                toggleButton.style.backgroundColor = '#007bff';
-                toggleButton.style.color = 'white';
-                // Content container
-                var contentDiv = L.DomUtil.create('div', 'legend-content', container);
-                contentDiv.style.display = 'none'; // Initially hide
-
-                contentDiv.innerHTML += '<h4>Map Legend</h4>';
-                contentDiv.innerHTML += '<i style="background: #0000FF; width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.4;"></i> Flush Flow<br>';
-                contentDiv.innerHTML += '<i class="fa fa-map-marker" aria-hidden="true" style="color: #2E85CB;"></i> LS/WWTP<br>';
-
-                var button = L.DomUtil.create('button', 'legend-button');
-                button.innerHTML = 'About';
-                button.style.backgroundColor = '#007bff';
-                button.style.color = 'white';
-                button.style.border = 'none';
-                button.style.borderRadius = '4px';
-                button.style.padding = '5px 10px';
-                button.style.marginTop = '10px';
-                button.style.cursor = 'pointer';
-                button.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
-                button.onclick = function () {
-                    event.stopPropagation();
-                    closeSummaryCard('summaryCard');
-                    document.getElementById('aboutMe').style.display = 'block';
-                };
-                contentDiv.appendChild(button);
-
-                // Toggle switch container
-                var switchContainer = L.DomUtil.create('div', 'switch-container', contentDiv);
-                switchContainer.innerHTML = '<h4>Label</h4>';
-
-                // Checkbox (toggle switch)
-                var toggleSwitch = L.DomUtil.create('input', 'toggle-switch-checkbox', switchContainer);
-                toggleSwitch.type = 'checkbox';
-                toggleSwitch.id = 'manholeToggle';
-
-                // Label (visual representation of the switch)
-                var toggleLabel = L.DomUtil.create('label', 'toggle-switch-label', switchContainer);
-                toggleLabel.setAttribute('for', 'manholeToggle');
-
-                toggleSwitch.onchange = function () {
-                    event.stopPropagation();
-                    toggleManholeLayers();
-                };
-                // Toggle function
-                // Toggle function
-                toggleButton.onclick = function () {
-                            var isHidden = contentDiv.style.display === 'none';
-                            contentDiv.style.display = isHidden ? 'block' : 'none';
-                            toggleButton.innerHTML = isHidden ? 'Legend ▲' : 'Legend ▼';
-                        };
-                return container;
-            }
-        });
-
-        L.control.mapLegend = function (opts) {
-            return new L.Control.MapLegend(opts);
-        }
-        L.control.mapLegend({ position: 'bottomleft' }).addTo(map);
         // Utility Functions
-        function createEsriLayer(url, layers, opacity,addIn) {
-            if(addIn === true){
+        function createEsriLayer(url, layers, opacity, addIn) {
+            if (addIn === true) {
                 return L.esri.dynamicMapLayer({ url, layers, opacity }).addTo(map);
             } else {
                 return L.esri.dynamicMapLayer({ url, layers, opacity });
-            
+
             }
         }
         document.getElementById('lastFlushButton').addEventListener('click', function () {
@@ -323,9 +295,9 @@
                 map.removeLayer(manholeLayerLabel);
                 map.removeLayer(gravityMainLayerlabel);
                 config.layerTransparency = 0.4;
-                setLayerVisibility(config.layerTransparency);                     
+                setLayerVisibility(config.layerTransparency);
             } else {
-                manholeLayerLabel.addTo(map);                
+                manholeLayerLabel.addTo(map);
                 manholeLayer.addTo(map);
                 gravityMainLayerlabel.addTo(map);
                 map.removeLayer(gravityMainLayer);
@@ -333,7 +305,7 @@
                 map.removeLayer(forceMainLayer);
                 forceMainLayer.addTo(map);   //well! this is to bring the forceMainLayer to the bottom              
                 config.layerTransparency = 1;
-                setLayerVisibility(config.layerTransparency);                
+                setLayerVisibility(config.layerTransparency);
             }
             manholeLayersAdded = !manholeLayersAdded;
         }
@@ -414,7 +386,7 @@
             lsWwtpLabelLayer.setOpacity(opacity);
             gravityMainLayerlabel.setOpacity(opacity);
             manholeLayer.setOpacity(opacity);
-            manholeLayerLabel.setOpacity(opacity);            
+            manholeLayerLabel.setOpacity(opacity);
         }
         var LScurrentMarker = null; // This will hold the current marker
         var WWTPcurrentMarker = null; // This will hold the current marker
