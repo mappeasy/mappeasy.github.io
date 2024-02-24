@@ -339,21 +339,23 @@ function calculateRoute(data) {
     let total_hour_max = roundToDecimals(toal_second_max / 3600, 2);
     return {total_len_ft,total_len_mi,total_hour_min,total_hour_max};
 }
-function makeDraggable(dragHandle, draggableElement) {
+function makeDraggable(dragHandles, draggableElement) {
     var offsetX, offsetY, initialMouseX, initialMouseY;
 
-    dragHandle.addEventListener('mousedown', function(e) {
-        offsetX = draggableElement.offsetLeft;
-        offsetY = draggableElement.offsetTop;
-        initialMouseX = e.clientX;
-        initialMouseY = e.clientY;
+    dragHandles.forEach(function(dragHandle) {
+        dragHandle.addEventListener('mousedown', function(e) {
+            offsetX = draggableElement.offsetLeft;
+            offsetY = draggableElement.offsetTop;
+            initialMouseX = e.clientX;
+            initialMouseY = e.clientY;
 
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
 
-        e.preventDefault(); // Prevents text selection during drag
+            e.preventDefault(); // Prevents text selection during drag
+        });
+        dragHandle.style.cursor = 'move';
     });
-    dragHandle.style.cursor = 'move';
 
     function onMouseMove(e) {
         draggableElement.style.left = offsetX + e.clientX - initialMouseX + 'px';
