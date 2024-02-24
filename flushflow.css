@@ -317,19 +317,56 @@ fhtml, body {
         font-size: 14px;
     }
 }
+/* Main container styles */
 .info.legend {
-    padding: 6px 8px;
-    background: white;
-    background: rgba(255, 255, 255, 0.5);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
-    line-height: 18px;
+    font-family: Arial, sans-serif;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    font-size: 14px;
+    color: #333;
+    max-width: 250px; /* Limit the width */
 }
+
 .info.legend h4 {
     margin: 0 0 5px;
     color: #777;
 }
+/* Toggle button styles */
+.legend-toggle {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s;
+}
 
+.legend-toggle:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+}
+
+/* Legend content styles */
+.legend-content {
+    margin-top: 5px;
+    display: none; /* Initially hidden */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    .info.legend {
+        font-size: 12px;
+        padding: 5px;
+    }
+    .legend-toggle {
+        padding: 5px;
+    }
+}
 @keyframes flowAnimation {
     from {
         stroke-dashoffset: 30;
@@ -349,12 +386,48 @@ fhtml, body {
     animation: flowAnimation 0.9s linear infinite;
 }
 
-@media (max-width: 768px) {
-    .info.legend {
-        /* Adjust styles for smaller screens */
-        padding: 4px 6px;
-        font-size: 14px; /* Smaller font size */
-        line-height: 16px; /* Adjust line height */
-        /* Other styling as needed */
-    }
+/* The switch container */
+.switch-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1px;
+}
+
+/* Hide the checkbox */
+.toggle-switch-checkbox {
+    display: none;
+}
+
+/* The slider */
+.toggle-switch-label {
+    display: inline-block;
+    width: 40px; /* Smaller width */
+    height: 22px; /* Smaller height */
+    position: relative;
+    background-color: #ccc;
+    border-radius: 22px; /* Adjusted for smaller height */
+    cursor: pointer;
+    transition: background-color 0.4s;
+}
+
+.toggle-switch-label:after {
+    content: "";
+    display: block;
+    width: 18px; /* Smaller width */
+    height: 18px; /* Smaller height */
+    background-color: white;
+    position: absolute;
+    top: 2px; /* Adjusted for smaller height */
+    left: 2px;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+
+/* Toggle switch when checked */
+.toggle-switch-checkbox:checked + .toggle-switch-label {
+    background-color: rgba(0, 123, 255, 0.8); /* Semi-transparent blue */
+}
+
+.toggle-switch-checkbox:checked + .toggle-switch-label:after {
+    transform: translateX(18px); /* Adjusted for smaller width */
 }
