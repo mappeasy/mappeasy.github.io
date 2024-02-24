@@ -335,24 +335,47 @@ fhtml, body {
 }
 
 .collapsible-button {
-    position: fixed;
+    position: absolute;
     bottom: 10px;
     left: 0.5%;
+    z-index: 1000;
     background-color: rgba(0, 123, 255, 0.8); /* Semi-transparent blue */
     color: white;
     border: none;
     border-radius: 5px;
-    padding: 10px 15px;
-    font-size: 16px;
+    padding: 10px 15px; /* Similar padding for consistent appearance */
+    font-size: 16px; /* Same font size for consistency */
     cursor: pointer;
-    z-index: 1000; /* Make sure it's above other map elements */
     box-shadow: 0 2px 4px rgba(0,0,0,0.5);
     transition: background-color 0.3s, opacity 0.3s;
+    display: flex;
+    align-items: center; /* To align text and icon */
 }
 
 .collapsible-button:hover {
-    background-color: #0056b3;
+    background-color: rgba(0, 86, 179, 0.8); /* Slightly darker on hover */
+    opacity: 1; /* Full opacity on hover */
 }
+
+.collapsible-button i {
+    margin-left: 5px; /* Space between text and icon */
+    font-size: 20px; /* Icon size for emphasis */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    .collapsible-button {
+        font-size: 14px; /* Smaller font size for mobile */
+        padding: 8px 12px; /* Slightly smaller padding */
+        left: 10px; /* Adjust position for mobile */
+        bottom: 60px; /* Adjust position so it doesn't overlap other buttons */
+    }
+
+    .collapsible-button i {
+        font-size: 18px; /* Slightly smaller icon for mobile */
+    }
+}
+
 
 .legend-content {
     position: fixed;
