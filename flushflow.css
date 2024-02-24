@@ -1,4 +1,4 @@
-html, body {
+fhtml, body {
     height: 100%;
     margin: 0;
     padding: 0;
@@ -347,4 +347,14 @@ html, body {
 
 .light-traffic-animation {
     animation: flowAnimation 0.9s linear infinite;
+}
+
+@media (max-width: 768px) {
+    .info.legend {
+        /* Adjust styles for smaller screens */
+        padding: 4px 6px;
+        font-size: 14px; /* Smaller font size */
+        line-height: 16px; /* Adjust line height */
+        /* Other styling as needed */
+    }
 }
