@@ -333,38 +333,46 @@ fhtml, body {
     margin: 0 0 5px;
     color: #777;
 }
-/* Toggle button styles */
-.legend-toggle {
-    background-color: #007bff;
+
+.collapsible-button {
+    position: fixed;
+    bottom: 10px;
+    left: 0.5%;
+    background-color: rgba(0, 123, 255, 0.8); /* Semi-transparent blue */
     color: white;
     border: none;
-    border-radius: 4px;
-    padding: 5px 10px;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 16px;
     cursor: pointer;
-    width: 100%;
-    text-align: left;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s;
+    z-index: 1000; /* Make sure it's above other map elements */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    transition: background-color 0.3s, opacity 0.3s;
 }
 
-.legend-toggle:hover {
-    background-color: #0056b3; /* Darker shade on hover */
+.collapsible-button:hover {
+    background-color: #0056b3;
 }
 
-/* Legend content styles */
 .legend-content {
-    margin-top: 5px;
+    position: fixed;
+    bottom: 50px; /* Adjust based on the size of the toggle button */
+    left: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    z-index: 1000;
     display: none; /* Initially hidden */
+    max-width: 250px;
 }
 
 /* Responsive adjustments for smaller screens */
 @media (max-width: 600px) {
-    .info.legend {
+    .collapsible-button, .legend-content {
         font-size: 12px;
         padding: 5px;
-    }
-    .legend-toggle {
-        padding: 5px;
+        bottom: 60px; /* Adjust for smaller screens */
     }
 }
 @keyframes flowAnimation {
