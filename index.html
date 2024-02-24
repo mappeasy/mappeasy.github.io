@@ -92,6 +92,7 @@
 
 
     <script>
+        makeDraggable('summaryCard','cardHeader');
         // Configuration
         const config = {
             esri_basemap: false,
@@ -120,7 +121,7 @@
             zoom: config.initialZoom,
             zoomControl: config.zoomControl // Disable the default zoom control
         });
-        makeDraggable('summaryCard','cardHeader');
+        
         // Add a toilet marker
         var toiletIcon = L.divIcon({
             className: 'fa-icon',
