@@ -339,34 +339,29 @@ function calculateRoute(data) {
     let total_hour_max = roundToDecimals(toal_second_max / 3600, 2);
     return {total_len_ft,total_len_mi,total_hour_min,total_hour_max};
 }
-function makeDraggable(dragHandleId, draggableElementId) {
-    var dragHandle = document.getElementById(dragHandleId);
-    var draggableElement = document.getElementById(draggableElementId);
+function makeDraggable(dragHandle, draggableElement) {
     var offsetX, offsetY, initialMouseX, initialMouseY;
 
     dragHandle.addEventListener('mousedown', function(e) {
-        var rect = draggableElement.getBoundingClientRect();
-        offsetX = rect.left;
-        offsetY = rect.top;
+        offsetX = draggableElement.offsetLeft;
+        offsetY = draggableElement.offsetTop;
         initialMouseX = e.clientX;
         initialMouseY = e.clientY;
-
-        function onMouseMove(e) {
-            var dx = e.clientX - initialMouseX;
-            var dy = e.clientY - initialMouseY;
-            draggableElement.style.left = offsetX + dx + 'px';
-            draggableElement.style.top = offsetY + dy + 'px';
-        }
-
-        function onMouseUp() {
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
-        }
 
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
 
-        //e.preventDefault(); // Prevents text selection during drag
+        e.preventDefault(); // Prevents text selection during drag
     });
-}
+    dragHandle.style.cursor = 'move';
 
+    function onMouseMove(e) {
+        draggableElement.style.left = offsetX + e.clientX - initialMouseX + 'px';
+        draggableElement.style.top = offsetY + e.clientY - initialMouseY + 'px';
+    }
+
+    function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+    }
+}
