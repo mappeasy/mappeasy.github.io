@@ -1,4 +1,5 @@
 <html>
+
 <head>
     <title>Flush FLow Frenzy: Follow the FLush </title>
     <meta charset="utf-8" />
@@ -13,19 +14,18 @@
     <!-- Leaflet Esri Plugin -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/esri-leaflet"></script>
-    <script src="https://unpkg.com/leaflet-ant-path" type="text/javascript"></script>
     <!-- JavaScript file -->
     <script src="script.js"></script>
     <script src="https://unpkg.com/leaflet-control-geocoder"></script>
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-BHSNBW8NK6"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-        
-          gtag('config', 'G-BHSNBW8NK6');
-        </script>    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BHSNBW8NK6"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-BHSNBW8NK6');
+    </script>
 </head>
 
 <body>
@@ -37,10 +37,16 @@
             </div>
             <div class="modal-body">
                 <p style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-                    <span style="color: #007bff; font-weight: bold;">Dive into Houston's hidden water kingdom!</span> Imagine <span style="font-weight: bold;">39 bustling wastewater castles</span> and <span style="font-weight: bold; color: #28a745;">2 special rain spas.</span>
-                    <br />Picture over <span style="font-weight: bold;">380 water elevators</span> (no boring music here!) and a whopping <span style="font-weight: bold;">6,500 miles of watery roads,</span> from tiny 2-inch streams to huge 144-inch rivers.
-                    <br />These pipes could stretch <span style="font-weight: bold;">from DC to Seattle and back</span> – it's a mega water slide under your feet!
-                    <br /> <span style="color: #dc3545; font-weight: bold;">Houston's not just a city, it's an epic H2O adventure land!</span> 🌊🚀💦
+                    <span style="color: #007bff; font-weight: bold;">Dive into Houston's hidden water kingdom!</span>
+                    Imagine <span style="font-weight: bold;">39 bustling wastewater castles</span> and <span
+                        style="font-weight: bold; color: #28a745;">2 special rain spas.</span>
+                    <br />Picture over <span style="font-weight: bold;">380 water elevators</span> (no boring music
+                    here!) and a whopping <span style="font-weight: bold;">6,500 miles of watery roads,</span> from tiny
+                    2-inch streams to huge 144-inch rivers.
+                    <br />These pipes could stretch <span style="font-weight: bold;">from DC to Seattle and back</span>
+                    – it's a mega water slide under your feet!
+                    <br /> <span style="color: #dc3545; font-weight: bold;">Houston's not just a city, it's an epic H2O
+                        adventure land!</span> 🌊🚀💦
                 </p>
             </div>
         </div>
@@ -51,7 +57,9 @@
         <div class="card-content">
             <h2 id="cardHeader">Where Flush Goes</h2>
             <sub id="notification">
-                <font color='gray'><i>"Imagine this: In our underground water race, the flow zooms from 1 to 3 feet per second in the Gravity Main, like a lazy river, and then dashes from 2 to 8 feet per second in the Forcemain, like a super-speedy waterslide!</i></font>
+                <font color='gray'><i>"Imagine this: In our underground water race, the flow zooms from 1 to 3 feet per
+                        second in the Gravity Main, like a lazy river, and then dashes from 2 to 8 feet per second in
+                        the Forcemain, like a super-speedy waterslide!</i></font>
             </sub>
             <hr />
             <p id="generalRoute_container"><strong>General Route:</strong> <span id="generalRoute">0 feet</span></p>
@@ -71,45 +79,54 @@
         <!-- Add your note text here -->
         <div class="card-content">
             <h2 id="cardHeader_about">About this Project</h2>
-            <p id="generalRoute_container_about"><span id="generalRoute_about">This is purely for learning purpose – a chance to track the splashy journey of our flushes from the loo to the lab! It's our way of teaching the kiddos the swirling path of their flush – from toilet twirls to treatment thrills! 🚽💦🎢 <br/> Double Click/Tap to flush 💩</span></p>
-            <p id="distanceTraveled_container_about"><span id="distanceTraveled_about">Made with <i class="fa-solid fa-heart" style="color: #d31717;"></i> by WWO<br></span></p>
+            <p id="generalRoute_container_about"><span id="generalRoute_about">This is purely for learning purpose – a
+                    chance to track the splashy journey of our flushes from the loo to the lab! It's our way of teaching
+                    the kiddos the swirling path of their flush – from toilet twirls to treatment thrills! 🚽💦🎢 <br />
+                    Double Click/Tap to flush 💩</span></p>
+            <p id="distanceTraveled_container_about"><span id="distanceTraveled_about">Made with <i
+                        class="fa-solid fa-heart" style="color: #d31717;"></i> by WWO<br></span></p>
             <button onclick="closeSummaryCard('aboutMe')">Close</button>
         </div>
-    </div>    
+    </div>
     <div id="splashShow" class="summary-card">
         <div class="card-note">Flush Flow Frenzy: Follow the Flush</div>
         <!-- Add your note text here -->
         <div class="card-content">
             <h2 id="cardHeader_about">Flushing 💩: Super Simple </h2>
-            <p id="generalRoute_container_about"><span id="generalRoute_about"> <b style="color: red;">Double Tap or double click</b> on any spot to start a flush adventure, or hit the blue top-left button to whoosh away from where you are!🚽💦🎢</span></p>
-            <p id="distanceTraveled_container_about"><span id="distanceTraveled_about">Made with <i class="fa-solid fa-heart" style="color: #d31717;"></i> by WWO<br></span></p>
+            <p id="generalRoute_container_about"><span id="generalRoute_about"> <b style="color: red;">Double Tap or
+                        double click</b> on any spot to start a flush adventure, or hit the blue top-left button to
+                    whoosh away from where you are!🚽💦🎢</span></p>
+            <p id="distanceTraveled_container_about"><span id="distanceTraveled_about">Made with <i
+                        class="fa-solid fa-heart" style="color: #d31717;"></i> by WWO<br></span></p>
             <button onclick="closeSummaryCard('splashShow')">Close</button>
         </div>
-    </div>      
+    </div>
     <div id="map"></div>
     <button id="currentLocationButton" title="Your Current Location"><i class="fa fa-location"></i></button>
     <button id="lastFlushButton"><i class="fas fa-water"></i> Last Flush</button>
 
     <script>
-        
+
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
+            layerTransparencyView: 1,
             minimumZoomLevel: 16,
             zoomControl: false,
+            maxZoom: 19,
             geoJsonStyle: {
                 color: "#0000FF",
                 weight: 8,
                 opacity: 0.4
             }
-        };   
+        };
         var mainData = {
         };;
-        makeDraggable([document.getElementById('cardHeader'),document.getElementById('notification')],document.getElementById('summaryCard'));
-        makeDraggable([document.getElementById('cardHeader_about')],document.getElementById('aboutMe'));
+        makeDraggable([document.getElementById('cardHeader'), document.getElementById('notification')], document.getElementById('summaryCard'));
+        makeDraggable([document.getElementById('cardHeader_about')], document.getElementById('aboutMe'));
         closeSummaryCard('aboutMe');
         closeSummaryCard('summaryCard');
         var currentGeoJsonLayer = null;
@@ -120,30 +137,31 @@
         const map = L.map('map', {
             center: config.mapCenter,
             zoom: config.initialZoom,
+            maxZoom: config.maxZoom,
             zoomControl: config.zoomControl // Disable the default zoom control
         });
-        
+
         // Add a toilet marker
         var toiletIcon = L.divIcon({
             className: 'fa-icon',
             html: '<i class="fa-solid fa-poo fa-3x fa-beat" style="color: #8b4513;"></i>',
             iconSize: [30, 30], // size of the icon in pixels
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
-            });     
+        });
 
         var pumpIcon = L.divIcon({
             className: 'fa-icon',
             html: '<i class="fa-solid fa-pump-soap fa-beat fa-3x" style="color: #ed0c0c;"></i>',
             iconSize: [30, 30], // size of the icon in pixels
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
-            });   
+        });
         var wwtpIcon = L.divIcon({
             className: 'fa-icon',
             html: '<i class="fa-solid fa-city  fa-3x  fa-beat" style="color: #120FE6;"></i>',
             iconSize: [30, 30], // size of the icon in pixels
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
-            });           
-        
+        });
+
         if (config.esri_basemap === true) {
             L.esri.basemapLayer('Streets').addTo(map);
         }
@@ -159,22 +177,36 @@
             }).addTo(map);
         }
         // Layer Definitions
-        const gravityMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [1], config.layerTransparency);
-        const forceMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [4], config.layerTransparency);
-        const lsWwtpLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [16], config.layerTransparency);
-        const lsWwtpLabelLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [17], config.layerTransparency);
+        const gravityMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [1], config.layerTransparency,true);
+        const forceMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [4], config.layerTransparency,true);
+        const lsWwtpLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [16], config.layerTransparency,true);
+        const lsWwtpLabelLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [17], config.layerTransparency,true);
+
+        const gravityMainLayerlabel = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [2], config.layerTransparency,false);
+        const manholeLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [12], config.layerTransparencyView,false);
+
+        const manholeLayerLabel = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [13], config.layerTransparencyView,false);
+
 
 
         L.Control.MapLegend = L.Control.extend({
             onAdd: function (map) {
-                var div = L.DomUtil.create('div', 'info legend');
-                div.innerHTML += '<h4>Map Legend</h4>';
-                div.innerHTML += '<i style="background: #0000FF; width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.4;"></i> Flush Flow<br>';
-                div.innerHTML += '<i class="fa fa-map-marker" aria-hidden="true" style="color: #2E85CB;"></i> LS/WWTP<br>';
-                div.innerHTML += '<b>Double Click Or Type Address</b><br>';
-                div.innerHTML += '<b>Not for official use - Fun only</b><br>';
+                var container  = L.DomUtil.create('div', 'info legend');
+                // Toggle button to show/hide the legend
+                var toggleButton = L.DomUtil.create('button', 'legend-toggle', container);
+                toggleButton.innerHTML = 'Legend ▼'; // Or use an icon
+                toggleButton.style.backgroundColor = '#007bff';
+                toggleButton.style.color = 'white';
+                // Content container
+                var contentDiv = L.DomUtil.create('div', 'legend-content', container);
+                contentDiv.style.display = 'none'; // Initially hide
+
+                contentDiv.innerHTML += '<h4>Map Legend</h4>';
+                contentDiv.innerHTML += '<i style="background: #0000FF; width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.4;"></i> Flush Flow<br>';
+                contentDiv.innerHTML += '<i class="fa fa-map-marker" aria-hidden="true" style="color: #2E85CB;"></i> LS/WWTP<br>';
+
                 var button = L.DomUtil.create('button', 'legend-button');
-                button.innerHTML = 'More Info';
+                button.innerHTML = 'About';
                 button.style.backgroundColor = '#007bff';
                 button.style.color = 'white';
                 button.style.border = 'none';
@@ -183,13 +215,38 @@
                 button.style.marginTop = '10px';
                 button.style.cursor = 'pointer';
                 button.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
-                button.onclick = function() {
+                button.onclick = function () {
                     event.stopPropagation();
                     closeSummaryCard('summaryCard');
                     document.getElementById('aboutMe').style.display = 'block';
                 };
-                div.appendChild(button);
-                return div;
+                contentDiv.appendChild(button);
+
+                // Toggle switch container
+                var switchContainer = L.DomUtil.create('div', 'switch-container', contentDiv);
+                switchContainer.innerHTML = '<h4>Label</h4>';
+
+                // Checkbox (toggle switch)
+                var toggleSwitch = L.DomUtil.create('input', 'toggle-switch-checkbox', switchContainer);
+                toggleSwitch.type = 'checkbox';
+                toggleSwitch.id = 'manholeToggle';
+
+                // Label (visual representation of the switch)
+                var toggleLabel = L.DomUtil.create('label', 'toggle-switch-label', switchContainer);
+                toggleLabel.setAttribute('for', 'manholeToggle');
+
+                toggleSwitch.onchange = function () {
+                    event.stopPropagation();
+                    toggleManholeLayers();
+                };
+                // Toggle function
+                // Toggle function
+                toggleButton.onclick = function () {
+                            var isHidden = contentDiv.style.display === 'none';
+                            contentDiv.style.display = isHidden ? 'block' : 'none';
+                            toggleButton.innerHTML = isHidden ? 'Legend ▲' : 'Legend ▼';
+                        };
+                return container;
             }
         });
 
@@ -198,8 +255,13 @@
         }
         L.control.mapLegend({ position: 'bottomleft' }).addTo(map);
         // Utility Functions
-        function createEsriLayer(url, layers, opacity) {
-            return L.esri.dynamicMapLayer({ url, layers, opacity }).addTo(map);
+        function createEsriLayer(url, layers, opacity,addIn) {
+            if(addIn === true){
+                return L.esri.dynamicMapLayer({ url, layers, opacity }).addTo(map);
+            } else {
+                return L.esri.dynamicMapLayer({ url, layers, opacity });
+            
+            }
         }
         document.getElementById('lastFlushButton').addEventListener('click', function () {
             if (Object.keys(mainData).length === 0) {
@@ -254,8 +316,28 @@
         function hideModal() {
             document.getElementById('loadingModal').style.display = 'none';
         }
-
-        function removeAllLayer(){
+        let manholeLayersAdded = false;
+        function toggleManholeLayers() {
+            if (manholeLayersAdded) {
+                map.removeLayer(manholeLayer);
+                map.removeLayer(manholeLayerLabel);
+                map.removeLayer(gravityMainLayerlabel);
+                config.layerTransparency = 0.4;
+                setLayerVisibility(config.layerTransparency);                     
+            } else {
+                manholeLayerLabel.addTo(map);                
+                manholeLayer.addTo(map);
+                gravityMainLayerlabel.addTo(map);
+                map.removeLayer(gravityMainLayer);
+                gravityMainLayer.addTo(map); //well! this is to bring the gravityMainLayer to the bottom
+                map.removeLayer(forceMainLayer);
+                forceMainLayer.addTo(map);   //well! this is to bring the forceMainLayer to the bottom              
+                config.layerTransparency = 1;
+                setLayerVisibility(config.layerTransparency);                
+            }
+            manholeLayersAdded = !manholeLayersAdded;
+        }
+        function removeAllLayer() {
             try {
                 if (currentGeoJsonLayer !== null) map.removeLayer(currentGeoJsonLayer);
                 if (LScurrentMarker !== null) map.removeLayer(LScurrentMarker);
@@ -279,44 +361,45 @@
             removeAllLayer();
 
             currentGeoJsonLayer = L.geoJSON(geojsonData, {
-            style: function(feature) {
-                return {
-                    color: config.geoJsonStyle.color, // Example color
-                    weight: config.geoJsonStyle.weight,
-                    opacity: config.geoJsonStyle.opacity,
-                    lineCap: 'round',
-                    dashArray: '10, 20',
-                    dashOffset: '0',
-                    className: (feature.properties.SUBTYPECD ==1 || feature.properties.SUBTYPECD ==2 ) ? 'heavy-traffic-animation' : 'light-traffic-animation'
-                };
-            }
-            }).addTo(map); 
+                style: function (feature) {
+                    return {
+                        color: config.geoJsonStyle.color, // Example color
+                        weight: config.geoJsonStyle.weight,
+                        opacity: config.geoJsonStyle.opacity,
+                        lineCap: 'round',
+                        dashArray: '10, 20',
+                        dashOffset: '0',
+                        className: (feature.properties.SUBTYPECD == 1 || feature.properties.SUBTYPECD == 2) ? 'heavy-traffic-animation' : 'light-traffic-animation'
+                    };
+                }
+            }).addTo(map);
 
             currentGeoJsonLayerLine = L.geoJSON(geojsonData, {
                 style: function (feature) {
                     return {
-                        color: "#0000FF", 
+                        color: "#0000FF",
                         weight: 12,       // Thickness of the line
                         opacity: 0.2     // Transparency
                     };
                 }
-            }).addTo(map);            
-                // Zoom to the bounds of the GeoJSON layer
+            }).addTo(map);
+            // Zoom to the bounds of the GeoJSON layer
             if (geojsonData.features && geojsonData.features.length > 0) {
                 var bounds = currentGeoJsonLayer.getBounds();
                 map.fitBounds(bounds);
             }
             let flusingPoint = geojsonData.features[0].geometry.coordinates[0];
-            currentLocationIcon= L.marker([flusingPoint[1], flusingPoint[0]], { icon: toiletIcon })
+            currentLocationIcon = L.marker([flusingPoint[1], flusingPoint[0]], { icon: toiletIcon })
                 .addTo(map)
                 .bindPopup('Your flush starts here!')
                 //.bindTooltip('flush Location', { permanent: true, direction: 'top' })
                 .bindTooltip("Hey!I'm your flush")
-                .openTooltip();     
+                .openTooltip();
         }
 
         function checkZoomLevel() {
             const currentZoom = map.getZoom();
+            console.log(currentZoom);
             if (currentZoom < config.minimumZoomLevel) {
                 setLayerVisibility(0); // Hide layers
             } else {
@@ -329,6 +412,9 @@
             forceMainLayer.setOpacity(opacity);
             lsWwtpLayer.setOpacity(opacity);
             lsWwtpLabelLayer.setOpacity(opacity);
+            gravityMainLayerlabel.setOpacity(opacity);
+            manholeLayer.setOpacity(opacity);
+            manholeLayerLabel.setOpacity(opacity);            
         }
         var LScurrentMarker = null; // This will hold the current marker
         var WWTPcurrentMarker = null; // This will hold the current marker
@@ -364,7 +450,7 @@
                             }
                         }
                         if (firstLS == null) {
-                            generalRoute = "Guess what happens when you flush? It's like a water race to the 'Clean Team Castle', zooming directly to the treatment plant " + lastStopPoint_Result.info.FACILITYNAME + " at " + lastStopPoint_Result.info.ADDRESS +"for a super splashy makeover";
+                            generalRoute = "Guess what happens when you flush? It's like a water race to the 'Clean Team Castle', zooming directly to the treatment plant " + lastStopPoint_Result.info.FACILITYNAME + " at " + lastStopPoint_Result.info.ADDRESS + "for a super splashy makeover";
 
                         } else {
                             generalRoute = "Every time you flush, it's like a mini-water slide adventure for the water! It zooms down to the 'Super Lift Station' " + firstLS.info.FACILITYNAME + " at " + firstLS.info.ADDRESS + "  then whooshes through secret tunnels all the way to the 'Clean-up Club' WWTP at  " + lastStopPoint_Result.info.ADDRESS;
@@ -404,8 +490,8 @@
                     markerOptions = { icon: new L.Icon.Default() };
                     LScurrentMarker = L.marker([lat, long], { icon: pumpIcon });
                     LScurrentMarker.addTo(map);
-                    LScurrentMarker.bindPopup(text +" LS");
-                    LScurrentMarker.bindTooltip(text +" LS").openTooltip();
+                    LScurrentMarker.bindPopup(text + " LS");
+                    LScurrentMarker.bindTooltip(text + " LS").openTooltip();
                 } else {
                     WWTPcurrentMarker = L.marker([lat, long], { icon: wwtpIcon });//wwtpIcon
                     WWTPcurrentMarker.addTo(map);
