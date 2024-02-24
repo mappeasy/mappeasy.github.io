@@ -340,7 +340,6 @@ function calculateRoute(data) {
     let total_hour_max = roundToDecimals(toal_second_max / 3600, 2);
     return {total_len_ft,total_len_mi,total_hour_min,total_hour_max};
 }
-document.addEventListener('DOMContentLoaded', function() {
     function makeDraggable(dragHandle, draggableElement) {
         var dragHandle = document.getElementById('dragHandle');
         var draggableElement = document.getElementById('loadingModal');
@@ -368,13 +367,3 @@ document.addEventListener('DOMContentLoaded', function() {
             document.removeEventListener('mouseup', onMouseUp);
         }
     }
-
-    var modalHeader = document.getElementById('modalHeader');
-    var loadingModal = document.getElementById('loadingModal');
-
-    if (modalHeader && loadingModal) {
-        makeDraggable(modalHeader, loadingModal);
-    } else {
-        console.error("Elements not found");
-    }
-});
