@@ -348,7 +348,6 @@ fhtml, body {
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.5);
     transition: background-color 0.3s, opacity 0.3s;
-    display: flex;
     align-items: center; /* To align text and icon */
 }
 
@@ -362,19 +361,6 @@ fhtml, body {
     font-size: 20px; /* Icon size for emphasis */
 }
 
-/* Responsive adjustments for smaller screens */
-@media (max-width: 600px) {
-    .collapsible-button {
-        font-size: 14px; /* Smaller font size for mobile */
-        padding: 8px 12px; /* Slightly smaller padding */
-        left: 10px; /* Adjust position for mobile */
-        bottom: 60px; /* Adjust position so it doesn't overlap other buttons */
-    }
-
-    .collapsible-button i {
-        font-size: 18px; /* Slightly smaller icon for mobile */
-    }
-}
 
 
 .legend-content {
@@ -390,14 +376,6 @@ fhtml, body {
     max-width: 250px;
 }
 
-/* Responsive adjustments for smaller screens */
-@media (max-width: 600px) {
-    .collapsible-button, .legend-content {
-        font-size: 12px;
-        padding: 5px;
-        bottom: 60px; /* Adjust for smaller screens */
-    }
-}
 @keyframes flowAnimation {
     from {
         stroke-dashoffset: 30;
