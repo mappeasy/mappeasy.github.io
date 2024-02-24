@@ -121,6 +121,17 @@
     </div>
 
     <script>
+        function adjustMapHeight() {
+    var mapElement = document.getElementById('map');
+    var windowHeight = window.innerHeight;
+    mapElement.style.height = windowHeight + 'px';
+}
+
+// Adjust the height on initial load
+adjustMapHeight();
+
+// Adjust the height whenever the window is resized
+window.addEventListener('resize', adjustMapHeight);
         document.getElementById('legendContent').style.display = 'none';
         document.getElementById('toggleButton').onclick = function() {
             var contentDiv = document.getElementById('legendContent');
@@ -147,7 +158,7 @@
         };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
