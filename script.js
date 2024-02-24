@@ -341,8 +341,8 @@ function calculateRoute(data) {
     return {total_len_ft,total_len_mi,total_hour_min,total_hour_max};
 }
     function makeDraggable(dragHandle, draggableElement) {
-        var dragHandle = document.getElementById('dragHandle');
-        var draggableElement = document.getElementById('loadingModal');
+        var dragHandle = document.getElementById(dragHandle);
+        var draggableElement = document.getElementById(draggableElement);
         var offsetX, offsetY, initialMouseX, initialMouseY;
 
         dragHandle.addEventListener('mousedown', function(e) {
@@ -356,7 +356,6 @@ function calculateRoute(data) {
 
             e.preventDefault(); // Prevents text selection during drag
         });
-
         function onMouseMove(e) {
             draggableElement.style.left = offsetX + e.clientX - initialMouseX + 'px';
             draggableElement.style.top = offsetY + e.clientY - initialMouseY + 'px';
