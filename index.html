@@ -121,7 +121,7 @@
                 <td>LS</td>
             </tr>
             <tr>
-                <td><i class="fa-solid fa-city fa-beat  fa-2x" style="color: #120FE6;"></i></td>
+                <td><i class="fa-solid fa-city fa-beat fa-2x" style="color: #120FE6;"></i></td>
                 <td>WWTP</td>
             </tr>
             <tr>
@@ -140,6 +140,11 @@
             <input type="checkbox" class="toggle-switch-checkbox" id="manholeToggle">
             <label class="toggle-switch-label" for="manholeToggle"></label>
         </div>
+        <div class="switch-container">
+            <h4>Only Flush&nbsp;&nbsp;&nbsp;</h4>
+            <input type="checkbox" class="toggle-switch-checkbox" id="onlyFlush">
+            <label class="toggle-switch-label" for="onlyFlush"></label>
+        </div>        
         <hr/>        
         <!-- About button -->
         <button id="aboutButton" class="legend-button">About</button>
@@ -182,6 +187,10 @@ window.addEventListener('resize', adjustMapHeight);
         document.getElementById('manholeToggle').onchange = function () {
             toggleManholeLayers();
         };
+
+        document.getElementById('onlyFlush').onchange = function () {
+            toggleOnlyFlush();
+        };        
         // Configuration
         const config = {
             esri_basemap: false,
@@ -241,19 +250,15 @@ window.addEventListener('resize', adjustMapHeight);
             L.esri.basemapLayer('Streets').addTo(map);
         }
         else {
-            try{
-                //L.esri.basemapLayer('Streets').addTo(map);
-                L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-                    attribution: 'Not for official use or planning | <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
-                    maxZoom: 18,
-                    id: 'mapbox/streets-v11', // or any other Mapbox style
-                    tileSize: 512,
-                    zoomOffset: -1,
-                    accessToken: 'pk.eyJ1IjoibWF0aGhvYW5nIiwiYSI6ImNsc3I2djRwYjE1ODYyanBiZ2E1djltbDkifQ.nqI0jOWkftuTKgHx6m8mcw' // Replace with your Mapbox access token
-                }).addTo(map);
-            }catch{
-                L.esri.basemapLayer('Streets').addTo(map);
-            }
+            //L.esri.basemapLayer('Streets').addTo(map);
+            L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+                attribution: 'Not for official use or planning | <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+                maxZoom: 18,
+                id: 'mapbox/streets-v11', // or any other Mapbox style
+                tileSize: 512,
+                zoomOffset: -1,
+                accessToken: 'pk.eyJ1IjoibWF0aGhvYW5nIiwiYSI6ImNsc3I2djRwYjE1ODYyanBiZ2E1djltbDkifQ.nqI0jOWkftuTKgHx6m8mcw' // Replace with your Mapbox access token
+            }).addTo(map);
         }
         // Layer Definitions
         const gravityMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [1], config.layerTransparency, true);
@@ -337,6 +342,10 @@ window.addEventListener('resize', adjustMapHeight);
                 map.removeLayer(gravityMainLayerlabel);
                 config.layerTransparency = 0.4;
                 setLayerVisibility(config.layerTransparency);
+                if(document.getElementById('onlyFlush').checked === true){
+                    document.getElementById('onlyFlush').checked = false;
+                    toggleOnlyFlush();
+                }                
             } else {
                 manholeLayerLabel.addTo(map);
                 manholeLayer.addTo(map);
@@ -350,6 +359,32 @@ window.addEventListener('resize', adjustMapHeight);
             }
             manholeLayersAdded = !manholeLayersAdded;
         }
+        let onlyFlush = false;
+        toggleOnlyFlush(onlyFlush);
+        function toggleOnlyFlush() {
+            if (onlyFlush) {
+                map.removeLayer(manholeLayer);
+                map.removeLayer(manholeLayerLabel);
+                map.removeLayer(gravityMainLayerlabel);
+                map.removeLayer(gravityMainLayer);
+                map.removeLayer(forceMainLayer);
+                map.removeLayer(gravityMainLayerlabel);
+                map.removeLayer(lsWwtpLayer);
+                map.removeLayer(lsWwtpLabelLayer);
+                if(document.getElementById('manholeToggle').checked === true){
+                    document.getElementById('manholeToggle').checked = false;
+                    toggleManholeLayers();
+                }
+
+            } else {
+                gravityMainLayerlabel.addTo(map);
+                gravityMainLayer.addTo(map); //well! this is to bring the gravityMainLayer to the bottom
+                forceMainLayer.addTo(map);   //well! this is to bring the forceMainLayer to the bottom              
+                lsWwtpLayer.addTo(map);   //well! this is to bring the forceMainLayer to the bottom              
+                lsWwtpLabelLayer.addTo(map);   //well! this is to bring the forceMainLayer to the bottom                       
+            }
+            onlyFlush = !onlyFlush;
+        }        
         function removeAllLayer() {
             try {
                 if (currentGeoJsonLayer !== null) map.removeLayer(currentGeoJsonLayer);
