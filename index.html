@@ -145,7 +145,13 @@
             <input type="checkbox" class="toggle-switch-checkbox" id="onlyFlush">
             <label class="toggle-switch-label" for="onlyFlush"></label>
         </div>        
-        <hr/>        
+        <hr/>
+        <div class="switch-container">
+            <h4>Game On&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h4>
+            <input type="checkbox" class="toggle-switch-checkbox" id="gameOn">
+            <label class="toggle-switch-label" for="gameOn"></label>
+        </div>        
+        <hr/>         
         <!-- About button -->
         <button id="aboutButton" class="legend-button">About</button>
         <div><i style="font-size:14px; ">Not for official use or planning </i></div>
@@ -192,6 +198,15 @@ window.addEventListener('resize', adjustMapHeight);
         document.getElementById('onlyFlush').onchange = function () {
             toggleOnlyFlush();
         };        
+        document.getElementById('gameOn').onchange = function () {
+            if (this.checked) {
+                    // Enable map click for the game
+                    map.on('click', gameClickHandler); // gameClickHandler is your function to handle map clicks for the game
+                } else {
+                    // Disable map click for the game
+                    map.off('click', gameClickHandler);
+                }
+        };        
         // Configuration
         const config = {
             esri_basemap: false,
@@ -236,9 +251,9 @@ window.addEventListener('resize', adjustMapHeight);
         });
         var spinLocation = L.divIcon({
             className: 'fa-icon',
-            html: '<i class="fa-solid fa-crosshairs fa-spin fa-2xl style="color: #007bff;"></i>',
+            html: '<i class="fa-solid fa-crosshairs fa-spin fa-2xl" style="color: #007bff;"></i>',
             iconSize: [30, 30], // size of the icon in pixels
-            iconAnchor: [0, 0] // point of the icon which will correspond to marker's location
+            iconAnchor: [0, 15] // point of the icon which will correspond to marker's location
         });
         var pumpIcon = L.divIcon({
             className: 'fa-icon',
@@ -569,6 +584,47 @@ window.addEventListener('resize', adjustMapHeight);
             closeSummaryCard('summaryCard');
             runTrace(e.latlng.lng, e.latlng.lat)
         });
+
+        function gameClickHandler(e){
+            // Get the lat and lng of the clicked point
+            var clickedLat = e.latlng.lat;
+            var clickedLng = e.latlng.lng;
+
+            // Check if currentLocationIcon already exists
+            if (currentLocationIcon) {
+                // Move the currentLocationIcon to the clicked location
+                animateMarker(currentLocationIcon, e.latlng, 1000); 
+            } else {
+                // Create currentLocationIcon if it doesn't exist
+            }
+        }
+
+    // Additional logic here (e.g., checking if the click is along the flush path)
+
+    function animateMarker(marker, destination, duration) {
+        var startLatLng = marker.getLatLng();
+        var endLatLng = new L.LatLng(destination.lat, destination.lng);
+
+        var startTime = Date.now();
+        var timer = setInterval(function() {
+            var currentTime = Date.now();
+            var progress = (currentTime - startTime) / duration;
+
+            if (progress > 1) {
+                progress = 1;
+                clearInterval(timer);
+            }
+
+            var lat = startLatLng.lat + (endLatLng.lat - startLatLng.lat) * progress;
+            var lng = startLatLng.lng + (endLatLng.lng - startLatLng.lng) * progress;
+
+            marker.setLatLng([lat, lng]);
+
+            if (progress === 1) {
+                clearInterval(timer);
+            }
+        }, 10); // The smaller this number, the smoother the animation
+    }
         // Event Listeners
         map.on('zoomend', checkZoomLevel);
         checkZoomLevel(); // Initial check
