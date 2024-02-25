@@ -522,3 +522,39 @@ hr {
     margin-left: 5px;
     font-size: 1.5em; /* Bigger font size for score */
 }
+.congrats-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+    z-index: 1001; /* Ensure it's above all other elements */
+}
+
+.congrats-message {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+#closeModalButton {
+    padding: 8px 15px; /* Example padding */
+    background-color: #007bff; /* Example background color */
+    color: white; /* Text color */
+    border: 1px solid #007bff; /* Border properties */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 1em; /* Text size */
+    cursor: pointer; /* Cursor style */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+#closeModalButton:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+}
