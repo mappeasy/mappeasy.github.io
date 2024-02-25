@@ -216,6 +216,7 @@ window.addEventListener('resize', adjustMapHeight);
         closeSummaryCard('summaryCard');
         var currentGeoJsonLayer = null;
         var currentLocationIcon = null;
+        var currentLocationIcoSpin = null;
         var currentGeoJsonLayerLine = null;
         document.getElementById("loadingModal").style.display = "none";
         // Initialize Map
@@ -233,7 +234,12 @@ window.addEventListener('resize', adjustMapHeight);
             iconSize: [30, 30], // size of the icon in pixels
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
         });
-
+        var spinLocation = L.divIcon({
+            className: 'fa-icon',
+            html: '<i class="fa-solid fa-rotate fa-spin-pulse fa-2xl" style="color: #007bff;"></i>',
+            iconSize: [30, 30], // size of the icon in pixels
+            iconAnchor: [0, 0] // point of the icon which will correspond to marker's location
+        });
         var pumpIcon = L.divIcon({
             className: 'fa-icon',
             html: '<i class="fa-solid fa-pump-soap fa-beat fa-3x" style="color: #ed0c0c;"></i>',
@@ -393,12 +399,13 @@ window.addEventListener('resize', adjustMapHeight);
                 if (WWTPcurrentMarker !== null) map.removeLayer(WWTPcurrentMarker);
                 if (currentGeoJsonLayerLine !== null) map.removeLayer(currentGeoJsonLayerLine);
                 if (currentLocationIcon !== null) map.removeLayer(currentLocationIcon);
+                if (currentLocationIcoSpin !== null) map.removeLayer(currentLocationIcoSpin);
                 if (searchMarker !== null) map.removeLayer(searchMarker);
                 LScurrentMarker = null;
                 WWTPcurrentMarker = null;
                 currentGeoJsonLayer = null;
                 currentGeoJsonLayerLine = null;
-                currentLocationIcon = null;
+                currentLocationIcoSpin = null;
             } catch (e) {
                 console.log(e);
             }
@@ -438,12 +445,19 @@ window.addEventListener('resize', adjustMapHeight);
                 map.fitBounds(bounds);
             }
             let flusingPoint = geojsonData.features[0].geometry.coordinates[0];
+            currentLocationIcoSpin = L.marker([flusingPoint[1], flusingPoint[0]], { icon: spinLocation })
+                .addTo(map)
+                //.bindPopup('Your flush starts here!')
+                //.bindTooltip('flush Location', { permanent: true, direction: 'top' })
+                //.bindTooltip("Hey!I'm your flush")
+                //.openTooltip();            
             currentLocationIcon = L.marker([flusingPoint[1], flusingPoint[0]], { icon: toiletIcon })
                 .addTo(map)
                 .bindPopup('Your flush starts here!')
                 //.bindTooltip('flush Location', { permanent: true, direction: 'top' })
-                .bindTooltip("Hey!I'm your flush")
-                .openTooltip();
+                //.bindTooltip("Hey!I'm your flush")
+                //.openTooltip();
+
         }
 
         function checkZoomLevel() {
