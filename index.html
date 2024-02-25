@@ -110,10 +110,10 @@
     <button id="lastFlushButton"><i class="fas fa-water"></i> Last Flush</button>
     <div id="toggleButton" class="collapsible-button"> <i class="fas fa-chevron-down"></i> More <i
             class="fa-solid fa-poo fa-beat" style="color: #8b4513;"></i></div>
-    <div id="scoreContainer" style="position: absolute; top: 10px; left: 10px; z-index: 1000; display: none;">
+    <div id="scoreContainer" style="display: none;">
         <i class="fa-solid fa-gem fa-bounce fa-2x" style="color: #db1414;"></i>
         <span id="score">0</span>
-    </div>             
+    </div>         
     <div id="legendContent" class="legend-content">
         <h4>Map Legend</h4>
         <table class="icon-text-table">
@@ -231,7 +231,7 @@
         };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
