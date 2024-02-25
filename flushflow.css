@@ -455,3 +455,50 @@ html, body {
 .icon-text-table td:first-child {
     width: 50px; /* Adjust the width of the icon column as needed */
 }
+
+/*space between elements in collapsible content*/
+h4 {
+    margin-top: 6px; /* Reduced top margin */
+    margin-bottom: 6px; /* Reduced bottom margin */
+}
+
+.icon-text-table {
+    /* Existing styles */
+    margin-bottom: 6px; /* Reduced bottom margin */
+}
+
+.switch-container {
+    /* Existing styles */
+    margin-top: 6px; /* Add top margin if needed */
+    margin-bottom: 6px; /* Reduced bottom margin */
+}
+
+/* Adjust margin for the hr tag if needed */
+hr {
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+
+.legend-button {
+    background-color: #007bff; /* Primary color */
+    color: white; /* Text color */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 5px 10px; /* Vertical and horizontal padding */
+    font-size: 16px; /* Appropriate text size */
+    cursor: pointer; /* Cursor indicates it's clickable */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    transition: background-color 0.3s, box-shadow 0.3s; /* Smooth transition for hover effects */
+    margin-top: 6px; 
+}
+
+.legend-button:hover {
+    background-color: #0056b3; /* Slightly darker shade on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Slightly larger shadow on hover */
+}
+
+.legend-button:active {
+    background-color: #004088; /* Even darker for the active state */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Return to smaller shadow */
+}
