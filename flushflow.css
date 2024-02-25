@@ -502,3 +502,11 @@ hr {
     background-color: #004088; /* Even darker for the active state */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Return to smaller shadow */
 }
+
+#score {
+    font-size: 2em; /* Bigger font size */
+    color: #db1414; /* Color matching the gem */
+    font-weight: bold; /* Makes the font bold */
+    margin-left: 5px; /* Adds some space between the gem icon and the score */
+}
+
