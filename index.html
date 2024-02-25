@@ -20,13 +20,13 @@
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-BHSNBW8NK6"></script>
     <script>
-        try{
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
+        try {
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
 
-        gtag('config', 'G-BHSNBW8NK6');
-        }catch(e){
+            gtag('config', 'G-BHSNBW8NK6');
+        } catch (e) {
             console.log(e);
         }
     </script>
@@ -108,7 +108,8 @@
     <div id="map"></div>
     <button id="currentLocationButton" title="Your Current Location"><i class="fa fa-location"></i></button>
     <button id="lastFlushButton"><i class="fas fa-water"></i> Last Flush</button>
-    <div id="toggleButton" class="collapsible-button"> <i class="fas fa-chevron-down"></i> More <i class="fa-solid fa-poo fa-beat" style="color: #8b4513;"></i></div>
+    <div id="toggleButton" class="collapsible-button"> <i class="fas fa-chevron-down"></i> More <i
+            class="fa-solid fa-poo fa-beat" style="color: #8b4513;"></i></div>
     <div id="legendContent" class="legend-content">
         <h4>Map Legend</h4>
         <table class="icon-text-table">
@@ -133,25 +134,25 @@
                 <td>Sewer Manholes</td>
             </tr>
         </table>
-        
-        <hr/>
+
+        <hr />
         <div class="switch-container">
             <input type="checkbox" class="toggle-switch-checkbox" id="manholeToggle">
-            <label class="toggle-switch-label" for="manholeToggle"></label>            
+            <label class="toggle-switch-label" for="manholeToggle"></label>
             <h4>&nbsp;More Labels</h4>
         </div>
         <div class="switch-container">
             <input type="checkbox" class="toggle-switch-checkbox" id="onlyFlush">
-            <label class="toggle-switch-label" for="onlyFlush"></label>         
-            <h4>&nbsp;Only Flushnbsp</h4> 
-        </div>        
-        <hr/>
+            <label class="toggle-switch-label" for="onlyFlush"></label>
+            <h4>&nbsp;Only Flushnbsp</h4>
+        </div>
+        <hr />
         <div class="switch-container">
             <input type="checkbox" class="toggle-switch-checkbox" id="gameOn">
             <label class="toggle-switch-label" for="gameOn"></label>
-            <h4>&nbsp;Game On</h4>            
-        </div>        
-        <hr/>         
+            <h4>&nbsp;Game On</h4>
+        </div>
+        <hr />
         <!-- About button -->
         <button id="aboutButton" class="legend-button">About</button>
         <div><i style="font-size:14px; ">For Kiddos Learning Only</i></div>
@@ -159,19 +160,20 @@
     </div>
 
     <script>
+
         function adjustMapHeight() {
-    var mapElement = document.getElementById('map');
-    var windowHeight = window.innerHeight;
-    mapElement.style.height = windowHeight + 'px';
-}
+            var mapElement = document.getElementById('map');
+            var windowHeight = window.innerHeight;
+            mapElement.style.height = windowHeight + 'px';
+        }
 
-// Adjust the height on initial load
-adjustMapHeight();
+        // Adjust the height on initial load
+        adjustMapHeight();
 
-// Adjust the height whenever the window is resized
-window.addEventListener('resize', adjustMapHeight);
+        // Adjust the height whenever the window is resized
+        window.addEventListener('resize', adjustMapHeight);
         document.getElementById('legendContent').style.display = 'none';
-        document.getElementById('toggleButton').onclick = function() {
+        document.getElementById('toggleButton').onclick = function () {
             var contentDiv = document.getElementById('legendContent');
             var isHidden = contentDiv.style.display === 'none';
             contentDiv.style.display = isHidden ? 'block' : 'none';
@@ -197,19 +199,33 @@ window.addEventListener('resize', adjustMapHeight);
 
         document.getElementById('onlyFlush').onchange = function () {
             toggleOnlyFlush();
-        };        
+        };
         document.getElementById('gameOn').onchange = function () {
             if (this.checked) {
-                    // Enable map click for the game
-                    map.on('click', gameClickHandler); // gameClickHandler is your function to handle map clicks for the game
-                } else {
-                    // Disable map click for the game
-                    map.off('click', gameClickHandler);
+                // Enable map click for the game
+                map.on('click', gameClickHandler); // gameClickHandler is your function to handle map clicks for the game
+                if (geojsonData_game!==null) 
+                {
+                    try{
+                        clearAllGoldMarkers();
+                    }catch(e){
+                        console.log(e);
+                    }
+                    addGoldMarkers(geojsonData_game);
                 }
-        };        
+            } else {
+                // Disable map click for the game
+                map.off('click', gameClickHandler);
+                try{
+                    clearAllGoldMarkers();
+                }catch(e){
+                    console.log(e);
+                }
+            }
+        };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -232,7 +248,9 @@ window.addEventListener('resize', adjustMapHeight);
         var currentGeoJsonLayer = null;
         var currentLocationIcon = null;
         var currentLocationIcoSpin = null;
-        var currentGeoJsonLayerLine = null;
+        var currentGeoJsonLayerLine = null;         
+        var goldMarkers = [];
+        var geojsonData_game = null;
         document.getElementById("loadingModal").style.display = "none";
         // Initialize Map
         const map = L.map('map', {
@@ -246,6 +264,12 @@ window.addEventListener('resize', adjustMapHeight);
         var toiletIcon = L.divIcon({
             className: 'fa-icon',
             html: '<i class="fa-solid fa-poo fa-3x fa-beat" style="color: #8b4513;"></i>',
+            iconSize: [30, 30], // size of the icon in pixels
+            iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
+        });
+        var gemIcon = L.divIcon({
+            className: 'fa-icon',
+            html: '<i class="fa-solid fa-gem fa-bounce fa-3x" style="color: #db1414;"></i>',
             iconSize: [30, 30], // size of the icon in pixels
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
         });
@@ -364,10 +388,10 @@ window.addEventListener('resize', adjustMapHeight);
                 map.removeLayer(gravityMainLayerlabel);
                 config.layerTransparency = 0.4;
                 setLayerVisibility(config.layerTransparency);
-                if(document.getElementById('onlyFlush').checked === true){
+                if (document.getElementById('onlyFlush').checked === true) {
                     document.getElementById('onlyFlush').checked = false;
                     toggleOnlyFlush();
-                }                
+                }
             } else {
                 manholeLayerLabel.addTo(map);
                 manholeLayer.addTo(map);
@@ -393,7 +417,7 @@ window.addEventListener('resize', adjustMapHeight);
                 map.removeLayer(gravityMainLayerlabel);
                 map.removeLayer(lsWwtpLayer);
                 map.removeLayer(lsWwtpLabelLayer);
-                if(document.getElementById('manholeToggle').checked === true){
+                if (document.getElementById('manholeToggle').checked === true) {
                     document.getElementById('manholeToggle').checked = false;
                     toggleManholeLayers();
                 }
@@ -406,7 +430,7 @@ window.addEventListener('resize', adjustMapHeight);
                 lsWwtpLabelLayer.addTo(map);   //well! this is to bring the forceMainLayer to the bottom                       
             }
             onlyFlush = !onlyFlush;
-        }        
+        }
         function removeAllLayer() {
             try {
                 if (currentGeoJsonLayer !== null) map.removeLayer(currentGeoJsonLayer);
@@ -416,6 +440,11 @@ window.addEventListener('resize', adjustMapHeight);
                 if (currentLocationIcon !== null) map.removeLayer(currentLocationIcon);
                 if (currentLocationIcoSpin !== null) map.removeLayer(currentLocationIcoSpin);
                 if (searchMarker !== null) map.removeLayer(searchMarker);
+                try{
+                    clearAllGoldMarkers();
+                }catch(e){
+                    console.log(e);
+                }
                 LScurrentMarker = null;
                 WWTPcurrentMarker = null;
                 currentGeoJsonLayer = null;
@@ -462,16 +491,16 @@ window.addEventListener('resize', adjustMapHeight);
             let flusingPoint = geojsonData.features[0].geometry.coordinates[0];
             currentLocationIcoSpin = L.marker([flusingPoint[1], flusingPoint[0]], { icon: spinLocation })
                 .addTo(map)
-                //.bindPopup('Your flush starts here!')
-                //.bindTooltip('flush Location', { permanent: true, direction: 'top' })
-                //.bindTooltip("Hey!I'm your flush")
-                //.openTooltip();            
+            //.bindPopup('Your flush starts here!')
+            //.bindTooltip('flush Location', { permanent: true, direction: 'top' })
+            //.bindTooltip("Hey!I'm your flush")
+            //.openTooltip();            
             currentLocationIcon = L.marker([flusingPoint[1], flusingPoint[0]], { icon: toiletIcon })
                 .addTo(map)
                 .bindPopup('Your flush starts here!')
-                //.bindTooltip('flush Location', { permanent: true, direction: 'top' })
-                //.bindTooltip("Hey!I'm your flush")
-                //.openTooltip();
+            //.bindTooltip('flush Location', { permanent: true, direction: 'top' })
+            //.bindTooltip("Hey!I'm your flush")
+            //.openTooltip();
 
         }
 
@@ -498,6 +527,7 @@ window.addEventListener('resize', adjustMapHeight);
         var WWTPcurrentMarker = null; // This will hold the current marker
         async function runTrace(lng, lat) {
             showModal();
+            geojsonData_game = null;
             // Remove the previous GeoJSON layer if it exists
             await removeAllLayer();
             try {
@@ -543,6 +573,10 @@ window.addEventListener('resize', adjustMapHeight);
                             time: `Your flush goes on a wild ride! It could zip to the treatment plant in just  ${calculation.total_hour_min} hours, , or take a leisurely journey up to ${calculation.total_hour_max} hours during sunny weather fun times.`,
                             communities: getUniqueStreetNames(result.geojson.features)
                         };
+                        geojsonData_game = result.geojson;
+                        if(document.getElementById('gameOn').checked === true){
+                            addGoldMarkers(result.geojson);
+                        }
                         showSummaryCard(mainData, false);
                     } else {
                         console.log('No GeoJSON data found.');
@@ -585,7 +619,7 @@ window.addEventListener('resize', adjustMapHeight);
             runTrace(e.latlng.lng, e.latlng.lat)
         });
 
-        function gameClickHandler(e){
+        function gameClickHandler(e) {
             // Get the lat and lng of the clicked point
             var clickedLat = e.latlng.lat;
             var clickedLng = e.latlng.lng;
@@ -593,38 +627,39 @@ window.addEventListener('resize', adjustMapHeight);
             // Check if currentLocationIcon already exists
             if (currentLocationIcon) {
                 // Move the currentLocationIcon to the clicked location
-                animateMarker(currentLocationIcon, e.latlng, 1000); 
+                animateMarker(currentLocationIcon, e.latlng, 1000);
             } else {
                 // Create currentLocationIcon if it doesn't exist
             }
+            checkForGoldCollection(currentLocationIcon.getLatLng());
         }
 
-    // Additional logic here (e.g., checking if the click is along the flush path)
+        // Additional logic here (e.g., checking if the click is along the flush path)
 
-    function animateMarker(marker, destination, duration) {
-        var startLatLng = marker.getLatLng();
-        var endLatLng = new L.LatLng(destination.lat, destination.lng);
+        function animateMarker(marker, destination, duration) {
+            var startLatLng = marker.getLatLng();
+            var endLatLng = new L.LatLng(destination.lat, destination.lng);
 
-        var startTime = Date.now();
-        var timer = setInterval(function() {
-            var currentTime = Date.now();
-            var progress = (currentTime - startTime) / duration;
+            var startTime = Date.now();
+            var timer = setInterval(function () {
+                var currentTime = Date.now();
+                var progress = (currentTime - startTime) / duration;
 
-            if (progress > 1) {
-                progress = 1;
-                clearInterval(timer);
-            }
+                if (progress > 1) {
+                    progress = 1;
+                    clearInterval(timer);
+                }
 
-            var lat = startLatLng.lat + (endLatLng.lat - startLatLng.lat) * progress;
-            var lng = startLatLng.lng + (endLatLng.lng - startLatLng.lng) * progress;
+                var lat = startLatLng.lat + (endLatLng.lat - startLatLng.lat) * progress;
+                var lng = startLatLng.lng + (endLatLng.lng - startLatLng.lng) * progress;
 
-            marker.setLatLng([lat, lng]);
+                marker.setLatLng([lat, lng]);
 
-            if (progress === 1) {
-                clearInterval(timer);
-            }
-        }, 10); // The smaller this number, the smoother the animation
-    }
+                if (progress === 1) {
+                    clearInterval(timer);
+                }
+            }, 10); // The smaller this number, the smoother the animation
+        }
         // Event Listeners
         map.on('zoomend', checkZoomLevel);
         checkZoomLevel(); // Initial check
@@ -660,6 +695,38 @@ window.addEventListener('resize', adjustMapHeight);
                 alert("Location access denied.");
             });
         });
+        // Function to add gold markers
+        function addGoldMarkers(geojsonData_) {
+            clearAllGoldMarkers(); // Clear all gold markers before adding new ones
+            geojsonData_.features.forEach(feature => {
+                let startPoint = feature.geometry.coordinates[0];
+                let goldMarker = L.marker([startPoint[1], startPoint[0]], { icon: gemIcon }).addTo(map);
+                goldMarkers.push(goldMarker);
+            });
+        }
+        function checkForGoldCollection() {
+            var someThresholdDistance = 15; // Threshold distance in meters
+            var currentLocation = currentLocationIcon.getLatLng(); // Get current location of the toilet icon
+
+            // Check only the first gold marker in the array (sequential collection)
+            if (goldMarkers.length > 0) {
+                var firstMarker = goldMarkers[0];
+
+                if (firstMarker.getLatLng().distanceTo(currentLocation) < someThresholdDistance) {
+                    // If within the threshold distance, remove the first gold marker and update the score
+                    map.removeLayer(firstMarker);
+                    goldMarkers.shift(); // Remove the first marker from the array
+                    updateScore(); // Update the player's score
+                }
+            }
+        }
+        function clearAllGoldMarkers() {
+            goldMarkers.forEach(marker => {
+                map.removeLayer(marker); // Remove each marker from the map
+            });
+
+            goldMarkers = []; // Reset the goldMarkers array
+        }
     </script>
 </body>
 
