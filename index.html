@@ -114,6 +114,13 @@
         <i class="fa-solid fa-gem fa-bounce fa-2x" style="color: #db1414;"></i>
         <span id="score">0</span>
     </div>         
+    <div id="congratsModal" class="congrats-modal">
+        <div class="congrats-message">
+            <h1>Congratulations!</h1>
+            <p>You collected all the gems!</p>
+            <button id="closeModalButton">OK</button>
+        </div>
+    </div>   
     <div id="legendContent" class="legend-content">
         <h4>Map Legend</h4>
         <table class="icon-text-table">
@@ -231,7 +238,7 @@
         };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -284,7 +291,7 @@
             className: 'fa-icon',
             html: '<i class="fa-solid fa-crosshairs fa-spin fa-2xl" style="color: #007bff;"></i>',
             iconSize: [30, 30], // size of the icon in pixels
-            iconAnchor: [0, 15] // point of the icon which will correspond to marker's location
+            iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
         });
         var pumpIcon = L.divIcon({
             className: 'fa-icon',
@@ -422,7 +429,6 @@
                 map.removeLayer(gravityMainLayerlabel);
                 map.removeLayer(gravityMainLayer);
                 map.removeLayer(forceMainLayer);
-                map.removeLayer(gravityMainLayerlabel);
                 map.removeLayer(lsWwtpLayer);
                 map.removeLayer(lsWwtpLabelLayer);
                 if (document.getElementById('manholeToggle').checked === true) {
@@ -431,7 +437,7 @@
                 }
 
             } else {
-                gravityMainLayerlabel.addTo(map);
+                //gravityMainLayerlabel.addTo(map);
                 gravityMainLayer.addTo(map); //well! this is to bring the gravityMainLayer to the bottom
                 forceMainLayer.addTo(map);   //well! this is to bring the forceMainLayer to the bottom              
                 lsWwtpLayer.addTo(map);   //well! this is to bring the forceMainLayer to the bottom              
@@ -546,6 +552,7 @@
                     if (result && result.geojson) {
                         let street = [];
                         let generalRoute = "";
+                        result.geojson = processGeoJsonData(result.geojson);
                         addGeoJsonToMap(result.geojson);
                         hideModal();
                         //find first LiftStation
@@ -639,7 +646,11 @@
             } else {
                 // Create currentLocationIcon if it doesn't exist
             }
-            checkForGoldCollection(currentLocationIcon.getLatLng());
+            try{
+                checkForGoldCollection(currentLocationIcon.getLatLng());
+            }catch(e){
+                console.log("First enable the game");
+            }
         }
 
         // Additional logic here (e.g., checking if the click is along the flush path)
@@ -725,6 +736,9 @@
                     map.removeLayer(firstMarker);
                     goldMarkers.shift(); // Remove the first marker from the array
                     updateScore(); // Update the player's score
+                    if (goldMarkers.length === 0) {
+                        showCongratulations(); // Call when all gems are collected
+                    }                    
                 }
             }
         }
@@ -747,7 +761,21 @@
             } else {
                 scoreContainer.style.display = 'none'; // Hide the score label
             }
-        }        
+        }   
+        function showCongratulations() {
+            var congratsModal = document.getElementById('congratsModal');
+            congratsModal.style.visibility = 'visible';
+            console.log('All gems collected!');
+            // Create and add balloons to the modal
+            var closeButton = document.getElementById('closeModalButton');
+            closeButton.onclick = function() {
+                congratsModal.style.visibility = 'hidden';
+            };
+            // Optional: Set a timeout to hide the modal and clear balloons after a certain time
+            setTimeout(function() {
+                congratsModal.style.visibility = 'hidden';
+            }, 3000); // 10 seconds
+        }
     </script>
 </body>
 
