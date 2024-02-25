@@ -241,15 +241,19 @@ window.addEventListener('resize', adjustMapHeight);
             L.esri.basemapLayer('Streets').addTo(map);
         }
         else {
-            //L.esri.basemapLayer('Streets').addTo(map);
-            L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-                attribution: 'Not for official use or planning | <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
-                maxZoom: 18,
-                id: 'mapbox/streets-v11', // or any other Mapbox style
-                tileSize: 512,
-                zoomOffset: -1,
-                accessToken: 'pk.eyJ1IjoibWF0aGhvYW5nIiwiYSI6ImNsc3I2djRwYjE1ODYyanBiZ2E1djltbDkifQ.nqI0jOWkftuTKgHx6m8mcw' // Replace with your Mapbox access token
-            }).addTo(map);
+            try{
+                //L.esri.basemapLayer('Streets').addTo(map);
+                L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+                    attribution: 'Not for official use or planning | <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+                    maxZoom: 18,
+                    id: 'mapbox/streets-v11', // or any other Mapbox style
+                    tileSize: 512,
+                    zoomOffset: -1,
+                    accessToken: 'pk.eyJ1IjoibWF0aGhvYW5nIiwiYSI6ImNsc3I2djRwYjE1ODYyanBiZ2E1djltbDkifQ.nqI0jOWkftuTKgHx6m8mcw' // Replace with your Mapbox access token
+                }).addTo(map);
+            }catch{
+                L.esri.basemapLayer('Streets').addTo(map);
+            }
         }
         // Layer Definitions
         const gravityMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [1], config.layerTransparency, true);
