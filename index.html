@@ -148,6 +148,7 @@
         <hr/>        
         <!-- About button -->
         <button id="aboutButton" class="legend-button">About</button>
+        <div><i style="font-size:14px; ">Not for official use or planning </i></div>
         <!-- Toggle switch for manhole layers -->
     </div>
 
@@ -193,7 +194,7 @@ window.addEventListener('resize', adjustMapHeight);
         };        
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
