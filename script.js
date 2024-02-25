@@ -304,14 +304,22 @@ async function findLSWWTP(assetType, unitID) {
 }
 
 function getUniqueStreetNames(data) {
-    // Extract the addresses and remove the street numbers
-    let streetNames = data.map(item => item.properties.ADDRESS.replace(/^\d+\s/, ''));
+    let streetNames = data.map(item => {
+        try {
+            // Attempt to extract and process the address
+            return item.properties.ADDRESS.replace(/^\d+\s/, '');
+        } catch (e) {
+            // If an error occurs, return a unique value that signifies an error
+            return "__INVALID_ADDRESS__";
+        }
+    });
 
-    // Get unique street names
-    let uniqueStreetNames = [...new Set(streetNames)];
+    // Filter out any invalid addresses and get unique street names
+    let uniqueStreetNames = [...new Set(streetNames)].filter(name => name !== "__INVALID_ADDRESS__");
 
     return uniqueStreetNames;
 }
+
 function roundToDecimals(num, decimals) {
     const multiplier = Math.pow(10, decimals);
     return Math.round(num * multiplier) / multiplier;
@@ -366,4 +374,41 @@ function makeDraggable(dragHandles, draggableElement) {
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
     }
+}
+
+function processGeoJsonData(geojsonData) {
+    let processedFeatures = [];
+
+    for (let i = 0; i < geojsonData.features.length - 1; i++) {
+        let currentFeature = geojsonData.features[i];
+        let nextFeature = geojsonData.features[i + 1];
+
+        // Add the current feature
+        processedFeatures.push(currentFeature);
+
+        // Check if there's a discontinuity
+        let currentEnd = currentFeature.geometry.coordinates[currentFeature.geometry.coordinates.length - 1];
+        let nextStart = nextFeature.geometry.coordinates[0];
+
+        if (currentEnd[0] !== nextStart[0] || currentEnd[1] !== nextStart[1]) {
+            // Discontinuity detected, insert the missing segment
+            let missingSegment = {
+                type: 'Feature',
+                geometry: {
+                    type: 'LineString',
+                    coordinates: [currentEnd, nextStart]
+                },
+                properties: {} // Add any necessary properties for the missing segment
+            };
+            processedFeatures.push(missingSegment);
+        }
+    }
+
+    // Add the last feature
+    processedFeatures.push(geojsonData.features[geojsonData.features.length - 1]);
+
+    return {
+        type: 'FeatureCollection',
+        features: processedFeatures
+    };
 }
