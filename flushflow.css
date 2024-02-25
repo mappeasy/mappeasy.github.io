@@ -503,10 +503,22 @@ hr {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Return to smaller shadow */
 }
 
-#score {
-    font-size: 2em; /* Bigger font size */
-    color: #db1414; /* Color matching the gem */
-    font-weight: bold; /* Makes the font bold */
-    margin-left: 5px; /* Adds some space between the gem icon and the score */
+#scoreContainer {
+    position: absolute;
+    left: 50%;
+    bottom: 10px; /* Adjust as per your layout */
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    z-index: 1000; /* Ensure it's above other elements */
+    background-color: rgba(0, 123, 255, 0.8); /* Semi-transparent black background */
+    border-radius: 10px; /* Rounded corners */
+    padding: 5px 10px; /* Padding around the content */
+    color: white; /* White text color */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5); /* Optional: Adds a subtle shadow */
 }
 
+#score {
+    margin-left: 5px;
+    font-size: 1.5em; /* Bigger font size for score */
+}
