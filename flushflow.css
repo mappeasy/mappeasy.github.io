@@ -481,7 +481,7 @@ hr {
 
 
 .legend-button {
-    background-color: #007bff; /* Primary color */
+    background-color: rgba(0, 123, 255, 0.8);
     color: white; /* Text color */
     border: none; /* Remove default border */
     border-radius: 5px; /* Rounded corners */
