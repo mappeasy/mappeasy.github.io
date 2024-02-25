@@ -110,6 +110,10 @@
     <button id="lastFlushButton"><i class="fas fa-water"></i> Last Flush</button>
     <div id="toggleButton" class="collapsible-button"> <i class="fas fa-chevron-down"></i> More <i
             class="fa-solid fa-poo fa-beat" style="color: #8b4513;"></i></div>
+    <div id="scoreContainer" style="position: absolute; top: 10px; left: 10px; z-index: 1000; display: none;">
+        <i class="fa-solid fa-gem fa-bounce fa-2x" style="color: #db1414;"></i>
+        <span id="score">0</span>
+    </div>             
     <div id="legendContent" class="legend-content">
         <h4>Map Legend</h4>
         <table class="icon-text-table">
@@ -160,7 +164,7 @@
     </div>
 
     <script>
-
+        document.getElementById('scoreContainer').style.display = 'none';
         function adjustMapHeight() {
             var mapElement = document.getElementById('map');
             var windowHeight = window.innerHeight;
@@ -204,6 +208,7 @@
             if (this.checked) {
                 // Enable map click for the game
                 map.on('click', gameClickHandler); // gameClickHandler is your function to handle map clicks for the game
+                showScoreLabel(true); // Show the score label
                 if (geojsonData_game!==null) 
                 {
                     try{
@@ -216,6 +221,7 @@
             } else {
                 // Disable map click for the game
                 map.off('click', gameClickHandler);
+                showScoreLabel(false); // Hide the score label
                 try{
                     clearAllGoldMarkers();
                 }catch(e){
@@ -225,7 +231,7 @@
         };
         // Configuration
         const config = {
-            esri_basemap: true,
+            esri_basemap: false,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -251,6 +257,7 @@
         var currentGeoJsonLayerLine = null;         
         var goldMarkers = [];
         var geojsonData_game = null;
+        var score = 0; // Initialize score
         document.getElementById("loadingModal").style.display = "none";
         // Initialize Map
         const map = L.map('map', {
@@ -269,7 +276,7 @@
         });
         var gemIcon = L.divIcon({
             className: 'fa-icon',
-            html: '<i class="fa-solid fa-gem fa-bounce fa-3x" style="color: #db1414;"></i>',
+            html: '<i class="fa-solid fa-gem fa-bounce fa-2x" style="color: #db1414;"></i>',
             iconSize: [30, 30], // size of the icon in pixels
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
         });
@@ -340,6 +347,7 @@
                 showSummaryCard(mainData, false);
             }
         });
+        
         function showSummaryCard(data, notification) {
             if (notification === false) {
                 document.getElementById('distanceTraveled_container').style.display = '';
@@ -727,6 +735,19 @@
 
             goldMarkers = []; // Reset the goldMarkers array
         }
+        // Assuming you have a function to update the player's score
+        function updateScore() {
+            score++; // Increment score
+            document.getElementById('score').textContent = score; // Update score display
+        }    
+        function showScoreLabel(visible) {
+            var scoreContainer = document.getElementById('scoreContainer');
+            if (visible) {
+                scoreContainer.style.display = 'block'; // Show the score label
+            } else {
+                scoreContainer.style.display = 'none'; // Hide the score label
+            }
+        }        
     </script>
 </body>
 
