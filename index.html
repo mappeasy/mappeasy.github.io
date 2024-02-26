@@ -111,16 +111,30 @@
     <div id="toggleButton" class="collapsible-button"> <i class="fas fa-chevron-down"></i> More <i
             class="fa-solid fa-poo fa-beat" style="color: #8b4513;"></i></div>
     <div id="scoreContainer" style="display: none;">
-        <i class="fa-solid fa-gem fa-bounce fa-2x" style="color: #db1414;"></i>
+        <i class="fa-solid fa-toilet-paper fa-bounce fa-2x" style="color: #db1414;"></i>
         <span id="score">0</span>
-    </div>         
+    </div>
     <div id="congratsModal" class="congrats-modal">
         <div class="congrats-message">
             <h1>Congratulations!</h1>
-            <p>You collected all the gems!</p>
-            <button id="closeModalButton">OK</button>
+            <h4>Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h4>
+            <button id="closeModalButton" class="closeModalButton">OK</button>
         </div>
-    </div>   
+    </div>
+    <div id="congratsModalLS" class="congrats-modal">
+        <div class="congrats-message">
+            <h1>Congratulations!</h1>
+            <h4>Lift Station is cleaned now!</h4>
+            <button id="closeModalButtonLS" class="closeModalButton">OK</button>
+        </div>
+    </div>
+    <div id="gameOver" class="congrats-modal">
+        <div class="congrats-message">
+            <h1>Game Over! Please Protect Our Pipes</h1>
+            <h4>Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h4>
+            <button id="closeModalButtonGameOver" class="closeModalButton">OK</button>
+        </div>
+    </div>    
     <div id="legendContent" class="legend-content">
         <h4>Map Legend</h4>
         <table class="icon-text-table">
@@ -216,22 +230,23 @@
                 // Enable map click for the game
                 map.on('click', gameClickHandler); // gameClickHandler is your function to handle map clicks for the game
                 showScoreLabel(true); // Show the score label
-                if (geojsonData_game!==null) 
-                {
-                    try{
+                if (geojsonData_game !== null) {
+                    try {
                         clearAllGoldMarkers();
-                    }catch(e){
+                    } catch (e) {
                         console.log(e);
                     }
                     addGoldMarkers(geojsonData_game);
+                    startBulletFiring();
                 }
             } else {
                 // Disable map click for the game
                 map.off('click', gameClickHandler);
+                startBulletFiring();
                 showScoreLabel(false); // Hide the score label
-                try{
+                try {
                     clearAllGoldMarkers();
-                }catch(e){
+                } catch (e) {
                     console.log(e);
                 }
             }
@@ -261,7 +276,7 @@
         var currentGeoJsonLayer = null;
         var currentLocationIcon = null;
         var currentLocationIcoSpin = null;
-        var currentGeoJsonLayerLine = null;         
+        var currentGeoJsonLayerLine = null;
         var goldMarkers = [];
         var geojsonData_game = null;
         var score = 0; // Initialize score
@@ -281,11 +296,21 @@
             iconSize: [30, 30], // size of the icon in pixels
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
         });
-        var gemIcon = L.divIcon({
+        var gemIcon = L.divIcon({ //<i class="fa-solid fa-toilet-paper"></i>
             className: 'fa-icon',
-            html: '<i class="fa-solid fa-gem fa-bounce fa-2x" style="color: #db1414;"></i>',
+            html: '<i class="fa-solid fa-toilet-paper fa-beat-fade fa-2x" style="color:#9c2eb2;"></i>',
             iconSize: [30, 30], // size of the icon in pixels
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
+        });
+        var gemIconSmall = L.divIcon({ //<i class="fa-solid fa-toilet-paper"></i>
+            className: 'fa-icon',
+            html: '<i class="fa-solid fa-toilet-paper fa-beat-fade" style="color:#9c2eb2;"></i>',
+            iconSize: [20, 20], // size of the icon in pixels
+        });        
+        var bulletIcon = L.divIcon({
+            className: 'fa-icon',
+            html: '<i class="fa-brands fa-firefox fa-spin-pulse" style="color: #ff0000;"></i>',
+            iconSize: [20, 20]
         });
         var spinLocation = L.divIcon({
             className: 'fa-icon',
@@ -354,7 +379,7 @@
                 showSummaryCard(mainData, false);
             }
         });
-        
+
         function showSummaryCard(data, notification) {
             if (notification === false) {
                 document.getElementById('distanceTraveled_container').style.display = '';
@@ -454,9 +479,9 @@
                 if (currentLocationIcon !== null) map.removeLayer(currentLocationIcon);
                 if (currentLocationIcoSpin !== null) map.removeLayer(currentLocationIcoSpin);
                 if (searchMarker !== null) map.removeLayer(searchMarker);
-                try{
+                try {
                     clearAllGoldMarkers();
-                }catch(e){
+                } catch (e) {
                     console.log(e);
                 }
                 LScurrentMarker = null;
@@ -511,7 +536,8 @@
             //.openTooltip();            
             currentLocationIcon = L.marker([flusingPoint[1], flusingPoint[0]], { icon: toiletIcon })
                 .addTo(map)
-                .bindPopup('Your flush starts here!')
+                
+            //.bindPopup('Your flush starts here!')
             //.bindTooltip('flush Location', { permanent: true, direction: 'top' })
             //.bindTooltip("Hey!I'm your flush")
             //.openTooltip();
@@ -589,8 +615,11 @@
                             communities: getUniqueStreetNames(result.geojson.features)
                         };
                         geojsonData_game = result.geojson;
-                        if(document.getElementById('gameOn').checked === true){
+                        if (document.getElementById('gameOn').checked === true) {
                             addGoldMarkers(result.geojson);
+                            startBulletFiring();
+                        } else {
+                            stopBulletFiring();
                         }
                         showSummaryCard(mainData, false);
                     } else {
@@ -646,10 +675,10 @@
             } else {
                 // Create currentLocationIcon if it doesn't exist
             }
-            try{
+            try {
                 checkForGoldCollection(currentLocationIcon.getLatLng());
-            }catch(e){
-                console.log("First enable the game");
+            } catch (e) {
+                console.log("First enable the game " + e.message);
             }
         }
 
@@ -730,7 +759,10 @@
             // Check only the first gold marker in the array (sequential collection)
             if (goldMarkers.length > 0) {
                 var firstMarker = goldMarkers[0];
-
+                // Inside your game logic where you move the poo icon
+                if (checkCollisionWithLiftStation()) {
+                    fireBulletFromLiftStation();
+                }
                 if (firstMarker.getLatLng().distanceTo(currentLocation) < someThresholdDistance) {
                     // If within the threshold distance, remove the first gold marker and update the score
                     map.removeLayer(firstMarker);
@@ -738,7 +770,7 @@
                     updateScore(); // Update the player's score
                     if (goldMarkers.length === 0) {
                         showCongratulations(); // Call when all gems are collected
-                    }                    
+                    }
                 }
             }
         }
@@ -749,11 +781,50 @@
 
             goldMarkers = []; // Reset the goldMarkers array
         }
+        var playerBullets = 0;
         // Assuming you have a function to update the player's score
         function updateScore() {
             score++; // Increment score
+            playerBullets++;
             document.getElementById('score').textContent = score; // Update score display
-        }    
+        }
+
+        function firePlayerBullet(targetLatLng) {
+            var playerPosition = currentLocationIcon.getLatLng();
+            var lsPosition = LScurrentMarker.getLatLng();
+            var firingRange = 120; // Firing range in meters
+
+            // Check if the player is within firing range of the LS
+            if (playerPosition.distanceTo(lsPosition) <= firingRange) {
+                if (playerBullets > 0) {
+                    var bullet = L.marker(playerPosition, { icon: gemIconSmall }).addTo(map);
+                    animateMarker(bullet, targetLatLng, 1000, function() {
+                        map.removeLayer(bullet);
+                        checkPlayerBulletHit(bullet, LScurrentMarker);
+                    });
+                    playerBullets--; // Decrement the number of available bullets
+                } else {
+                    console.log("No bullets left!");
+                }
+            } else {
+                console.log("Out of firing range!");
+            }
+        }
+
+
+        function checkPlayerBulletHit(bullet, target) {
+            var bulletPosition = bullet.getLatLng();
+            var targetPosition = target.getLatLng();
+            var hitThreshold = 20; // Set an appropriate threshold for a hit
+            console.log("Bullet position: " + targetPosition);
+            if (bulletPosition.distanceTo(targetPosition) < hitThreshold) {
+                console.log("Hit on LS!");
+                showCongratulationsLSKilled();
+            }
+        }
+        map.on('contextmenu', function(e) {
+            firePlayerBullet(e.latlng);
+        });
         function showScoreLabel(visible) {
             var scoreContainer = document.getElementById('scoreContainer');
             if (visible) {
@@ -761,20 +832,145 @@
             } else {
                 scoreContainer.style.display = 'none'; // Hide the score label
             }
-        }   
+        }
         function showCongratulations() {
             var congratsModal = document.getElementById('congratsModal');
             congratsModal.style.visibility = 'visible';
+            stopBulletFiring(); // Stop firing bullets
             console.log('All gems collected!');
             // Create and add balloons to the modal
             var closeButton = document.getElementById('closeModalButton');
-            closeButton.onclick = function() {
+            closeButton.onclick = function () {
                 congratsModal.style.visibility = 'hidden';
             };
             // Optional: Set a timeout to hide the modal and clear balloons after a certain time
-            setTimeout(function() {
+            setTimeout(function () {
                 congratsModal.style.visibility = 'hidden';
             }, 3000); // 10 seconds
+        }
+
+        function showCongratulationsLSKilled() {
+            var congratsModal = document.getElementById('congratsModalLS');
+            congratsModal.style.visibility = 'visible';
+            stopBulletFiring(); // Stop firing bullets
+            console.log('KIlled LS');
+            // Create and add balloons to the modal
+            var closeButton = document.getElementById('closeModalButtonLS');
+            closeButton.onclick = function () {
+                congratsModal.style.visibility = 'hidden';
+            };
+            // Optional: Set a timeout to hide the modal and clear balloons after a certain time
+            setTimeout(function () {
+                congratsModal.style.visibility = 'hidden';
+            }, 3000); // 10 seconds
+        }
+        function checkCollisionWithLiftStation() {
+            var someThresholdDistance = 15;
+            var pooPosition = currentLocationIcon.getLatLng(); // Get current location of the poo icon
+            var liftStationPosition = LScurrentMarker.getLatLng(); // Assuming LScurrentMarker is your Lift Station marker
+
+            // Check if poo icon is close enough to the Lift Station marker
+            if (pooPosition.distanceTo(liftStationPosition) < someThresholdDistance) {
+                // Collision detected
+                return true;
+            }
+            return false;
+        }
+        //gameOn
+
+        var bulletFiringInterval = null; // This will hold the interval for firing bullets
+        function fireBulletFromLiftStation() {
+            if (document.getElementById('gameOn').checked === false){
+                return; // Exit the function if the game is not on
+            }
+
+            var proximityThreshold = 80; // Threshold distance in meters
+            var lsPosition = LScurrentMarker.getLatLng();
+            var pooPosition = currentLocationIcon.getLatLng();
+
+            if (lsPosition.distanceTo(pooPosition) <= proximityThreshold) {
+                // Only fire if the poo icon is close to the lift station
+                fireBullet(lsPosition);
+            }
+        }
+        // Start firing bullets
+        function startBulletFiring() {
+            bulletFiringInterval = setInterval(fireBulletFromLiftStation, 2000);
+        }
+
+        // Stop firing bullets
+        function stopBulletFiring() {
+            clearInterval(bulletFiringInterval);
+        }
+        function onHit() {
+            console.log("Hit! You lose.");
+            clearInterval(bulletFiringInterval); // Stop firing bullets
+            score = 0;
+            document.getElementById('score').textContent = score;               
+            showGameOver(); // Show game over modal
+            currentLocationIcon.setLatLng([geojsonData_game.features[0].geometry.coordinates[0][1], geojsonData_game.features[0].geometry.coordinates[0][0]]);
+            addGoldMarkers(geojsonData_game);
+            startBulletFiring();
+ 
+        }
+        function fireBullet(startLatLng) {
+            var bullet = L.marker(startLatLng, { icon: bulletIcon }).addTo(map);
+            var targetPoint = currentLocationIcon.getLatLng();
+
+            // Animate the bullet towards the target point
+            animateMarker_bulltet(bullet, targetPoint, 1000, function () {
+                map.removeLayer(bullet); // Remove the bullet after animation
+                checkBulletCollision(bullet, currentLocationIcon);
+                
+            });
+        }
+
+        function checkBulletCollision(bullet, target) {
+            var bulletCollisionThreshold = 5;
+            var bulletPosition = bullet.getLatLng();
+            var targetPosition = target.getLatLng();
+            if (bulletPosition.distanceTo(targetPosition) < bulletCollisionThreshold) {
+                onHit();
+            }
+        }
+        function animateMarker_bulltet(marker, destination, duration, onComplete) {
+            var startLatLng = marker.getLatLng();
+            var endLatLng = new L.LatLng(destination.lat, destination.lng);
+
+            var startTime = Date.now();
+            var timer = setInterval(function () {
+                var currentTime = Date.now();
+                var progress = (currentTime - startTime) / duration;
+
+                if (progress > 1) {
+                    progress = 1;
+                    clearInterval(timer);
+                    if (onComplete) onComplete(); // Call the onComplete callback
+                }
+
+                var lat = startLatLng.lat + (endLatLng.lat - startLatLng.lat) * progress;
+                var lng = startLatLng.lng + (endLatLng.lng - startLatLng.lng) * progress;
+
+                marker.setLatLng([lat, lng]);
+
+                if (progress === 1) {
+                    clearInterval(timer);
+                }
+            }, 10); // The smaller this number, the smoother the animation
+        }
+        function showGameOver() {
+            var congratsModal = document.getElementById('gameOver');
+            congratsModal.style.visibility = 'visible';
+            console.log('Game Over!');
+            // Create and add balloons to the modal
+            var closeButton = document.getElementById('closeModalButtonGameOver');
+            closeButton.onclick = function () {
+                congratsModal.style.visibility = 'hidden';
+            };
+            // Optional: Set a timeout to hide the modal and clear balloons after a certain time
+            //setTimeout(function () {
+             //   congratsModal.style.visibility = 'hidden';
+            //}, 3000); // 10 seconds
         }
     </script>
 </body>
