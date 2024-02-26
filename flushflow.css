@@ -558,3 +558,18 @@ hr {
 #closeModalButton:hover {
     background-color: #0056b3; /* Darker shade on hover */
 }
+
+.closeModalButton {
+    padding: 8px 15px; /* Example padding */
+    background-color: #007bff; /* Example background color */
+    color: white; /* Text color */
+    border: 1px solid #007bff; /* Border properties */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 1em; /* Text size */
+    cursor: pointer; /* Cursor style */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+.closeModalButton:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+}
