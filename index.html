@@ -230,6 +230,9 @@
             if (this.checked) {
                 // Enable game features
                 //map.on('click', gameClickHandler); // Assuming this is already defined
+                map.on('click', function (e) {
+                    firePlayerBullet(e.latlng);
+                });
                 showScoreLabel(true); // Assuming this function shows the game score
                 if (geojsonData_game !== null) {
                     // Other game initialization code...
@@ -237,6 +240,12 @@
                     startBulletFiring(); // Assuming this function is already defined
                 }
 
+
+                currentLocationIcon.on('move', function (e) {
+                    if (!map.getBounds().pad(-0.15).contains(e.latlng)) { // Check if outside central 80% of viewport
+                        map.panTo(e.latlng, { animate: true, duration: 3 });
+                    }
+                });
                 // Enable dragging for the currentLocationIcon
                 currentLocationIcon.dragging.enable();
 
@@ -257,7 +266,9 @@
                 });
             } else {
                 // Disable game features
-                //map.off('click', gameClickHandler);
+                map.off('click', function (e) {
+                    firePlayerBullet(e.latlng);
+                });
                 showScoreLabel(false); // Assuming this function hides the game score
                 try {
                     clearAllGoldMarkers(); // Assuming this function removes gold markers
@@ -274,7 +285,7 @@
         };
         // Configuration
         const config = {
-            esri_basemap: true,
+            esri_basemap: false,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -313,9 +324,15 @@
         // Add a toilet marker
         var toiletIcon = L.divIcon({
             className: 'fa-icon',
-            html: '<i class="fa-solid fa-poo fa-3x fa-beat" style="color: #8b4513;"></i>',
-            iconSize: [30, 30], // size of the icon in pixels
-            iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
+            html: '<i class="fa-solid fa-poo fa-4x fa-beat" style="color: #8b4513;"></i>',
+            iconSize: [40, 40], // size of the icon in pixels
+            iconAnchor: [20, 20] // point of the icon which will correspond to marker's location
+        });
+        var toiletIconAction = L.divIcon({ //<i class="fa-solid fa-toilet-paper"></i>
+            className: 'fa-icon',
+            html: '<i class="fa-solid fa-poo-storm fa-shake fa-4x" style="color:#e8e117;"></i>',
+            iconSize: [40, 40], // size of the icon in pixels
+            iconAnchor: [20, 20] // point of the icon which will correspond to marker's location
         });
         var gemIcon = L.divIcon({ //<i class="fa-solid fa-toilet-paper"></i>
             className: 'fa-icon',
@@ -323,6 +340,9 @@
             iconSize: [30, 30], // size of the icon in pixels
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
         });
+
+
+
         var gemIconSmall = L.divIcon({ //<i class="fa-solid fa-toilet-paper"></i>
             className: 'fa-icon',
             html: '<i class="fa-solid fa-toilet-paper fa-beat-fade" style="color:#9c2eb2;"></i>',
@@ -337,7 +357,7 @@
             className: 'fa-icon',
             html: '<i class="fa-solid fa-crosshairs fa-spin fa-2xl" style="color: #007bff;"></i>',
             iconSize: [30, 30], // size of the icon in pixels
-            iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
+            iconAnchor: [0, 15] // point of the icon which will correspond to marker's location
         });
         var pumpIcon = L.divIcon({
             className: 'fa-icon',
@@ -558,7 +578,8 @@
             //.openTooltip();            
             currentLocationIcon = L.marker([flusingPoint[1], flusingPoint[0]], {
                 icon: toiletIcon,
-                draggable: false
+                draggable: false,
+                zIndexOffset: 1000
             }).addTo(map);
 
             //currentLocationIcon.dragging.disable();
@@ -777,6 +798,29 @@
                 goldMarkers.push(goldMarker);
             });
         }
+        function toggleIconColor(color) {
+            // Update the icon's HTML with the new color
+            var newHtml = '<i class="fa-solid fa-poo fa-4x fa-beat" style="color: ' + color + ';"></i>';
+            currentLocationIcon.setIcon(L.divIcon({
+                className: 'fa-icon',
+                html: newHtml,
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
+            }));
+        }
+        function blinkAndChangeColor() {
+            let colors = ["#8b4513", "red", "#8b4513", "red", "blue", "#8b4513", "yellow", "red", , "#8b4513"]; // Sequence of colors
+            let currentIndex = 0; // Start with the first color
+
+            let intervalId = setInterval(() => {
+                if (currentIndex < colors.length) {
+                    toggleIconColor(colors[currentIndex]);
+                    currentIndex++;
+                } else {
+                    clearInterval(intervalId); // Stop blinking after the last color
+                }
+            }, 25); // Adjust the speed of color change as needed
+        }
         function checkForGoldCollection() {
             var someThresholdDistance = 15; // Threshold distance in meters
             var currentLocation = currentLocationIcon.getLatLng(); // Get current location of the toilet icon
@@ -793,6 +837,7 @@
                     map.removeLayer(firstMarker);
                     goldMarkers.shift(); // Remove the first marker from the array
                     updateScore(); // Update the player's score
+                    blinkAndChangeColor();
                     if (goldMarkers.length === 0) {
                         showCongratulations(); // Call when all gems are collected
                     }
@@ -847,9 +892,7 @@
                 showCongratulationsLSKilled();
             }
         }
-        map.on('contextmenu', function (e) {
-            firePlayerBullet(e.latlng);
-        });
+
         function showScoreLabel(visible) {
             var scoreContainer = document.getElementById('scoreContainer');
             if (visible) {
