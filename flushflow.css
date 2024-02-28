@@ -573,3 +573,13 @@ hr {
 .closeModalButton:hover {
     background-color: #0056b3; /* Darker shade on hover */
 }
+
+.drag-proxy div {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid blue;
+    position: relative;
+    left: -20px;
+    top: -20px;
+}
