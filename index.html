@@ -226,8 +226,11 @@
             toggleOnlyFlush();
         };
 
-        document.getElementById('gameOn').onchange = function () {
-            if (this.checked) {
+        function setGameOn(){
+
+            if(currentLocationIcon === null){
+                return;
+            }
                 // Enable game features
                 //map.on('click', gameClickHandler); // Assuming this is already defined
                 map.on('click', function (e) {
@@ -264,7 +267,8 @@
                         console.log("Error after dragging: " + error.message);
                     }
                 });
-            } else {
+        }
+        function setGameOff(){
                 // Disable game features
                 map.off('click', function (e) {
                     firePlayerBullet(e.latlng);
@@ -275,17 +279,26 @@
                 } catch (e) {
                     console.log(e);
                 }
+                if(currentLocationIcon !== null){
+                    // Disable dragging for the currentLocationIcon
+                    currentLocationIcon.dragging.disable();
 
-                // Disable dragging for the currentLocationIcon
-                currentLocationIcon.dragging.disable();
-
-                // Reset the marker to its initial position
-                currentLocationIcon.setLatLng([flusingPoint[1], flusingPoint[0]]);
+                    // Reset the marker to its initial position
+                    currentLocationIcon.setLatLng([flusingPoint[1], flusingPoint[0]]);
+            }
+        }
+        document.getElementById('gameOn').onchange = function () {
+            if (this.checked) {
+                score = 0;
+            document.getElementById('score').textContent = score;                
+                setGameOn();
+            } else {
+                setGameOff();
             }
         };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -662,10 +675,9 @@
                         };
                         geojsonData_game = result.geojson;
                         if (document.getElementById('gameOn').checked === true) {
-                            addGoldMarkers(result.geojson);
-                            startBulletFiring();
+                            setGameOn();
                         } else {
-                            stopBulletFiring();
+                            setGameOff();
                         }
                         showSummaryCard(mainData, false);
                     } else {
@@ -1035,10 +1047,6 @@
             closeButton.onclick = function () {
                 congratsModal.style.visibility = 'hidden';
             };
-            // Optional: Set a timeout to hide the modal and clear balloons after a certain time
-            //setTimeout(function () {
-            //   congratsModal.style.visibility = 'hidden';
-            //}, 3000); // 10 seconds
         }
     </script>
 </body>
