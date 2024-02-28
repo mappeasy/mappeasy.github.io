@@ -1177,8 +1177,8 @@
 
         function getRandomDirection() {
             return {
-                lat: (Math.random() - 0.5) *  0.01, // small value for slow movement
-                lng: (Math.random() - 0.5) *  0.01,
+                lat: (Math.random() - 0.5) *  0.001, // small value for slow movement
+                lng: (Math.random() - 0.5) *  0.001,
             };
         }
 
@@ -1187,7 +1187,7 @@
     var directionLat = targetLatLng.lat - ghostLatLng.lat;
     var directionLng = targetLatLng.lng - ghostLatLng.lng;
     var distance = Math.sqrt(directionLat * directionLat + directionLng * directionLng);
-    var moveStep = 0.01; // The step size for each movement
+    var moveStep = 0.001; // The step size for each movement
 
     // Normalize the direction vector and multiply by step size
     directionLat = (directionLat / distance) * moveStep;
@@ -1248,7 +1248,7 @@ function moveGhosts(ghostMarker) {
 setInterval(function() {
     ghoshMarkers.forEach(moveGhosts);
     checkCollision();
-}, 2000); // Move ghosts every 2 seconds, adjust as needed
+}, 100); // Move ghosts every 2 seconds, adjust as needed
     </script>
 </body>
 
