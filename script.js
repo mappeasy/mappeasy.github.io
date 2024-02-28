@@ -412,3 +412,86 @@ function processGeoJsonData(geojsonData) {
         features: processedFeatures
     };
 }
+
+function calculateBoundingBox(geojsonData) {
+    let minLat = Infinity;
+    let minLng = Infinity;
+    let maxLat = -Infinity;
+    let maxLng = -Infinity;
+
+    geojsonData.features.forEach(feature => {
+        feature.geometry.coordinates.forEach(coord => {
+            // Assuming LineString coordinates [lng, lat]
+            let lng = coord[0];
+            let lat = coord[1];
+
+            if (lat < minLat) minLat = lat;
+            if (lat > maxLat) maxLat = lat;
+            if (lng < minLng) minLng = lng;
+            if (lng > maxLng) maxLng = lng;
+        });
+    });
+
+    return [[minLat, minLng], [maxLat, maxLng]]; // SouthWest and NorthEast corners
+}
+
+function calculateBoundingBoxWithBuffer(geojsonData) {
+    let minLat = Infinity;
+    let minLng = Infinity;
+    let maxLat = -Infinity;
+    let maxLng = -Infinity;
+
+    geojsonData.features.forEach(feature => {
+        feature.geometry.coordinates.forEach(coord => {
+            let lng = coord[0];
+            let lat = coord[1];
+
+            if (lat < minLat) minLat = lat;
+            if (lat > maxLat) maxLat = lat;
+            if (lng < minLng) minLng = lng;
+            if (lng > maxLng) maxLng = lng;
+        });
+    });
+
+    // Convert 100 feet buffer to degrees
+    let latBuffer = 100 / 364000; // Approximation
+    let avgLat = (minLat + maxLat) / 2;
+    let lngBuffer = 100 / (Math.cos(avgLat * Math.PI / 180) * 364000); // Adjusted for avg latitude
+
+    // Apply the buffer
+    minLat -= latBuffer;
+    maxLat += latBuffer;
+    minLng -= lngBuffer;
+    maxLng += lngBuffer;
+
+    return [[minLat, minLng], [maxLat, maxLng]]; // SouthWest and NorthEast corners
+}
+
+
+
+async function queryPointsWithinBoundingBox(bbox) {
+    let baseUrl = "https://services.arcgis.com/NummVBqZSIJKUeVR/arcgis/rest/services/RSSO_Package/FeatureServer/0/query";
+    let geometry = encodeURIComponent(JSON.stringify({
+        xmin: bbox[0][1],
+        ymin: bbox[0][0],
+        xmax: bbox[1][1],
+        ymax: bbox[1][0],
+        spatialReference: { wkid: 4326 }
+    }));
+    let query = "SYSTEM like '%blic%' AND STARTDATE >= date '2020-01-01'";
+    let queryUrl = `${baseUrl}?where=${query}&geometry=${geometry}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&outSR=4326&f=json`;
+
+    console.log(queryUrl); // Log the query URL to debug
+
+    try {
+        const response = await fetch(queryUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data; // Return the data to be used where the function is called
+    } catch (error) {
+        console.error("Query failed:", error);
+        return null; // Return null to indicate failure
+    }
+}
