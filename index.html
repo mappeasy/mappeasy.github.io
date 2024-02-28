@@ -134,7 +134,7 @@
             <h4>Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h4>
             <button id="closeModalButtonGameOver" class="closeModalButton">OK</button>
         </div>
-    </div>    
+    </div>
     <div id="legendContent" class="legend-content">
         <h4>Map Legend</h4>
         <table class="icon-text-table">
@@ -225,35 +225,56 @@
         document.getElementById('onlyFlush').onchange = function () {
             toggleOnlyFlush();
         };
+
         document.getElementById('gameOn').onchange = function () {
             if (this.checked) {
-                // Enable map click for the game
-                map.on('click', gameClickHandler); // gameClickHandler is your function to handle map clicks for the game
-                showScoreLabel(true); // Show the score label
+                // Enable game features
+                //map.on('click', gameClickHandler); // Assuming this is already defined
+                showScoreLabel(true); // Assuming this function shows the game score
                 if (geojsonData_game !== null) {
-                    try {
-                        clearAllGoldMarkers();
-                    } catch (e) {
-                        console.log(e);
-                    }
+                    // Other game initialization code...
                     addGoldMarkers(geojsonData_game);
-                    startBulletFiring();
+                    startBulletFiring(); // Assuming this function is already defined
                 }
+
+                // Enable dragging for the currentLocationIcon
+                currentLocationIcon.dragging.enable();
+
+                // Handle drag start and end to disable/enable map dragging
+                currentLocationIcon.on('dragstart', function (e) {
+                    map.dragging.disable();
+                });
+                currentLocationIcon.on('dragend', function (e) {
+                    map.dragging.enable();
+                    var newPosition = e.target.getLatLng();
+                    currentLocationIcon.setLatLng(newPosition); // Update marker position
+                    // Check for gold collection or other game mechanics
+                    try {
+                        checkForGoldCollection(newPosition);
+                    } catch (error) {
+                        console.log("Error after dragging: " + error.message);
+                    }
+                });
             } else {
-                // Disable map click for the game
-                map.off('click', gameClickHandler);
-                startBulletFiring();
-                showScoreLabel(false); // Hide the score label
+                // Disable game features
+                //map.off('click', gameClickHandler);
+                showScoreLabel(false); // Assuming this function hides the game score
                 try {
-                    clearAllGoldMarkers();
+                    clearAllGoldMarkers(); // Assuming this function removes gold markers
                 } catch (e) {
                     console.log(e);
                 }
+
+                // Disable dragging for the currentLocationIcon
+                currentLocationIcon.dragging.disable();
+
+                // Reset the marker to its initial position
+                currentLocationIcon.setLatLng([flusingPoint[1], flusingPoint[0]]);
             }
         };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -306,7 +327,7 @@
             className: 'fa-icon',
             html: '<i class="fa-solid fa-toilet-paper fa-beat-fade" style="color:#9c2eb2;"></i>',
             iconSize: [20, 20], // size of the icon in pixels
-        });        
+        });
         var bulletIcon = L.divIcon({
             className: 'fa-icon',
             html: '<i class="fa-brands fa-firefox fa-spin-pulse" style="color: #ff0000;"></i>',
@@ -493,6 +514,7 @@
                 console.log(e);
             }
         }
+        let flusingPoint = null;
         // Function to add GeoJSON to the map
         function addGeoJsonToMap(geojsonData) {
 
@@ -527,16 +549,19 @@
                 var bounds = currentGeoJsonLayer.getBounds();
                 map.fitBounds(bounds);
             }
-            let flusingPoint = geojsonData.features[0].geometry.coordinates[0];
+            flusingPoint = geojsonData.features[0].geometry.coordinates[0];
             currentLocationIcoSpin = L.marker([flusingPoint[1], flusingPoint[0]], { icon: spinLocation })
                 .addTo(map)
             //.bindPopup('Your flush starts here!')
             //.bindTooltip('flush Location', { permanent: true, direction: 'top' })
             //.bindTooltip("Hey!I'm your flush")
             //.openTooltip();            
-            currentLocationIcon = L.marker([flusingPoint[1], flusingPoint[0]], { icon: toiletIcon })
-                .addTo(map)
-                
+            currentLocationIcon = L.marker([flusingPoint[1], flusingPoint[0]], {
+                icon: toiletIcon,
+                draggable: false
+            }).addTo(map);
+
+            //currentLocationIcon.dragging.disable();
             //.bindPopup('Your flush starts here!')
             //.bindTooltip('flush Location', { permanent: true, direction: 'top' })
             //.bindTooltip("Hey!I'm your flush")
@@ -798,7 +823,7 @@
             if (playerPosition.distanceTo(lsPosition) <= firingRange) {
                 if (playerBullets > 0) {
                     var bullet = L.marker(playerPosition, { icon: gemIconSmall }).addTo(map);
-                    animateMarker(bullet, targetLatLng, 1000, function() {
+                    animateMarker(bullet, targetLatLng, 1000, function () {
                         map.removeLayer(bullet);
                         checkPlayerBulletHit(bullet, LScurrentMarker);
                     });
@@ -822,7 +847,7 @@
                 showCongratulationsLSKilled();
             }
         }
-        map.on('contextmenu', function(e) {
+        map.on('contextmenu', function (e) {
             firePlayerBullet(e.latlng);
         });
         function showScoreLabel(visible) {
@@ -880,7 +905,7 @@
 
         var bulletFiringInterval = null; // This will hold the interval for firing bullets
         function fireBulletFromLiftStation() {
-            if (document.getElementById('gameOn').checked === false){
+            if (document.getElementById('gameOn').checked === false) {
                 return; // Exit the function if the game is not on
             }
 
@@ -906,12 +931,12 @@
             console.log("Hit! You lose.");
             clearInterval(bulletFiringInterval); // Stop firing bullets
             score = 0;
-            document.getElementById('score').textContent = score;               
+            document.getElementById('score').textContent = score;
             showGameOver(); // Show game over modal
             currentLocationIcon.setLatLng([geojsonData_game.features[0].geometry.coordinates[0][1], geojsonData_game.features[0].geometry.coordinates[0][0]]);
             addGoldMarkers(geojsonData_game);
             startBulletFiring();
- 
+
         }
         function fireBullet(startLatLng) {
             var bullet = L.marker(startLatLng, { icon: bulletIcon }).addTo(map);
@@ -921,7 +946,7 @@
             animateMarker_bulltet(bullet, targetPoint, 1000, function () {
                 map.removeLayer(bullet); // Remove the bullet after animation
                 checkBulletCollision(bullet, currentLocationIcon);
-                
+
             });
         }
 
@@ -969,7 +994,7 @@
             };
             // Optional: Set a timeout to hide the modal and clear balloons after a certain time
             //setTimeout(function () {
-             //   congratsModal.style.visibility = 'hidden';
+            //   congratsModal.style.visibility = 'hidden';
             //}, 3000); // 10 seconds
         }
     </script>
