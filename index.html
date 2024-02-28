@@ -226,71 +226,76 @@
             toggleOnlyFlush();
         };
 
-        function setGameOn(){
+        function setGameOn() {
 
-            if(currentLocationIcon === null){
+            if (currentLocationIcon === null) {
                 return;
             }
-                // Enable game features
-                //map.on('click', gameClickHandler); // Assuming this is already defined
-                map.on('click', function (e) {
-                    firePlayerBullet(e.latlng);
-                });
-                showScoreLabel(true); // Assuming this function shows the game score
-                if (geojsonData_game !== null) {
-                    // Other game initialization code...
-                    addGoldMarkers(geojsonData_game);
-                    startBulletFiring(); // Assuming this function is already defined
-                }
+            LScurrentMarker.setIcon(pumpIcon);
+            // Enable game features
+            //map.on('click', gameClickHandler); // Assuming this is already defined
+            map.on('click', function (e) {
+                firePlayerBullet(e.latlng);
+            });
+            showScoreLabel(true); // Assuming this function shows the game score
+            if (geojsonData_game !== null) {
+                // Other game initialization code...
+                addGoldMarkers(geojsonData_game);
+                startBulletFiring(); // Assuming this function is already defined
+            }
 
-
+            //disable for now
+            if (false) {
                 currentLocationIcon.on('move', function (e) {
                     if (!map.getBounds().pad(-0.15).contains(e.latlng)) { // Check if outside central 80% of viewport
                         map.panTo(e.latlng, { animate: true, duration: 3 });
                     }
                 });
-                // Enable dragging for the currentLocationIcon
-                currentLocationIcon.dragging.enable();
+            }
 
-                // Handle drag start and end to disable/enable map dragging
-                currentLocationIcon.on('dragstart', function (e) {
-                    map.dragging.disable();
-                });
-                currentLocationIcon.on('dragend', function (e) {
-                    map.dragging.enable();
-                    var newPosition = e.target.getLatLng();
-                    currentLocationIcon.setLatLng(newPosition); // Update marker position
-                    // Check for gold collection or other game mechanics
-                    try {
-                        checkForGoldCollection(newPosition);
-                    } catch (error) {
-                        console.log("Error after dragging: " + error.message);
-                    }
-                });
-        }
-        function setGameOff(){
-                // Disable game features
-                map.off('click', function (e) {
-                    firePlayerBullet(e.latlng);
-                });
-                showScoreLabel(false); // Assuming this function hides the game score
+
+            // Enable dragging for the currentLocationIcon
+            currentLocationIcon.dragging.enable();
+
+            // Handle drag start and end to disable/enable map dragging
+            currentLocationIcon.on('dragstart', function (e) {
+                map.dragging.disable();
+            });
+            currentLocationIcon.on('dragend', function (e) {
+                map.dragging.enable();
+                var newPosition = e.target.getLatLng();
+                currentLocationIcon.setLatLng(newPosition); // Update marker position
+                // Check for gold collection or other game mechanics
                 try {
-                    clearAllGoldMarkers(); // Assuming this function removes gold markers
-                } catch (e) {
-                    console.log(e);
+                    checkForGoldCollection(newPosition);
+                } catch (error) {
+                    console.log("Error after dragging: " + error.message);
                 }
-                if(currentLocationIcon !== null){
-                    // Disable dragging for the currentLocationIcon
-                    currentLocationIcon.dragging.disable();
+            });
+        }
+        function setGameOff() {
+            // Disable game features
+            map.off('click', function (e) {
+                firePlayerBullet(e.latlng);
+            });
+            showScoreLabel(false); // Assuming this function hides the game score
+            try {
+                clearAllGoldMarkers(); // Assuming this function removes gold markers
+            } catch (e) {
+                console.log(e);
+            }
+            if (currentLocationIcon !== null) {
+                // Disable dragging for the currentLocationIcon
+                currentLocationIcon.dragging.disable();
 
-                    // Reset the marker to its initial position
-                    currentLocationIcon.setLatLng([flusingPoint[1], flusingPoint[0]]);
+                // Reset the marker to its initial position
+                currentLocationIcon.setLatLng([flusingPoint[1], flusingPoint[0]]);
             }
         }
         document.getElementById('gameOn').onchange = function () {
             if (this.checked) {
                 score = 0;
-            document.getElementById('score').textContent = score;                
+                document.getElementById('score').textContent = score;
                 setGameOn();
             } else {
                 setGameOff();
@@ -355,6 +360,12 @@
         });
 
 
+        var ghoshIcon = L.divIcon({ //<i class="fa-solid fa-toilet-paper"></i>
+            className: 'fa-icon',
+            html: '<i class="fa-solid fa-ghost fa-shake fa-3x" style="color: #d80e18;"></i>',
+            iconSize: [30, 30], // size of the icon in pixels
+            iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
+        });
 
         var gemIconSmall = L.divIcon({ //<i class="fa-solid fa-toilet-paper"></i>
             className: 'fa-icon',
@@ -378,6 +389,14 @@
             iconSize: [30, 30], // size of the icon in pixels
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
         });
+
+        var pumpIconBlue = L.divIcon({
+            className: 'fa-icon',
+            html: '<i class="fa-solid fa-pump-soap fa-beat fa-3x" style="color: #3ea4f0;"></i>',
+            iconSize: [30, 30], // size of the icon in pixels
+            iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
+        });
+
         var wwtpIcon = L.divIcon({
             className: 'fa-icon',
             html: '<i class="fa-solid fa-city  fa-3x  fa-beat" style="color: #120FE6;"></i>',
@@ -622,8 +641,67 @@
             manholeLayer.setOpacity(opacity);
             manholeLayerLabel.setOpacity(opacity);
         }
+
         var LScurrentMarker = null; // This will hold the current marker
         var WWTPcurrentMarker = null; // This will hold the current marker
+        var queryResultSSO = null;
+        var ghoshMarkers = []
+
+        function displayPointsOnMap(queryResult) {
+            // Mapping from cause to color
+            var causeToColor = {
+                "Collection System - Temporary Blockage": "Teal",
+                "Collection System - Grease Blockage": "Red",
+                "Collection System - Structural Blockage": "Black",
+                "Pump/Lift Station - Structural Failure": "Yellow",
+                "Collection System - Wet Weather": "Blue",
+                "Collection System - Structural Failure": "Black",
+                "Pump/Lift Station - Instrumentation Failure": "Yellow",
+                "Pump/Lift Station - Hydraulic Overload": "Yellow",
+                "Pump/Lift Station - Mechanical Failure": "Yellow",
+                "Pump/Lift Station - Electrical Failure": "Yellow",
+                "WWTP - Mechanical Failure": "Yellow",
+                "Service Lateral - Temporary Blockage": "Teal",
+                "Service Lateral - Grease Blockage": "Red",
+                "Rags/Wipes": "Purple",
+                "Grease Blockage": "Red",
+                "Roots": "Green",
+                "Collection System Temporary Blockage": "Black",
+                "Collection System Structural Blockage": "Black"
+            };
+
+            queryResult.features.forEach(function (feature) {
+                var lat = feature.geometry.y;
+                var lng = feature.geometry.x;
+                var cause = feature.attributes.CAUSE;
+                var color = causeToColor[cause] || "gray"; // Default to gray if cause is not in the list
+
+                // Create a ghost icon for each point and set its color
+                var ghostIcon = L.divIcon({
+                    className: 'fa-icon',
+                    html: `<i class="fa-solid fa-ghost fa-shake fa-3x" style="color: ${color};"></i>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [0, 0] // Adjusted to center the icon over the point
+                });
+
+                // Create a marker with the ghost icon and add it to the map
+                var marker = L.marker([lat, lng], {
+                    icon: ghostIcon,
+                    draggable: false
+                }).addTo(map);
+
+                // Add a popup to the marker
+                var popupContent = `Address: ${feature.attributes.ADDRESS}<br>`
+                    + `Cause: ${feature.attributes.CAUSE}<br>`
+                    + `System: ${feature.attributes.SYSTEM}<br>`
+                    + `StartDate: ${(new Date(feature.attributes.STARTDATE)).toDateString()}<br>`
+                    + `ID: ${feature.attributes.EXCURSIONID}`;
+                marker.bindPopup(popupContent);
+                marker.bindTooltip((new Date(feature.attributes.STARTDATE)).toDateString(), { permanent: false, direction: 'top' });
+                ghoshMarkers.push(marker);
+            });
+        }
+     
         async function runTrace(lng, lat) {
             showModal();
             geojsonData_game = null;
@@ -638,6 +716,13 @@
                         let street = [];
                         let generalRoute = "";
                         result.geojson = processGeoJsonData(result.geojson);
+
+                        //let bbox = calculateBoundingBox(result.geojson);
+                        let bbox = await calculateBoundingBoxWithBuffer(result.geojson);
+                        queryResultSSO = await queryPointsWithinBoundingBox(bbox);
+                        displayPointsOnMap(queryResultSSO);
+                        console.log(result.geojson)
+                        console.log(queryResultSSO)
                         addGeoJsonToMap(result.geojson);
                         hideModal();
                         //find first LiftStation
@@ -880,11 +965,27 @@
             if (playerPosition.distanceTo(lsPosition) <= firingRange) {
                 if (playerBullets > 0) {
                     var bullet = L.marker(playerPosition, { icon: gemIconSmall }).addTo(map);
-                    animateMarker(bullet, targetLatLng, 1000, function () {
+                    animateMarker_bulltet(bullet, targetLatLng, 1000, function () {
+                        // Check for collision first
+                        if (checkPlayerBulletHit(bullet, LScurrentMarker)) {
+                            stopBulletFiring();
+                            console.log("Hit on LS!");
+                            stopBulletFiring();
+                            clearInterval(bulletFiringInterval);
+                            bulletFiringInterval = null;
+                            LScurrentMarker.setIcon(pumpIconBlue);
+                            showCongratulationsLSKilled();
+                            stopBulletFiring();
+                        }
+                        // Then remove the bullet
                         map.removeLayer(bullet);
-                        checkPlayerBulletHit(bullet, LScurrentMarker);
                     });
                     playerBullets--; // Decrement the number of available bullets
+                    score = score - 1; // Decrement score
+                    if (score < 0) {
+                        score = 0;
+                    }
+                    document.getElementById('score').textContent = score; // Update score display                    
                 } else {
                     console.log("No bullets left!");
                 }
@@ -895,14 +996,15 @@
 
 
         function checkPlayerBulletHit(bullet, target) {
+            var hitThreshold = 20; // Threshold distance in meters
             var bulletPosition = bullet.getLatLng();
             var targetPosition = target.getLatLng();
-            var hitThreshold = 20; // Set an appropriate threshold for a hit
-            console.log("Bullet position: " + targetPosition);
+            console.log(bulletPosition.distanceTo(targetPosition));
             if (bulletPosition.distanceTo(targetPosition) < hitThreshold) {
                 console.log("Hit on LS!");
-                showCongratulationsLSKilled();
+                return true; // Indicate a hit was detected
             }
+            return false; // No hit detected
         }
 
         function showScoreLabel(visible) {
@@ -933,6 +1035,7 @@
             var congratsModal = document.getElementById('congratsModalLS');
             congratsModal.style.visibility = 'visible';
             stopBulletFiring(); // Stop firing bullets
+            clearAllBullets_ls();
             console.log('KIlled LS');
             // Create and add balloons to the modal
             var closeButton = document.getElementById('closeModalButtonLS');
@@ -993,27 +1096,50 @@
             startBulletFiring();
 
         }
+        var bullets_ls = [];
+        function clearAllBullets_ls() {
+            try {
+                bullets_ls.forEach(function (bullets_ls) {
+                    map.removeLayer(bullets_ls);
+                });
+                bullets_ls = []; // Reset the bullets array
+            } catch (e) {
+                console.log(e);
+            }
+        }
         function fireBullet(startLatLng) {
-            var bullet = L.marker(startLatLng, { icon: bulletIcon }).addTo(map);
+            var bullet = L.marker(startLatLng, { icon: bulletIcon }).addTo(map); // Use a local variable
+            bullets_ls.push(bullet); // Add the new bullet to the array
             var targetPoint = currentLocationIcon.getLatLng();
 
             // Animate the bullet towards the target point
             animateMarker_bulltet(bullet, targetPoint, 1000, function () {
-                map.removeLayer(bullet); // Remove the bullet after animation
                 checkBulletCollision(bullet, currentLocationIcon);
-
+                map.removeLayer(bullet); // Remove this specific bullet after animation
+                try {
+                    map.removeLayer(bullets_ls[bullets_ls.length - 1]);
+                } catch (e) {
+                    ;
+                }
+                clearAllBullets_ls();
             });
         }
-
         function checkBulletCollision(bullet, target) {
             var bulletCollisionThreshold = 5;
             var bulletPosition = bullet.getLatLng();
             var targetPosition = target.getLatLng();
             if (bulletPosition.distanceTo(targetPosition) < bulletCollisionThreshold) {
                 onHit();
+                clearAllBullets_ls();
             }
         }
         function animateMarker_bulltet(marker, destination, duration, onComplete) {
+            if (duration <= 0) {
+                // Move the marker immediately if duration is zero or negative
+                marker.setLatLng(destination);
+                if (onComplete) onComplete();
+                return; // Exit the function
+            }
             var startLatLng = marker.getLatLng();
             var endLatLng = new L.LatLng(destination.lat, destination.lng);
 
@@ -1048,6 +1174,81 @@
                 congratsModal.style.visibility = 'hidden';
             };
         }
+
+        function getRandomDirection() {
+            return {
+                lat: (Math.random() - 0.5) *  0.01, // small value for slow movement
+                lng: (Math.random() - 0.5) *  0.01,
+            };
+        }
+
+        function moveTowardsTarget(ghostMarker, targetLatLng) {
+    var ghostLatLng = ghostMarker.getLatLng();
+    var directionLat = targetLatLng.lat - ghostLatLng.lat;
+    var directionLng = targetLatLng.lng - ghostLatLng.lng;
+    var distance = Math.sqrt(directionLat * directionLat + directionLng * directionLng);
+    var moveStep = 0.01; // The step size for each movement
+
+    // Normalize the direction vector and multiply by step size
+    directionLat = (directionLat / distance) * moveStep;
+    directionLng = (directionLng / distance) * moveStep;
+
+    return {
+        lat: directionLat,
+        lng: directionLng,
+    };
+}
+// Move the ghost marker smoothly using Leaflet's setLatLng
+function animateGhostMovement(ghostMarker, direction) {
+    var currentLatLng = ghostMarker.getLatLng();
+    var newLatLng = new L.LatLng(
+        currentLatLng.lat + direction.lat,
+        currentLatLng.lng + direction.lng
+    );
+    ghostMarker.setLatLng(newLatLng);
+}
+// Main function to move the ghosts independently
+// Enhance the moveGhosts function to check for collisions after moving
+function moveGhosts(ghostMarker) {
+    // Decide the behavior of this ghost: random, chase player, etc.
+    var direction = getRandomDirection(); // For example, get a random direction
+
+    // Use the moveTowardsTarget function if you want to chase the player or move towards a point
+    // direction = moveTowardsTarget(ghostMarker, currentLocationIcon.getLatLng());
+
+    // Move the ghost marker smoothly
+    animateGhostMovement(ghostMarker, direction);
+
+    // Check for collision with the player
+    checkCollision(ghostMarker);
+}
+
+        // Function to check for collision between ghost markers and the toilet marker
+        function checkCollision(ghostMarker) {
+            var COLLISION_DISTANCE = 10;
+    var playerPosition = currentLocationIcon.getLatLng();
+    var ghostPosition = ghostMarker.getLatLng();
+    var distance = playerPosition.distanceTo(ghostPosition);
+
+    // If the distance is small enough, consider it a collision
+    if (distance < COLLISION_DISTANCE) {
+        // Handle collision (e.g., end game, reduce score)
+        onCollisionDetected();
+    }
+}
+  
+        // Function to handle what happens when a collision is detected
+        function onCollisionDetected() {
+            // Logic for when the player loses the game, e.g., end the game, reduce score, etc.
+            console.log("Collision detected! Player loses.");
+        }
+    // Set up an interval to periodically move each ghost and check for collisions
+        // Set up independent intervals for each ghost
+// Call moveGhosts for each ghost independently
+setInterval(function() {
+    ghoshMarkers.forEach(moveGhosts);
+    checkCollision();
+}, 2000); // Move ghosts every 2 seconds, adjust as needed
     </script>
 </body>
 
