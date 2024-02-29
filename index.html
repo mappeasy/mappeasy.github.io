@@ -87,7 +87,7 @@
                     chance to track the splashy journey of our flushes from the loo to the lab! It's our way of teaching
                     the kiddos the swirling path of their flush – from toilet twirls to treatment thrills! 🚽💦🎢 <br />
                     Double Click/Tap to flush 💩</span></p> <hr/>
-            <p id="distanceTraveled_container_about"><span id="distanceTraveled_about">Made with <i
+            <p id="distanceTraveled_container_about"><span id="distanceTraveled_about">Made with
                         class="fa-solid fa-heart" style="color: #d31717;"></i> by WWO<br></span></p>
             <button onclick="closeSummaryCard('aboutMe')">Close</button>
         </div>
@@ -258,7 +258,19 @@
         document.getElementById('onlyFlush').onchange = function () {
             toggleOnlyFlush();
         };
+        document.getElementById('ssoOn').onchange = function () {
+            if(document.getElementById('ssoOn').checked === true){
+                if(queryResultSSO !== null){
+                    displayPointsOnMap(queryResultSSO);
+                }
+            } else {
+                ghoshMarkers.forEach(marker => {
+                    map.removeLayer(marker); // Remove each marker from the map
+                });
 
+                //ghoshMarkers = []; // Reset the goldMarkers array
+            }
+        };
         function setGameOn() {
 
             if (currentLocationIcon === null) {
@@ -554,6 +566,11 @@
         }
         let onlyFlush = false;
         toggleOnlyFlush(onlyFlush);
+
+        function toggleSSO(){
+
+        }
+
         function toggleOnlyFlush() {
             if (onlyFlush) {
                 map.removeLayer(manholeLayer);
@@ -589,6 +606,12 @@
                 try {
                     clearAllGoldMarkers();
                 } catch (e) {
+                    console.log(e);
+                }
+
+                try{
+                    clearAllGhostMarkers();
+                } catch (e){
                     console.log(e);
                 }
                 LScurrentMarker = null;
@@ -638,21 +661,12 @@
             flusingPoint = geojsonData.features[0].geometry.coordinates[0];
             currentLocationIcoSpin = L.marker([flusingPoint[1], flusingPoint[0]], { icon: spinLocation })
                 .addTo(map)
-            //.bindPopup('Your flush starts here!')
-            //.bindTooltip('flush Location', { permanent: true, direction: 'top' })
-            //.bindTooltip("Hey!I'm your flush")
-            //.openTooltip();            
+       
             currentLocationIcon = L.marker([flusingPoint[1], flusingPoint[0]], {
                 icon: toiletIcon,
                 draggable: false,
                 zIndexOffset: 1000
             }).addTo(map);
-
-            //currentLocationIcon.dragging.disable();
-            //.bindPopup('Your flush starts here!')
-            //.bindTooltip('flush Location', { permanent: true, direction: 'top' })
-            //.bindTooltip("Hey!I'm your flush")
-            //.openTooltip();
 
         }
 
@@ -681,7 +695,7 @@
         var queryResultSSO = null;
         var ghoshMarkers = []
 
-        function displayPointsOnMap(queryResult) {
+        async function displayPointsOnMap(queryResult) {
             // Mapping from cause to color
             var causeToColor = {
                 "Collection System - Temporary Blockage": "Teal",
@@ -750,14 +764,17 @@
                         let street = [];
                         let generalRoute = "";
                         result.geojson = processGeoJsonData(result.geojson);
-
+                        geojsonData_game = result.geojson;
                         //let bbox = calculateBoundingBox(result.geojson);
-                        let bbox = await calculateBoundingBoxWithBuffer(result.geojson);
-                        queryResultSSO = await queryPointsWithinBoundingBox(bbox);
-                        displayPointsOnMap(queryResultSSO);
-                        console.log(result.geojson)
-                        console.log(queryResultSSO)
+
                         addGeoJsonToMap(result.geojson);
+                        if(document.getElementById('ssoOn').checked === true){
+                            let bbox = await calculateBoundingBoxWithBuffer(result.geojson);
+                            queryResultSSO = await queryPointsWithinBoundingBox(bbox);
+                            await displayPointsOnMap(queryResultSSO);
+                            console.log(result.geojson)
+                            console.log(queryResultSSO)
+                        }                        
                         hideModal();
                         //find first LiftStation
                         let firstLS = result.stopPoints.find(obj => obj.type === 15);
@@ -792,7 +809,6 @@
                             time: `Your flush goes on a wild ride! It could zip to the treatment plant in just  ${calculation.total_hour_min} hours, , or take a leisurely journey up to ${calculation.total_hour_max} hours during sunny weather fun times.`,
                             communities: getUniqueStreetNames(result.geojson.features)
                         };
-                        geojsonData_game = result.geojson;
                         if (document.getElementById('gameOn').checked === true) {
                             setGameOn();
                         } else {
@@ -981,6 +997,14 @@
             });
 
             goldMarkers = []; // Reset the goldMarkers array
+        }
+
+        function clearAllGhostMarkers() {
+            ghoshMarkers.forEach(marker => {
+                map.removeLayer(marker); // Remove each marker from the map
+            });
+
+            ghoshMarkers = []; // Reset the goldMarkers array
         }
         var playerBullets = 0;
         // Assuming you have a function to update the player's score
