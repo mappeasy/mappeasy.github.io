@@ -86,7 +86,7 @@
             <p id="generalRoute_container_about"><span id="generalRoute_about">This is purely for learning purpose – a
                     chance to track the splashy journey of our flushes from the loo to the lab! It's our way of teaching
                     the kiddos the swirling path of their flush – from toilet twirls to treatment thrills! 🚽💦🎢 <br />
-                    Double Click/Tap to flush 💩</span></p>
+                    Double Click/Tap to flush 💩</span></p> <hr/>
             <p id="distanceTraveled_container_about"><span id="distanceTraveled_about">Made with <i
                         class="fa-solid fa-heart" style="color: #d31717;"></i> by WWO<br></span></p>
             <button onclick="closeSummaryCard('aboutMe')">Close</button>
@@ -105,6 +105,25 @@
             <button onclick="closeSummaryCard('splashShow')">Close</button>
         </div>
     </div>
+    <div id="morelgendModal" class="summary-card">
+        <div class="card-note">Flush Flow Frenzy: Follow the Flush</div>
+        <!-- Add your note text here -->
+        <div class="card-content">
+            <h2 id="cardHeader_morelgendModal">More SSO Legend</h2>
+            <p id="generalRoute_container_morelgendModal"><span id="generalRoute_morelgendModal">Below reasons can cause Sewer Overflow <br />
+                <i class="fa-solid fa-ghost fa-beat fa-2x" style="color:teal"></i>&nbsp;  Temporary Blockage<br/>
+                <i class="fa-solid fa-ghost fa-beat fa-2x" style="color:red"></i>&nbsp;  Grease <br/>
+                <i class="fa-solid fa-ghost fa-beat fa-2x" style="color:Black"></i>&nbsp;  Structural <br/>
+                <i class="fa-solid fa-ghost fa-beat fa-2x" style="color:blue"></i>&nbsp;  Wet Weather <br/>
+                <i class="fa-solid fa-ghost fa-beat fa-2x" style="color:purple"></i>  &nbsp; Rags/Wipes<br/>
+                <i class="fa-solid fa-ghost fa-beat fa-2x" style="color:green"></i> &nbsp; Roots <br/>                
+                <i class="fa-solid fa-ghost fa-beat fa-2x" style="color:yellow"></i> &nbsp; Lift Station <br/>
+            </p>
+            <p id="distanceTraveled_container_morelgendModal"><span id="distanceTraveled_morelgendModal">Made with <i
+                        class="fa-solid fa-heart" style="color: #d31717;"></i> by WWO<br></span></p>
+            <button onclick="closeSummaryCard('morelgendModal')">Close</button>
+        </div>
+    </div>    
     <div id="map"></div>
     <button id="currentLocationButton" title="Your Current Location"><i class="fa fa-location"></i></button>
     <button id="lastFlushButton"><i class="fas fa-water"></i> Last Flush</button>
@@ -136,7 +155,7 @@
         </div>
     </div>
     <div id="legendContent" class="legend-content">
-        <h4>Map Legend</h4>
+        <h3>Map Legend</h3>
         <table class="icon-text-table">
             <tr>
                 <td><i class="fa-solid fa-minus fa-flip fa-2xl" style="color: #B197FC;"></i></td>
@@ -158,19 +177,28 @@
                 <td><i class="fa-regular fa-circle"></i></td>
                 <td>Sewer Manholes</td>
             </tr>
+            <tr>
+                <td><i class="fa-solid fa-ghost fa-beat fa-2x"></i></td>
+                <td>Sewer Overflow <br/><button id="morelegendButton" class="legend-button-small">More Info...<i class="fa-solid fa-ghost fa-beat" style="color: green"></i></button></td>
+            </tr>            
         </table>
 
         <hr />
         <div class="switch-container">
             <input type="checkbox" class="toggle-switch-checkbox" id="manholeToggle">
             <label class="toggle-switch-label" for="manholeToggle"></label>
-            <h4>&nbsp;More Labels</h4>
+            <h4>&nbsp;More Layers</h4>
         </div>
         <div class="switch-container">
             <input type="checkbox" class="toggle-switch-checkbox" id="onlyFlush">
             <label class="toggle-switch-label" for="onlyFlush"></label>
-            <h4>&nbsp;Only Flushnbsp</h4>
+            <h4>&nbsp;Only Flush</h4>
         </div>
+        <div class="switch-container">
+            <input type="checkbox" class="toggle-switch-checkbox" id="ssoOn">
+            <label class="toggle-switch-label" for="ssoOn"></label>
+            <h4>&nbsp;Sewer Overflow</h4>
+        </div>        
         <hr />
         <div class="switch-container">
             <input type="checkbox" class="toggle-switch-checkbox" id="gameOn">
@@ -198,6 +226,7 @@
         // Adjust the height whenever the window is resized
         window.addEventListener('resize', adjustMapHeight);
         document.getElementById('legendContent').style.display = 'none';
+        document.getElementById('legendContent').style.display = 'none';
         document.getElementById('toggleButton').onclick = function () {
             var contentDiv = document.getElementById('legendContent');
             var isHidden = contentDiv.style.display === 'none';
@@ -212,10 +241,14 @@
                 icon.classList.add('fa-chevron-down');
             }
         };
-
         document.getElementById('aboutButton').onclick = function () {
             closeSummaryCard('summaryCard');
             document.getElementById('aboutMe').style.display = 'block';
+        };
+
+        document.getElementById('morelegendButton').onclick = function () {
+            closeSummaryCard('summaryCard');
+            document.getElementById('morelgendModal').style.display = 'block';
         };
 
         document.getElementById('manholeToggle').onchange = function () {
@@ -322,6 +355,7 @@
         makeDraggable([document.getElementById('cardHeader'), document.getElementById('notification')], document.getElementById('summaryCard'));
         makeDraggable([document.getElementById('cardHeader_about')], document.getElementById('aboutMe'));
         closeSummaryCard('aboutMe');
+        closeSummaryCard('morelgendModal');
         closeSummaryCard('summaryCard');
         var currentGeoJsonLayer = null;
         var currentLocationIcon = null;
@@ -701,7 +735,7 @@
                 ghoshMarkers.push(marker);
             });
         }
-     
+
         async function runTrace(lng, lat) {
             showModal();
             geojsonData_game = null;
@@ -1177,78 +1211,86 @@
 
         function getRandomDirection() {
             return {
-                lat: (Math.random() - 0.5) *  0.0003, // small value for slow movement
-                lng: (Math.random() - 0.5) *  0.0003,
+                lat: (Math.random() - 0.5) * 0.0003, // small value for slow movement
+                lng: (Math.random() - 0.5) * 0.0003,
             };
         }
 
         function moveTowardsTarget(ghostMarker, targetLatLng) {
-    var ghostLatLng = ghostMarker.getLatLng();
-    var directionLat = targetLatLng.lat - ghostLatLng.lat;
-    var directionLng = targetLatLng.lng - ghostLatLng.lng;
-    var distance = Math.sqrt(directionLat * directionLat + directionLng * directionLng);
-    var moveStep = 0.0003; // The step size for each movement
+            var ghostLatLng = ghostMarker.getLatLng();
+            var directionLat = targetLatLng.lat - ghostLatLng.lat;
+            var directionLng = targetLatLng.lng - ghostLatLng.lng;
+            var distance = Math.sqrt(directionLat * directionLat + directionLng * directionLng);
+            var moveStep = 0.0003; // The step size for each movement
 
-    // Normalize the direction vector and multiply by step size
-    directionLat = (directionLat / distance) * moveStep;
-    directionLng = (directionLng / distance) * moveStep;
+            // Normalize the direction vector and multiply by step size
+            directionLat = (directionLat / distance) * moveStep;
+            directionLng = (directionLng / distance) * moveStep;
 
-    return {
-        lat: directionLat,
-        lng: directionLng,
-    };
-}
-// Move the ghost marker smoothly using Leaflet's setLatLng
-function animateGhostMovement(ghostMarker, direction) {
-    var currentLatLng = ghostMarker.getLatLng();
-    var newLatLng = new L.LatLng(
-        currentLatLng.lat + direction.lat,
-        currentLatLng.lng + direction.lng
-    );
-    ghostMarker.setLatLng(newLatLng);
-}
-// Main function to move the ghosts independently
-// Enhance the moveGhosts function to check for collisions after moving
-function moveGhosts(ghostMarker) {
-    // Decide the behavior of this ghost: random, chase player, etc.
-    var direction = getRandomDirection(); // For example, get a random direction
+            return {
+                lat: directionLat,
+                lng: directionLng,
+            };
+        }
+        // Move the ghost marker smoothly using Leaflet's setLatLng
+        function animateGhostMovement(ghostMarker, direction) {
+            try{
+                var currentLatLng = ghostMarker.getLatLng();
+                var newLatLng = new L.LatLng(
+                    currentLatLng.lat + direction.lat,
+                    currentLatLng.lng + direction.lng
+                );
+                ghostMarker.setLatLng(newLatLng);
+            }catch{
+                console.log("Well! Ghost is not ready yet")
+            }
+        }
+        // Main function to move the ghosts independently
+        // Enhance the moveGhosts function to check for collisions after moving
+        function moveGhosts(ghostMarker) {
+            // Decide the behavior of this ghost: random, chase player, etc.
+            var direction = getRandomDirection(); // For example, get a random direction
 
-    // Use the moveTowardsTarget function if you want to chase the player or move towards a point
-    // direction = moveTowardsTarget(ghostMarker, currentLocationIcon.getLatLng());
+            // Use the moveTowardsTarget function if you want to chase the player or move towards a point
+            // direction = moveTowardsTarget(ghostMarker, currentLocationIcon.getLatLng());
 
-    // Move the ghost marker smoothly
-    animateGhostMovement(ghostMarker, direction);
+            // Move the ghost marker smoothly
+            animateGhostMovement(ghostMarker, direction);
 
-    // Check for collision with the player
-    checkCollision(ghostMarker);
-}
+            // Check for collision with the player
+            checkCollision(ghostMarker);
+        }
 
         // Function to check for collision between ghost markers and the toilet marker
         function checkCollision(ghostMarker) {
             var COLLISION_DISTANCE = 10;
-    var playerPosition = currentLocationIcon.getLatLng();
-    var ghostPosition = ghostMarker.getLatLng();
-    var distance = playerPosition.distanceTo(ghostPosition);
+            try{
+                var playerPosition = currentLocationIcon.getLatLng();
+                var ghostPosition = ghostMarker.getLatLng();
+                var distance = playerPosition.distanceTo(ghostPosition);
 
-    // If the distance is small enough, consider it a collision
-    if (distance < COLLISION_DISTANCE) {
-        // Handle collision (e.g., end game, reduce score)
-        onCollisionDetected();
-    }
-}
-  
+                // If the distance is small enough, consider it a collision
+                if (distance < COLLISION_DISTANCE) {
+                    // Handle collision (e.g., end game, reduce score)
+                    onCollisionDetected();
+                }
+            }catch {
+                console.log("Well! no ghost to hunt")
+            }
+        }
+
         // Function to handle what happens when a collision is detected
         function onCollisionDetected() {
             // Logic for when the player loses the game, e.g., end the game, reduce score, etc.
             console.log("Collision detected! Player loses.");
         }
-    // Set up an interval to periodically move each ghost and check for collisions
+        // Set up an interval to periodically move each ghost and check for collisions
         // Set up independent intervals for each ghost
-// Call moveGhosts for each ghost independently
-setInterval(function() {
-    ghoshMarkers.forEach(moveGhosts);
-    checkCollision();
-}, 200); // Move ghosts every 2 seconds, adjust as needed
+        // Call moveGhosts for each ghost independently
+        setInterval(function () {
+            ghoshMarkers.forEach(moveGhosts);
+            checkCollision();
+        }, 200); // Move ghosts every 2 seconds, adjust as needed
     </script>
 </body>
 
