@@ -503,6 +503,28 @@ hr {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Return to smaller shadow */
 }
 
+.legend-button-small {
+    background-color: rgba(0, 123, 255, 0.8);
+    color: white; /* Text color */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 3px 3px; /* Vertical and horizontal padding */
+    font-size: 12px; /* Appropriate text size */
+    cursor: pointer; /* Cursor indicates it's clickable */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    transition: background-color 0.3s, box-shadow 0.3s; /* Smooth transition for hover effects */
+    margin-top: 6px; 
+}
+
+.legend-button-small:hover {
+    background-color: #0056b3; /* Slightly darker shade on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Slightly larger shadow on hover */
+}
+
+.legend-button-small:active {
+    background-color: #004088; /* Even darker for the active state */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Return to smaller shadow */
+}
 #scoreContainer {
     position: absolute;
     left: 50%;
