@@ -21,6 +21,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-BHSNBW8NK6"></script>
+    
     <script>
         try {
             window.dataLayer = window.dataLayer || [];
@@ -94,6 +95,29 @@
             <button onclick="closeSummaryCard('aboutMe')">Close</button>
         </div>
     </div>
+
+    <div id="gamePlan" class="summary-card">
+        <div class="card-note">Flush Flow Frenzy: Simple Game Plan</div>
+        <!-- Add your note text here -->
+        <div class="card-content">
+            <h2 id="cardHeader_gamePlan">Simple Game Plan</h2>
+            <p id="generalRoute_container_gamePlan"><span id="generalRoute_gamePlan">
+                Welcome to the exciting world of “Flush Fighters”! 💩 <<br/>
+                This game is inspired by real-world events related to public sewer systems. <<br/>
+
+                In this game, you’re in control of a brave little Flush. Your mission? To journey through the sewer system and reach the Wastewater Treatment Plant. But beware! Ghosts (representing public sewer overflows) are lurking around every corner, within 1000 feet of your path.<br/>
+                
+                These spooky ghosts have taken over the Liftstations and turned them into their own personal playgrounds. The battleground is marked in blue, and the ghosts won’t stray from their territory.<br/>
+                
+                Your task as the Flush is to bravely battle these ghosts, clear the area, and rescue the Liftstations, all before reaching the treatment plant.<br/>
+                
+                <b>How to Play? 🎮 </b>Just drag the Flush to move around and click to fire at the ghosts. But be careful! If a ghost touches you or you get hit by a bullet from a Liftstation, it’s game over.
+            <p id="distanceTraveled_container_gamePlan"><span id="distanceTraveled_gamePlan">Made with
+                        <i class="fa-solid fa-heart" style="color: #d31717;"></i> by WWO<br></span></p>
+            <button onclick="closeSummaryCard('gamePlan')">Close</button>
+        </div>
+    </div>
+
     <div id="splashShow" class="summary-card">
         <div class="card-note">Flush Flow Frenzy: Follow the Flush</div>
         <!-- Add your note text here -->
@@ -211,6 +235,7 @@
         <hr />
         <!-- About button -->
         <button id="aboutButton" class="legend-button">About</button>
+        <button id="helpButton" class="legend-button">Game Plan</button>
         <div><i style="font-size:14px; ">For Kiddos Learning Only</i></div>
         <!-- Toggle switch for manhole layers -->
     </div>
@@ -248,7 +273,11 @@
             closeSummaryCard('summaryCard');
             document.getElementById('aboutMe').style.display = 'block';
         };
-
+        document.getElementById('helpButton').onclick = function () {
+            closeSummaryCard('summaryCard');
+            document.getElementById('gamePlan').style.display = 'block';
+        };
+        
         document.getElementById('morelegendButton').onclick = function () {
             closeSummaryCard('summaryCard');
             document.getElementById('morelgendModal').style.display = 'block';
@@ -375,6 +404,7 @@
         makeDraggable([document.getElementById('cardHeader'), document.getElementById('notification')], document.getElementById('summaryCard'));
         makeDraggable([document.getElementById('cardHeader_about')], document.getElementById('aboutMe'));
         closeSummaryCard('aboutMe');
+        closeSummaryCard('gamePlan');
         closeSummaryCard('morelgendModal');
         closeSummaryCard('summaryCard');
         var currentGeoJsonLayer = null;
