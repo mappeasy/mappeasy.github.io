@@ -53,7 +53,6 @@ async function queryFeature2AtFeature1(mapServerFeature1, mapServerFeature2, uni
         console.log('No endpoint found for the given UNITID.');
         return [];
     }
-
     // Step 2: Query to find intersecting features at the endpoint, excluding the original UNITID
     const intersectQueryUrl = `${mapServerFeature2}/query?geometry={"x": ${endPoint[0]}, "y": ${endPoint[1]}}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=${outfieldLine}&outSR=4326&f=pjson`;
     try {
