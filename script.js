@@ -320,11 +320,28 @@ function getUniqueStreetNames(data) {
     return uniqueStreetNames;
 }
 
+function getUniqueSuperNeighborhood(data) {
+    let neighborhoodName = data.map(item => {
+        try {
+            // Attempt to extract and process the address
+            return item.attributes.SNBNAME;
+        } catch (e) {
+            // If an error occurs, return a unique value that signifies an error
+            return "__INVALID_NAME__";
+        }
+    });
+    console.log(neighborhoodName);
+    // Filter out any invalid addresses and get unique street names
+    let neighborhoodNameUnique = [...new Set(neighborhoodName)].filter(SNBNAME => SNBNAME !== "__INVALID_NAME__");
+
+    return neighborhoodNameUnique;
+}
+
 function roundToDecimals(num, decimals) {
     const multiplier = Math.pow(10, decimals);
     return Math.round(num * multiplier) / multiplier;
 }
-function calculateRoute(data) {
+async function calculateRoute(data) {
     let total_len_ft = 0.00;
     let toal_second_min = 0.00;
     let toal_second_max = 0.00;
@@ -468,6 +485,83 @@ function calculateBoundingBoxWithBuffer(geojsonData) {
 }
 
 
+async function calculateUnifiedBoundaryWithBuffer_polygon(geojsonData) {
+    const bufferDistanceInMeters = 700 * 0.3048; // Convert 200 feet to meters
+
+    // Combine all lines into a single MultiLineString or use them as is if already combined
+    let combinedGeometry = turf.combine(geojsonData);
+
+    // Apply buffer to the combined geometry
+    const buffered = turf.buffer(combinedGeometry, bufferDistanceInMeters, { units: 'meters' });
+
+    // Calculate the convex hull of the buffered area, if desired, for a simplified outer boundary
+    const convexHull = turf.convex(buffered);
+
+    console.log(convexHull); // For debugging
+    return convexHull;
+}
+
+async function calculateUnifiedBoundaryWithBuffer_polygon_V1(geojsonData) {
+    // Adjust buffer size to 500 feet in meters
+    const bufferDistanceInMeters = 500 * 0.3048; // 500 feet in meters
+
+    // Step 1: Buffer the GeoJSON data slightly
+    const buffered = turf.buffer(geojsonData, bufferDistanceInMeters, { units: 'meters' });
+
+    // step2: merge and dissolve all buffer into 1 polygon
+    return buffered;
+}
+
+async function calculateUnifiedBoundaryWithBuffer_polygon_V2(geojsonData,qualityFactor,buffer_size) {
+    console.log("Start buffering")
+
+    const bufferDistanceInMeters = buffer_size * 0.3048;
+
+    // Simplify the GeoJSON data first to reduce complexity
+    const simplifiedGeojson = turf.simplify(geojsonData, {tolerance: 0.001, highQuality: true});
+
+    // Combine all features into a single feature for buffering (if they are lines or polygons)
+    // This step assumes your GeoJSON is a FeatureCollection
+    let combinedFeature;
+    if (simplifiedGeojson.features.length > 1) {
+        combinedFeature = turf.combine(simplifiedGeojson);
+        // turf.combine wraps the combined feature in a FeatureCollection
+        combinedFeature = combinedFeature.features[0]; // Assuming we want the first feature
+    } else {
+        combinedFeature = simplifiedGeojson.features[0]; // Use the single feature directly
+    }
+
+    // Buffer the combined or single simplified feature
+    const buffered = turf.buffer(combinedFeature, bufferDistanceInMeters, { units: 'meters' });
+    const simplifiedBuffer  = turf.simplify(buffered, {tolerance: qualityFactor, highQuality: true});
+
+    const generalBound = turf.convex(buffered);
+
+    console.log("End buffering");
+    console.log(simplifiedBuffer );
+    // Extract the coordinates of the simplified buffer polygon
+    // Assuming the simplifiedBuffer is a Feature or FeatureCollection
+    let coordinates;
+    if (simplifiedBuffer.type === 'FeatureCollection') {
+        // If the simplifiedBuffer is a FeatureCollection, take the first feature's geometry
+        coordinates = simplifiedBuffer.features[0].geometry.coordinates;
+    } else if (simplifiedBuffer.type === 'Feature') {
+        // If the simplifiedBuffer is a single Feature, take its geometry
+        coordinates = simplifiedBuffer.geometry.coordinates;
+    } else {
+        // Handle other types appropriately
+        console.log("Unexpected GeoJSON type:", simplifiedBuffer.type);
+        return null;
+    }
+
+    // Convert the coordinates to a format suitable for esriGeometryPolygon
+    const esriPolygonGeometry = {
+        "rings": coordinates,
+        "spatialReference": {"wkid": 4326}
+    };    
+    return {simplifiedBuffer,esriPolygonGeometry,generalBound}; // Return the highly simplified buffered shape
+}
+
 
 async function queryPointsWithinBoundingBox(bbox) {
     let baseUrl = "https://services.arcgis.com/NummVBqZSIJKUeVR/arcgis/rest/services/RSSO_Package/FeatureServer/0/query";
@@ -478,7 +572,7 @@ async function queryPointsWithinBoundingBox(bbox) {
         ymax: bbox[1][0],
         spatialReference: { wkid: 4326 }
     }));
-    let query = "SYSTEM like '%blic%' AND STARTDATE >= date '2020-01-01'";
+    let query = "SYSTEM like '%blic%' AND STARTDATE >= date '2022-01-01'";
     let queryUrl = `${baseUrl}?where=${query}&geometry=${geometry}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&outSR=4326&f=json`;
 
     console.log(queryUrl); // Log the query URL to debug
@@ -494,4 +588,40 @@ async function queryPointsWithinBoundingBox(bbox) {
         console.error("Query failed:", error);
         return null; // Return null to indicate failure
     }
+}
+
+//super neighborhood: "https://mycity2.houstontx.gov/pubgis02/rest/services/HoustonMap/Administrative_Boundary/MapServer/3/query"
+//SSO:  "https://services.arcgis.com/NummVBqZSIJKUeVR/arcgis/rest/services/RSSO_Package/FeatureServer/0/query"
+// let query = "SYSTEM like '%blic%' AND STARTDATE >= date '2022-01-01'";
+// let query = "1=1"
+async function queryGISWithinPolygon(arcgis_url,query_cmd, esriPolygonGeometry) {
+    let baseUrl = arcgis_url;
+    let geometry =  encodeURIComponent(JSON.stringify(esriPolygonGeometry));
+    let query = query_cmd;
+    let queryUrl = `${baseUrl}?where=${query}&geometry=${geometry}&geometryType=esriGeometryPolygon&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&outSR=4326&f=json`;
+
+    console.log(queryUrl); // Log the query URL to debug
+
+    try {
+        const response = await fetch(queryUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("GIS query: ",data)
+        return data; // Return the data to be used where the function is called
+    } catch (error) {
+        console.error("Query failed:", error);
+        return null; // Return null to indicate failure
+    }
+}
+
+function isPointInsideBoundary(latlng, boundary) {
+    // Create a point from latlng
+    const point = turf.point([latlng.lng, latlng.lat]);
+
+    // Assuming boundary is a valid GeoJSON Polygon or MultiPolygon
+    const isInside = turf.booleanPointInPolygon(point, boundary);
+
+    return isInside;
 }
