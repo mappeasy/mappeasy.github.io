@@ -3,6 +3,6 @@ Check it out:
 [https://mappeasy.com](https://mappeasy.com)
 
 
-[![Alt Text]![image](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/e83add49-dd5e-40b5-9480-69426fa1df5f)](https://mappeasy.com)
+[image](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/e83add49-dd5e-40b5-9480-69426fa1df5f)](https://mappeasy.com)
 
 
