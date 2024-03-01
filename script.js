@@ -341,29 +341,41 @@ function roundToDecimals(num, decimals) {
     const multiplier = Math.pow(10, decimals);
     return Math.round(num * multiplier) / multiplier;
 }
-async function calculateRoute(data) {
+function calculateRoute(data) {
     let total_len_ft = 0.00;
-    let toal_second_min = 0.00;
-    let toal_second_max = 0.00;
-    let total_len_mi = 0.00
-    for (let i = data.length - 1; i >= 0; i--) {
-        total_len_ft = total_len_ft + data[i].properties["SHAPE.STLength()"];
-        //There are a lot of factors that might contribute to the rate of flow; this estimate assumes a flow of between 1 and 3 feet/second in Gravity Main; between 2 to 8 feet/second in Forcemain.
-        if(data[i].properties["SUBTYPECD"] === 1 || data[i].properties["SUBTYPECD"] === 2){ //force main
-            toal_second_min = toal_second_min + data[i].properties["SHAPE.STLength()"]/8.0; //in seconds
-            toal_second_max = toal_second_max + data[i].properties["SHAPE.STLength()"]/2.0;
-        } else { //gravity main
-            toal_second_min = toal_second_min + data[i].properties["SHAPE.STLength()"]/3.0; //in seconds
-            toal_second_max = toal_second_max + data[i].properties["SHAPE.STLength()"]/1.0;
+    let total_second_min = 0.00;
+    let total_second_max = 0.00;
+
+    for (let i = 0; i < data.length; i++) {
+        let length = data[i].properties["SHAPE.STLength()"];
+        let type = data[i].properties["SUBTYPECD"];
+
+        if (length === undefined || isNaN(length)) {
+            console.log(`Warning: Invalid length at index ${i}`);
+            console.log(data[i]);
+            continue;
         }
 
+        total_len_ft += length;
+
+        if (type === 1 || type === 2) { // force main
+            total_second_min += length / 8.0; // in seconds
+            total_second_max += length / 2.0;
+        } else { // gravity main
+            total_second_min += length / 3.0; // in seconds
+            total_second_max += length / 1.0;
+        }
     }
+
     total_len_ft = roundToDecimals(total_len_ft, 2);
-    total_len_mi = roundToDecimals(total_len_ft / 5280, 2);
-    let total_hour_min = roundToDecimals(toal_second_min / 3600, 2);
-    let total_hour_max = roundToDecimals(toal_second_max / 3600, 2);
-    return {total_len_ft,total_len_mi,total_hour_min,total_hour_max};
+    let total_len_mi = roundToDecimals(total_len_ft / 5280, 2);
+    let total_hour_min = roundToDecimals(total_second_min / 3600, 2);
+    let total_hour_max = roundToDecimals(total_second_max / 3600, 2);
+
+    return {total_len_ft, total_len_mi, total_hour_min, total_hour_max};
 }
+
+
 function makeDraggable(dragHandles, draggableElement) {
     var offsetX, offsetY, initialMouseX, initialMouseY;
 
