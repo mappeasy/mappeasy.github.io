@@ -19,7 +19,6 @@ async function queryFeaturesByEndPoint(mapServer, unitID) {
         console.log('No endpoint found for the given UNITID.');
         return null;
     }
-
     // Step 2: Query to find intersecting features at the endpoint, excluding the original UNITID
     const intersectQueryUrl = `${mapServer}/query?geometry={"x": ${endPoint[0]}, "y": ${endPoint[1]}}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=FACILITYID,UPSTREAMMANHOLENUMBER,DOWNSTREAMMANHOLENUMBER,DIAMETER,UNITID,UNITID2,MAINCOMP2,UFID,SHAPE.STLength()&outSR=4326&f=pjson`;
     try {
