@@ -2,7 +2,4 @@ That’s right! With a quick tap, students can get a sneak peek into the secret 
 Check it out:
 [https://mappeasy.com](https://mappeasy.com)
 
-
-[image](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/e83add49-dd5e-40b5-9480-69426fa1df5f)](https://mappeasy.com)
-
-
+[![Mappeasy](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/e83add49-dd5e-40b5-9480-69426fa1df5f)](https://mappeasy.com)
