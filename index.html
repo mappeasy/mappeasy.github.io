@@ -276,6 +276,10 @@
             }
         };
         function setGameOn() {
+            if(unifiedBoundary === null){
+                console.log("game is not ready yet")
+                return
+            }
             startMovingGhosts();
             try{
                 unifiedBoundary_warzone=L.geoJSON(unifiedBoundary.generalBound).addTo(map);
@@ -353,7 +357,7 @@
         };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -1028,6 +1032,9 @@
 
 
         function checkPlayerBulletHit(bullet, target) {
+            if(bullet == null || target == null){
+                return false;
+            }
             var hitThreshold = 20; // Threshold distance in meters
             var bulletPosition = bullet.getLatLng();
             var targetPosition = target.getLatLng();
@@ -1059,7 +1066,7 @@
             // Optional: Set a timeout to hide the modal and clear balloons after a certain time
             setTimeout(function () {
                 congratsModal.style.visibility = 'hidden';
-            }, 3000); // 10 seconds
+            }, 30000); // 10 seconds
         }
 
         function showCongratulationsLSKilled() {
@@ -1099,10 +1106,11 @@
         var movingGhostInterval = null; // This will hold the interval for firing bullets
         function fireBulletFromLiftStation() {
             if (document.getElementById('gameOn').checked === false || LScurrentMarker === null) {
+                console.log("Game not on yet at-LS cannot fire")
                 return; // Exit the function if the game is not on
             }
 
-            var proximityThreshold = 80; // Threshold distance in meters
+            var proximityThreshold = 10000; // Threshold distance in meters
 
             var lsPosition = LScurrentMarker.getLatLng();
             var pooPosition = currentLocationIcon.getLatLng();
@@ -1111,10 +1119,11 @@
                 // Only fire if the poo icon is close to the lift station
                 fireBullet(lsPosition);
             }
+            startBulletFiring();
         }
         // Start firing bullets
         function startBulletFiring() {
-            bulletFiringInterval = setInterval(fireBulletFromLiftStation, 2000);
+            bulletFiringInterval = setTimeout(fireBulletFromLiftStation, Math.random() * (8000 - 2000) + 2000);
         }
 
         // Stop firing bullets
@@ -1141,10 +1150,16 @@
             console.log("Hit! You lose.");
             clearInterval(bulletFiringInterval); // Stop firing bullets
             stopMovingGhosts();
+            LScurrentMarker.setIcon(pumpIcon); //just in case users got hit right after hit by ghost
             score = 0;
             document.getElementById('score').textContent = score;
             showGameOver(); // Show game over modal
             currentLocationIcon.setLatLng([geojsonData_game.features[0].geometry.coordinates[0][1], geojsonData_game.features[0].geometry.coordinates[0][0]]);
+            //remove all ghost
+            clearAllGhostMarkers();
+            //display ghost again
+            if(queryResultSSO !== null)
+                displayPointsOnMap(queryResultSSO);
             startBulletFiring();
             startMovingGhosts();
         }
@@ -1165,7 +1180,7 @@
             var targetPoint = currentLocationIcon.getLatLng();
 
             // Animate the bullet towards the target point
-            animateMarker_bullet(bullet, targetPoint, 1000, function () {
+            animateMarker_bullet_from_LS(bullet, targetPoint, 1000, function () {
                 checkBulletCollision(bullet, currentLocationIcon);
                 map.removeLayer(bullet); // Remove this specific bullet after animation
                 try {
@@ -1177,7 +1192,7 @@
             });
         }
         function checkBulletCollision(bullet, target) {
-            var bulletCollisionThreshold = 5;
+            var bulletCollisionThreshold = 15;
             var bulletPosition = bullet.getLatLng();
             var targetPosition = target.getLatLng();
             if (bulletPosition.distanceTo(targetPosition) < bulletCollisionThreshold) {
@@ -1185,6 +1200,37 @@
                 clearAllBullets_ls();
             }
         }
+        function animateMarker_bullet_from_LS(marker, destination, duration, onComplete) {
+            if (duration <= 0) {
+                // Move the marker immediately if duration is zero or negative
+                marker.setLatLng(destination);
+                if (onComplete) onComplete();
+                return; // Exit the function
+            }
+            var startLatLng = marker.getLatLng();
+            var endLatLng = new L.LatLng(destination.lat, destination.lng);
+
+            var startTime = Date.now();
+            var timer = setInterval(function () {
+                var currentTime = Date.now();
+                var progress = (currentTime - startTime) / duration;
+
+                if (progress > 1) {
+                    progress = 1;
+                    clearInterval(timer);
+                    if (onComplete) onComplete(); // Call the onComplete callback
+                }
+
+                var lat = startLatLng.lat + (endLatLng.lat - startLatLng.lat) * progress;
+                var lng = startLatLng.lng + (endLatLng.lng - startLatLng.lng) * progress;
+
+                marker.setLatLng([lat, lng]);
+
+                if (progress === 1) {
+                    clearInterval(timer);
+                }
+            }, 10); // The smaller this number, the smoother the animation
+        }        
         function animateMarker_bullet(marker, destination, duration, onComplete) {
             if (duration <= 0) {
                 marker.setLatLng(destination);
@@ -1274,19 +1320,13 @@
         
         }
         function adjustMovementBackInside(currentLatLng, boundary) {
-            // This example inverts the direction, but you can implement more sophisticated logic as needed
             let invertedDirection = {
                 lat: (Math.random() - 0.5) * 0.0002, // Invert direction with a small randomization
                 lng: (Math.random() - 0.5) * 0.0002,
             };
-
-            // Ensure the adjusted direction moves the ghost back inside the boundary
-            // This might involve checking multiple directions or using specific logic based on the boundary shape
-            // For now, we return the inverted direction as a simple example
             return invertedDirection;
         }  
-        // Main function to move the ghosts independently
-        // Enhance the moveGhosts function to check for collisions after moving
+
         function moveGhosts(ghostMarker) {
             if(document.getElementById('ssoOn').checked === false ||unifiedBoundary === null){
                 console.log("SSO not on")
@@ -1315,12 +1355,7 @@
             // Check for collision with the player
             checkCollision(ghostMarker);
         }
-        function isPointInsideWarZone(latlng, boundary) {
-            // Implement the logic to check if latlng is inside the boundary
-            // This might involve converting the boundary to a suitable format for a point-in-polygon check
-            // For simplicity, this function returns true or false based on your logic
-            return true; // Placeholder return value
-        }
+
         function startMovingGhosts() {
             console.log("total ghost number: ",ghostMarkers.length);
             if(ghostMarkers.length === 0){
@@ -1329,12 +1364,11 @@
             console.log("total ghost number: ",ghostMarkers.length);
             movingGhostInterval=setInterval(function () {
                 ghostMarkers.forEach(moveGhosts);
-                //checkCollision();
-        }, 200); // Move ghosts every 2 seconds, adjust as needed            
+        }, 200);
         }
         // Function to check for collision between ghost markers and the toilet marker
         function checkCollision(ghostMarker) {
-            var COLLISION_DISTANCE = 10;
+            var COLLISION_DISTANCE = 15;
             if(ghostMarker === null){
                 console.log("No ghost to check collision")
                 return
@@ -1351,22 +1385,14 @@
                 // If the distance is small enough, consider it a collision
                 if (distance < COLLISION_DISTANCE) {
                     // Handle collision (e.g., end game, reduce score)
-                    onCollisionDetected();
+                    onHit();
+                    console.log("Collision detected! Player hit by ghost.");
                 }
             }catch(e) {
                 console.log("Well! no ghost to hunt",e.message)
             }
         }
 
-        // Function to handle what happens when a collision is detected
-        function onCollisionDetected() {
-            // Logic for when the player loses the game, e.g., end the game, reduce score, etc.
-            console.log("Collision detected! Player loses.");
-            onHit();
-        }
-        // Set up an interval to periodically move each ghost and check for collisions
-        // Set up independent intervals for each ghost
-        // Call moveGhosts for each ghost independently
 
     </script>
 </body>
