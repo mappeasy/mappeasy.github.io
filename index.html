@@ -102,21 +102,20 @@
         <div class="card-content">
             <h2 id="cardHeader_gamePlan">Simple Game Plan</h2>
             <p id="generalRoute_container_gamePlan"><span id="generalRoute_gamePlan">
-                Welcome to the exciting world of “Flush Fighters”! 💩 <<br/>
-                This game is inspired by real-world events related to public sewer systems. <<br/>
+                Welcome to the exciting world of “Flush Fighters”! 💩 <br/>
+                This game is inspired by real-world events related to public sewer systems. <br/>
 
-                In this game, you’re in control of a brave little Flush. Your mission? To journey through the sewer system and reach the Wastewater Treatment Plant. But beware! Ghosts (representing public sewer overflows) are lurking around every corner, within 1000 feet of your path.<br/>
-                
-                These spooky ghosts have taken over the Liftstations and turned them into their own personal playgrounds. The battleground is marked in blue, and the ghosts won’t stray from their territory.<br/>
+                Dive into a sewer adventure as Flush, the daring hero! Your quest? Navigate the sewers to reach the Wastewater Treatment Plant, dodging sewer ghosts (pesky public overflow spirits) within 1000 feet of your path. These ghouls have taken over Liftstations, turning them into ghostly hangouts, all marked in blue.<br/>
                 
                 Your task as the Flush is to bravely battle these ghosts, clear the area, and rescue the Liftstations, all before reaching the treatment plant.<br/>
                 
-                <b>How to Play? 🎮 </b>Just drag the Flush to move around and click to fire at the ghosts. But be careful! If a ghost touches you or you get hit by a bullet from a Liftstation, it’s game over.
+                <b>How to Play? 🎮 </b>Your mission: Battle these spooky intruders, free the Liftstations, and make it to the plant. 🎮 To play, drag Flush to move and click to shoot at the ghosts. Watch out! Ghost touch or Liftstation bullet equals game over. <br/> Let's flush 'em out!
             <p id="distanceTraveled_container_gamePlan"><span id="distanceTraveled_gamePlan">Made with
                         <i class="fa-solid fa-heart" style="color: #d31717;"></i> by WWO<br></span></p>
             <button onclick="closeSummaryCard('gamePlan')">Close</button>
         </div>
     </div>
+
     <div id="splashShow" class="summary-card">
         <div class="card-note">Flush Flow Frenzy: Follow the Flush</div>
         <!-- Add your note text here -->
@@ -234,7 +233,7 @@
         <hr />
         <!-- About button -->
         <button id="aboutButton" class="legend-button">About</button>
-        <button id="helpButton" class="legend-button">Game Plan</button>
+        <button id="helpButton" class="legend-button">Game Inf.</button>
         <div><i style="font-size:14px; ">For Kiddos Learning Only</i></div>
         <!-- Toggle switch for manhole layers -->
     </div>
@@ -384,7 +383,7 @@
         };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
