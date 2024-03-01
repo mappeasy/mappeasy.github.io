@@ -109,6 +109,7 @@
                 🗺️ Zoom through sewers just like real ones, thanks to 311 calls! <br/>
                 
                 🌟 Be Flush, our awesome sewer hero! Your mission: Sneak past sneaky sewer ghosts and save the blue Liftstations on your way to the Water Factory! Ghosts are real public sewer overflow<br/>
+                <b> You cannot shoot Liftstation to make it blue until all ghost are gone</b> <br/>
                 
                 🛡️ <b>Your cool challenge:</b> Battle those goofy ghosts, clean up the sewers, and rescue Liftstations before you hit the big splash at the end!<br/>
                 
@@ -329,10 +330,12 @@
                     map.removeLayer(marker); // Remove each marker from the map
                 });
                 document.getElementById('gameOn').checked = false;
+                toggleGhostMarkersTooltipAndPopup(true);
                 //ghostMarkers = []; 
             }
         };
         function setGameOn() {
+            toggleGhostMarkersTooltipAndPopup(false);
             if (unifiedBoundary === null) {
                 console.log("game is not ready yet")
                 return
@@ -393,6 +396,7 @@
             });
         }
         function setGameOff() {
+            toggleGhostMarkersTooltipAndPopup(true);
             // Disable game features
             map.off('click', function (e) {
                 firePlayerBullet(e.latlng);
@@ -423,7 +427,7 @@
         };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -824,9 +828,13 @@
                     + `StartDate: ${(new Date(feature.attributes.STARTDATE)).toDateString()}<br>`
                     + `ID: ${feature.attributes.EXCURSIONID}`;
                 //marker.bindPopup(popupContent);
-                marker.bindTooltip(popupContent, { permanent: false, direction: 'top' });
+                //marker.bindPopup(popupContent);
+                //marker.bindTooltip(popupContent);          
+                marker.popupContent=popupContent;
+                marker.tooltipContent = popupContent;
                 ghostMarkers.push(marker);
             });
+            toggleGhostMarkersTooltipAndPopup(document.getElementById('gameOn').checked == false);
         }
         let unifiedBoundary = null;
         let unifiedBoundary_warzone = null;
@@ -898,8 +906,10 @@
                         };
                         if (document.getElementById('gameOn').checked === true) {
                             setGameOn();
+                            toggleGhostMarkersTooltipAndPopup(false);
                         } else {
                             setGameOff();
+                            toggleGhostMarkersTooltipAndPopup(true);
                         }
                         showSummaryCard(mainData, false);
                     } else {
@@ -943,6 +953,19 @@
             runTrace(e.latlng.lng, e.latlng.lat)
         });
 
+        function toggleGhostMarkersTooltipAndPopup(enable) {
+                ghostMarkers.forEach(marker => {
+                    if (enable) {
+                        // Enable tooltip and popup
+                        marker.bindPopup(marker.popupContent);
+                        marker.bindTooltip(marker.tooltipContent);
+                    } else {
+                        // Disable tooltip and popup
+                        marker.unbindPopup();
+                        marker.unbindTooltip();
+                    }
+                });
+            }
         function gameClickHandler(e) {
             // Get the lat and lng of the clicked point
             var clickedLat = e.latlng.lat;
@@ -1072,7 +1095,10 @@
         }
 
         function firePlayerBullet(targetLatLng) {
-            if (document.getElementById('gameOn').checked === false) return;
+            if (document.getElementById('gameOn').checked === false){ 
+                toggleGhostMarkersTooltipAndPopup(true);
+                return;
+            }
             var playerPosition = currentLocationIcon.getLatLng();
             var bullet = L.marker(playerPosition, { icon: gemIconSmall }).addTo(map);
 
@@ -1167,6 +1193,7 @@
         function checkCollisionWithLiftStation() {
             var someThresholdDistance = 15;
             if (document.getElementById('gameOn').checked === false || LScurrentMarker === null) {
+                toggleGhostMarkersTooltipAndPopup(true);
                 return; // Exit the function if the game is not on
             }
             var pooPosition = currentLocationIcon.getLatLng(); // Get current location of the poo icon
@@ -1185,6 +1212,7 @@
         var movingGhostInterval = null; // This will hold the interval for firing bullets
         function fireBulletFromLiftStation() {
             if (document.getElementById('gameOn').checked === false || LScurrentMarker === null) {
+                toggleGhostMarkersTooltipAndPopup(true);
                 console.log("Game not on yet at-LS cannot fire")
                 return; // Exit the function if the game is not on
             }
