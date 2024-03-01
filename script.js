@@ -19,6 +19,7 @@ async function queryFeaturesByEndPoint(mapServer, unitID) {
         console.log('No endpoint found for the given UNITID.');
         return null;
     }
+
     // Step 2: Query to find intersecting features at the endpoint, excluding the original UNITID
     const intersectQueryUrl = `${mapServer}/query?geometry={"x": ${endPoint[0]}, "y": ${endPoint[1]}}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=FACILITYID,UPSTREAMMANHOLENUMBER,DOWNSTREAMMANHOLENUMBER,DIAMETER,UNITID,UNITID2,MAINCOMP2,UFID,SHAPE.STLength()&outSR=4326&f=pjson`;
     try {
@@ -53,6 +54,7 @@ async function queryFeature2AtFeature1(mapServerFeature1, mapServerFeature2, uni
         console.log('No endpoint found for the given UNITID.');
         return [];
     }
+
     // Step 2: Query to find intersecting features at the endpoint, excluding the original UNITID
     const intersectQueryUrl = `${mapServerFeature2}/query?geometry={"x": ${endPoint[0]}, "y": ${endPoint[1]}}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=${outfieldLine}&outSR=4326&f=pjson`;
     try {
@@ -634,4 +636,38 @@ function isPointInsideBoundary(latlng, boundary) {
     const isInside = turf.booleanPointInPolygon(point, boundary);
 
     return isInside;
+}
+
+function moveMarkerSmoothly(marker, to, duration) {
+    var from = marker.getLatLng();
+    var start = Date.now();
+    var step = function() {
+        var elapsed = Date.now() - start;
+        marker.setLatLng({
+            lat: from.lat + (to.lat - from.lat) * elapsed / duration,
+            lng: from.lng + (to.lng - from.lng) * elapsed / duration
+        });
+        if (elapsed < duration) {
+            requestAnimationFrame(step);
+        }
+    };
+    step();
+}
+
+function isElementVisible(element) {
+    var style = window.getComputedStyle(element);
+    return style.width !== "0" && style.height !== "0" && style.opacity !== "0" && style.display !== 'none' && style.visibility !== 'hidden';
+}
+
+function findNearestPointOnBoundary(point, boundary) {
+    // Convert the point to a GeoJSON Point if it's not already
+    var geoJsonPoint = (point instanceof L.LatLng) ? 
+                       turf.point([point.lng, point.lat]) : point;
+
+    // Assuming boundary is a GeoJSON Polygon (from turf.convex)
+    var line = turf.polygonToLine(boundary); // Convert boundary polygon to a line
+
+    var nearestPoint = turf.nearestPointOnLine(line, geoJsonPoint, { units: 'meters' });
+
+    return L.latLng(nearestPoint.geometry.coordinates[1], nearestPoint.geometry.coordinates[0]);
 }
