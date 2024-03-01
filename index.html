@@ -73,7 +73,7 @@
             <p id="distanceTraveled_container"><strong>Zooming Adventure:</strong> <span id="distanceTraveled">0
                     feet</span></p>
             <p id="timeToWWTP_container"><strong>Speedy Splash:</strong> <span id="timeToWWTP">0 hours</span></p>
-            <p id="communitiesPassed_"><strong>Epic Journey of The Flush Through Below SuperNeighborhoods:</strong></p>
+            <p id="communitiesPassed_"><strong>Flush's Epic Journey Throuh SuperNeighborhoods:</strong></p>
             <ul id="communitiesPassed">
                 <!-- List items will be added dynamically -->
             </ul>
@@ -91,7 +91,7 @@
                     the kiddos the swirling path of their flush – from toilet twirls to treatment thrills! 🚽💦🎢 <br />
                     Double Click/Tap to flush 💩</span></p> <hr/>
             <p id="distanceTraveled_container_about"><span id="distanceTraveled_about">Made with
-                        <i>class="fa-solid fa-heart" style="color: #d31717;"></i> by WWO<br></span></p>
+                        <i class="fa-solid fa-heart" style="color: #d31717;"></i> by WWO<br></span></p>
             <button onclick="closeSummaryCard('aboutMe')">Close</button>
         </div>
     </div>
@@ -113,7 +113,8 @@
         <!-- Add your note text here -->
         <div class="card-content">
             <h2 id="cardHeader_morelgendModal">More SSO Legend</h2>
-            <p id="generalRoute_container_morelgendModal"><span id="generalRoute_morelgendModal">Below reasons can cause Sewer Overflow <br />
+            <p id="generalRoute_container_morelgendModal"><span id="generalRoute_morelgendModal">Below reasons can cause Public Sewer Overflow <br />
+                <i style="font-size:medium">[public sso since 4/1/2021 used in this app - 1,000ft around flush flow]</i><br/>
                 <i class="fa-solid fa-ghost fa-beat fa-2x" style="color:teal"></i>&nbsp;  Temporary Blockage<br/>
                 <i class="fa-solid fa-ghost fa-beat fa-2x" style="color:red"></i>&nbsp;  Grease <br/>
                 <i class="fa-solid fa-ghost fa-beat fa-2x" style="color:Black"></i>&nbsp;  Structural <br/>
@@ -352,7 +353,7 @@
         };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -806,13 +807,14 @@
                             placeMarker(firstLS.location.y, firstLS.location.x, firstLS.info.FACILITYNAME, "LS");
                         }
                         await placeMarker(lastStopPoint_Result.location.y, lastStopPoint_Result.location.x, lastStopPoint_Result.info.FACILITYNAME, "WWTP")
-                        let calculation = await calculateRoute(result.geojson.features);
+                        let calculation = calculateRoute(result.geojson.features);
+                        let uniqueSNB  = getUniqueSuperNeighborhood(neighborhood.features)
                         mainData = {
                             header: "Near By " + result.geojson.features[0].properties.ADDRESS, // Add your header text here
                             generalRoute: generalRoute,
                             distance: `The flush travels ${calculation.total_len_ft} feet (${calculation.total_len_mi}  miles) through the sewer network before reaching the COH treatment facility.`,
-                            time: `Your flush goes on a wild ride! It could zip to the treatment plant in just  ${calculation.total_hour_min} hours, , or take a leisurely journey up to ${calculation.total_hour_max} hours during sunny weather fun times.`,
-                            communities: getUniqueSuperNeighborhood(neighborhood.features)
+                            time: `Your flush goes on a wild ride! It could zip to the treatment plant in just  ${calculation.total_hour_min} hours, or take a leisurely journey up to ${calculation.total_hour_max} hours during sunny weather fun times.`,
+                            communities: uniqueSNB
                         };
                         if (document.getElementById('gameOn').checked === true) {
                             setGameOn();
