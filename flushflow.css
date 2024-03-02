@@ -550,7 +550,7 @@ hr {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.8);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -560,12 +560,42 @@ hr {
 
 .congrats-message {
     background-color: white;
-    padding: 20px;
+    padding: 15px; /* Reduced padding */
     border-radius: 10px;
     text-align: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    max-width: 500px; /* Optional: Limit the width for larger screens */
 }
 
+.congrats-title {
+    font-size: 18px; /* Smaller font size */
+    margin-bottom: 10px; /* Reduced space between title and subtitle */
+}
+
+.congrats-subtitle {
+    font-size: 16px; /* Smaller font size */
+    margin-bottom: 8px; /* Reduced space between subtitle and message */
+}
+
+.congrats-body {
+    font-size: 14px; /* Smaller font size */
+    margin-bottom: 15px; /* Adjusted spacing to make it slightly more compact */
+}
+
+.closeModalButton {
+    font-size: 14px; /* Smaller font size */
+    padding: 8px 16px; /* Reduced padding */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    background-color: #007bff; /* Primary button color */
+    color: white; /* Button text color */
+}
+
+.closeModalButton:hover {
+    background-color: #0056b3; /* Darker shade for hover state */
+}
 #closeModalButton {
     padding: 8px 15px; /* Example padding */
     background-color: #007bff; /* Example background color */
