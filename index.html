@@ -168,6 +168,7 @@
     </div>
     <div id="congratsModal" class="congrats-modal">
         <div class="congrats-message">
+            <div class="modal-note">Flush Flow Frenzy: Follow The Flush</div> 
             <h1 class="congrats-title">Congratulations! Lift Station is under control now.</h1>
             <h2 class="congrats-subtitle"> Flush made it to Treatment Plant</h2>
             <h3 class="congrats-body">Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h3>
@@ -175,7 +176,9 @@
         </div>
     </div>
     <div id="congratsModalLS" class="congrats-modal">
+        
         <div class="congrats-message">
+            <div class="modal-note">Flush Flow Frenzy: Follow The Flush</div> 
             <h1 class="congrats-title">Congratulations!</h1>
             <h2 class="congrats-subtitle">Lift Station is cleaned now!</h2>
             <h3 class="congrats-body">Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h3>
@@ -183,7 +186,9 @@
         </div>
     </div>
     <div id="gameOver" class="congrats-modal">
+        
         <div class="congrats-message">
+            <div class="modal-note">Flush Flow Frenzy: Follow The Flush</div> 
             <h1 class="congrats-title">Game Over!</h1>
             <h2 class="congrats-subtitle">Please Protect Our Pipes</h2>
             <h3 class="congrats-body">Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h3>
@@ -397,27 +402,44 @@
             });
         }
         function setGameOff() {
+            console.log("Game off set");
             toggleGhostMarkersTooltipAndPopup(true);
             // Disable game features
             map.off('click', function (e) {
                 firePlayerBullet(e.latlng);
             });
-            showScoreLabel(false); // Assuming this function hides the game score
+            try{
+                clearInterval(bulletFiringInterval); // Stop firing bullets
+            }catch(e){
+                console.log(e);
+            }
+            LScurrentMarker.setIcon(pumpIcon); //just in case pump got hit
+
+            stopMovingGhosts();
+            
+            clearAllGhostMarkers();
+        
+            showScoreLabel(false);
 
             if (currentLocationIcon !== null) {
                 // Disable dragging for the currentLocationIcon
                 currentLocationIcon.dragging.disable();
-
                 // Reset the marker to its initial position
-                currentLocationIcon.setLatLng([flusingPoint[1], flusingPoint[0]]);
+                currentLocationIcon.setLatLng([geojsonData_game.features[0].geometry.coordinates[0][1], geojsonData_game.features[0].geometry.coordinates[0][0]]);
             }
-            stopMovingGhosts();
+
+           if(document.getElementById('ssoOn').checked === true){
+               if (queryResultSSO !== null) {
+                    displayPointsOnMap(queryResultSSO);
+              }
+            }
+
             if (unifiedBoundary_warzone !== null) {
                 map.removeLayer(unifiedBoundary_warzone);
             }
         }
         document.getElementById('gameOn').onchange = function () {
-            if (this.checked) {
+            if (this.checked === true) {
                 score = 0;
                 document.getElementById('score').textContent = score;
                 document.getElementById('ssoOn').checked = true;
@@ -1257,12 +1279,17 @@
         }
 
         function onHit() {
-            stopMovingGhosts();
             console.log("Hit! You lose.");
             clearInterval(bulletFiringInterval); // Stop firing bullets
             LScurrentMarker.setIcon(pumpIcon); //just in case users got hit right after hit by ghost
             score = 0;
             document.getElementById('score').textContent = score;
+            stopMovingGhosts();
+            currentLocationIcon.setLatLng([geojsonData_game.features[0].geometry.coordinates[0][1], geojsonData_game.features[0].geometry.coordinates[0][0]]);
+            clearAllGhostMarkers();
+            if (queryResultSSO !== null) {
+                displayPointsOnMap(queryResultSSO);
+            }             
             showGameOver(); // Show game over modal
         }
         var bullets_ls = [];
@@ -1377,17 +1404,12 @@
             var congratsModal = document.getElementById('gameOver');
             congratsModal.style.visibility = 'visible';
             console.log('Game Over!');
-            stopMovingGhosts();
+           
             // Create and add balloons to the modal
             var closeButton = document.getElementById('closeModalButtonGameOver');
             closeButton.onclick = function () {
                 congratsModal.style.visibility = 'hidden';
                 // Place the reset logic here
-                currentLocationIcon.setLatLng([geojsonData_game.features[0].geometry.coordinates[0][1], geojsonData_game.features[0].geometry.coordinates[0][0]]);
-                clearAllGhostMarkers();
-                if (queryResultSSO !== null) {
-                    displayPointsOnMap(queryResultSSO);
-                }
                 startBulletFiring();
                 startMovingGhosts();                
             };
