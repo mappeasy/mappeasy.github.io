@@ -168,25 +168,26 @@
     </div>
     <div id="congratsModal" class="congrats-modal">
         <div class="congrats-message">
-            <h1>Congratulations! Lift Station is under control now.</h1>
-            <h2> Flush made it to Treatment Plant</h2>
-            <h3>Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h3>
+            <h1 class="congrats-title">Congratulations! Lift Station is under control now.</h1>
+            <h2 class="congrats-subtitle"> Flush made it to Treatment Plant</h2>
+            <h3 class="congrats-body">Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h3>
             <button id="closeModalButton" class="closeModalButton">OK</button>
         </div>
     </div>
     <div id="congratsModalLS" class="congrats-modal">
         <div class="congrats-message">
-            <h1>Congratulations!</h1>
-            <h4>Lift Station is cleaned now!</h4>
-            <button id="closeModalButtonLS" class="closeModalButton">OK</button>
+            <h1 class="congrats-title">Congratulations!</h1>
+            <h2 class="congrats-subtitle">Lift Station is cleaned now!</h2>
+            <h3 class="congrats-body">Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h3>
+            <button id="closeModalButton" class="closeModalButton">OK</button>
         </div>
     </div>
     <div id="gameOver" class="congrats-modal">
         <div class="congrats-message">
-            <h1>Game Over! Please Protect Our Pipes</h1>
-            <h2>Remember 3-Ps Rule</h2>
-                <h3>Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h3>
-                <button id="closeModalButtonGameOver" class="closeModalButton">OK</button>
+            <h1 class="title">Game Over! Please Protect Our Pipes</h1>
+            <h4>Remember 3-Ps Rule</h4>
+            <h3 class="congrats-body">Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h3>
+            <button id="closeModalButtonLS" class="closeModalButton">OK</button>
         </div>
     </div>
     <div id="legendContent" class="legend-content">
@@ -427,7 +428,7 @@
         };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
