@@ -30,8 +30,7 @@ html, body {
 #lastFlushButton {
     position: absolute;
     bottom: 10px;
-    /*right: 0.5%;*/
-    right: 10px;
+    right: 0.5%;
     z-index: 1000;
     background-color: rgba(0, 123, 255, 0.8); /* Semi-transparent blue */
     color: white;
@@ -57,7 +56,7 @@ html, body {
 #currentLocationButton {
     position: absolute;
     top: 10px;
-    left: 10px;
+    left: 0.5%;
     z-index: 1000;
     background-color: rgba(0, 123, 255, 0.8); /* Semi-transparent blue */
     color: white;
@@ -85,6 +84,8 @@ html, body {
     /* Semi-transparent background */
     display: flex;
     align-items: center;
+    /*top: 10px !important;*/
+    right: 0.75% !important;
 }
 
 .leaflet-control-geocoder-form input {
@@ -92,6 +93,9 @@ html, body {
     box-sizing: border-box;
     font-size: 18px;
     /* Increase font size */
+}
+.leaflet-right .leaflet-control {
+    margin-right: 0.5% !important;
 }
 
 .leaflet-control-geocoder-icon {
@@ -338,8 +342,7 @@ html, body {
 .collapsible-button {
     position: absolute;
     bottom: 10px;
-    /*left: 0.5%;*/
-    left: 10px;
+    left: 0.5%;
     z-index: 1000;
     background-color: rgba(0, 123, 255, 0.8); /* Semi-transparent blue */
     color: white;
@@ -552,7 +555,7 @@ hr {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Keeps the backdrop dimmed but not fully blacked out */
+    background-color: rgba(0, 0, 0, 0.8); /* Keeps the backdrop dimmed but not fully blacked out */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -572,7 +575,7 @@ hr {
     z-index: 2; /* Ensure it's visible above the modal background but below the message box */
 }
 .congrats-message {
-    background-color: rgba(255, 255, 255, 0.5); /* Adjust for desired transparency */
+    background-color: rgba(255, 255, 255, 0.8); /* Adjust for desired transparency */
     padding: 10px;
     border-radius: 10px;
     text-align: center;
