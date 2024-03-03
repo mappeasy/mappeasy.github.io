@@ -451,7 +451,7 @@
         };
         // Configuration
         const config = {
-            esri_basemap: true,
+            esri_basemap: false,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -1141,9 +1141,9 @@
                 toggleGhostMarkersTooltipAndPopup(true);
                 return;
             }
-            if(map.getZoom() <= 15){
+            if(map.getZoom() <= 14){
                 Toastify({
-                    text: "Zoom in & zap those crafty ghosts with your super bullets!",
+                    text: "Fair Game! Zoom in & zap those ghosts with bullets!",
                     duration: 3000,
                     newWindow: false,
                     close: true,
@@ -1154,11 +1154,11 @@
                         background: "linear-gradient(to right, #4FC3F7, #29B6F6)", // Warm, sunny gradient
                     },
                     onClick: function(){
-                        map.setView(currentLocationIcon.getLatLng(), 16);
+                        map.setView(currentLocationIcon.getLatLng(), 15);
                     } // Callback after click
                 }).showToast();
                             
-                map.setView(currentLocationIcon.getLatLng(), 16);
+                map.setView(currentLocationIcon.getLatLng(), 15);
             }
             var playerPosition = currentLocationIcon.getLatLng();
             var bullet = L.marker(playerPosition, { icon: gemIconSmall }).addTo(map);
