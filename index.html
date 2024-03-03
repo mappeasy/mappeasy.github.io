@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="stylesheet" href="flushflow.css" />
     <!-- Leaflet Esri Plugin -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -19,6 +19,7 @@
     <script src="script.js"></script>
     <script src="https://unpkg.com/leaflet-control-geocoder"></script>
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-BHSNBW8NK6"></script>
 
@@ -1141,8 +1142,23 @@
                 return;
             }
             if(map.getZoom() <= 15){
-                alert("Well! to be fair to ghosts! Zoom in to start firing bullets!");
-                return;
+                Toastify({
+                    text: "Zoom in & zap those crafty ghosts with your super bullets!",
+                    duration: 3000,
+                    newWindow: false,
+                    close: true,
+                    gravity: "bottom", // `top` or `bottom`
+                    position: "center", // `left`, `center` or `right`
+                    stopOnFocus: true, // Prevents dismissing of toast on hover
+                    style: {
+                        background: "linear-gradient(to right, #4FC3F7, #29B6F6)", // Warm, sunny gradient
+                    },
+                    onClick: function(){
+                        map.setView(currentLocationIcon.getLatLng(), 16);
+                    } // Callback after click
+                }).showToast();
+                            
+                map.setView(currentLocationIcon.getLatLng(), 16);
             }
             var playerPosition = currentLocationIcon.getLatLng();
             var bullet = L.marker(playerPosition, { icon: gemIconSmall }).addTo(map);
