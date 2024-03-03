@@ -479,7 +479,7 @@
         var currentLocationIcoSpin = null;
         var currentGeoJsonLayerLine = null;
         var geojsonData_game = null;
-        
+        let isGameInProgress = false; // Flag to track the game state
         var score = 0; // Initialize score
         document.getElementById("loadingModal").style.display = "none";
         // Initialize Map
@@ -707,7 +707,6 @@
                 if (currentGeoJsonLayerLine !== null) map.removeLayer(currentGeoJsonLayerLine);
                 if (currentLocationIcon !== null) map.removeLayer(currentLocationIcon);
                 if (currentLocationIcoSpin !== null) map.removeLayer(currentLocationIcoSpin);
-                if (searchMarker !== null) map.removeLayer(searchMarker);
                 if (searchMarker !== null) map.removeLayer(searchMarker);
                 if (unifiedBoundary_warzone !== null) map.removeLayer(unifiedBoundary_warzone);
                 try {
@@ -959,35 +958,54 @@
                     markerOptions = { icon: new L.Icon.Default() };
                     LScurrentMarker = L.marker([lat, long], { icon: pumpIcon });
                     LScurrentMarker.addTo(map);
-                    LScurrentMarker.bindPopup(text + " LS");
-                    LScurrentMarker.bindTooltip(text + " LS").openTooltip();
+                    LScurrentMarker.popupContent=text + " LS";
+                    LScurrentMarker.tooltipContent = text + " LS";
+                    //LScurrentMarker.bindPopup(text + " LS");
+                    //LScurrentMarker.bindTooltip(text + " LS").openTooltip();
                 } else {
                     WWTPcurrentMarker = L.marker([lat, long], { icon: wwtpIcon });//wwtpIcon
                     WWTPcurrentMarker.addTo(map);
-                    WWTPcurrentMarker.bindPopup(text);
-                    WWTPcurrentMarker.bindTooltip(text).openTooltip();
+                    WWTPcurrentMarker.popupContent=text + " WWTP";
+                    WWTPcurrentMarker.tooltipContent = text + " WWTP";
+                    //WWTPcurrentMarker.bindPopup(text);
+                    //WWTPcurrentMarker.bindTooltip(text).openTooltip();
                 }
             } catch (e) {
                 console.log(e);
             }
         }
         map.on('dblclick', async function (e) {
+            if(isGameInProgress === true){
+                return;
+            }
             closeSummaryCard('summaryCard');
             runTrace(e.latlng.lng, e.latlng.lat)
         });
 
         function toggleGhostMarkersTooltipAndPopup(enable) {
-                ghostMarkers.forEach(marker => {
-                    if (enable) {
-                        // Enable tooltip and popup
-                        marker.bindPopup(marker.popupContent);
-                        marker.bindTooltip(marker.tooltipContent);
-                    } else {
-                        // Disable tooltip and popup
-                        marker.unbindPopup();
-                        marker.unbindTooltip();
-                    }
-                });
+            if (enable) {
+                WWTPcurrentMarker.bindPopup(WWTPcurrentMarker.popupContent);
+                WWTPcurrentMarker.bindTooltip(WWTPcurrentMarker.popupContent).openTooltip();
+                LScurrentMarker.bindPopup(LScurrentMarker.popupContent);
+                LScurrentMarker.bindTooltip(LScurrentMarker.popupContent).openTooltip();
+            } else {
+                WWTPcurrentMarker.unbindPopup();
+                WWTPcurrentMarker.unbindTooltip();
+                LScurrentMarker.unbindPopup();
+                LScurrentMarker.unbindTooltip();
+            }
+            ghostMarkers.forEach(marker => {
+                if (enable) {
+                    // Enable tooltip and popup
+                    marker.bindPopup(marker.popupContent);
+                    marker.bindTooltip(marker.tooltipContent);
+
+                } else {
+                    // Disable tooltip and popup
+                    marker.unbindPopup();
+                    marker.unbindTooltip();
+                }
+            });
             }
         function gameClickHandler(e) {
             // Get the lat and lng of the clicked point
@@ -1165,7 +1183,7 @@
             if (bullet == null || target == null) {
                 return false;
             }
-            var hitThreshold = 15; // Threshold distance in meters
+            var hitThreshold = 25; // Threshold distance in meters
             var bulletPosition = bullet.getLatLng();
             var targetPosition = target.getLatLng();
             //console.log(bulletPosition.distanceTo(targetPosition));
@@ -1184,7 +1202,7 @@
             }
         }
         function showCongratulations() {
-
+            isGameInProgress = false;
             stopBulletFiring(); // Stop firing bullets
             //move toileticon to the wwtp
             // Create and add balloons to the modal
@@ -1305,11 +1323,13 @@
                     ghostMarkers.forEach(moveGhosts);
                 }, 300); // Move ghosts every 300 milliseconds        
             }, 3000); // Starts moving ghosts after 3 seconds
+            isGameInProgress = true;
         }
 
         // Stop firing bullets
         function stopMovingGhosts() {
             clearInterval(movingGhostInterval);
+            isGameInProgress = false;
         }
 
         function onHit() {
@@ -1355,7 +1375,7 @@
             });
         }
         function checkBulletCollision(bullet, target) {
-            var bulletCollisionThreshold = 15;
+            var bulletCollisionThreshold = 10;
             var bulletPosition = bullet.getLatLng();
             var targetPosition = target.getLatLng();
             if (bulletPosition.distanceTo(targetPosition) < bulletCollisionThreshold) {
