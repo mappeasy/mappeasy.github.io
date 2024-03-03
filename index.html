@@ -1122,6 +1122,10 @@
                 toggleGhostMarkersTooltipAndPopup(true);
                 return;
             }
+            if(map.getZoom() <= 15){
+                alert("Well! to be fair to ghosts! Zoom in to start firing bullets!");
+                return;
+            }
             var playerPosition = currentLocationIcon.getLatLng();
             var bullet = L.marker(playerPosition, { icon: gemIconSmall }).addTo(map);
 
@@ -1253,24 +1257,54 @@
         }
         // Start firing bullets
         function startBulletFiring() {
+            if (bulletFiringInterval) {
+                clearTimeout(bulletFiringInterval);
+                bulletFiringInterval = null;
+            }
+
             bulletFiringInterval = setTimeout(fireBulletFromLiftStation, Math.random() * (4000 - 1000) + 1000);
         }
 
         // Stop firing bullets
         function stopBulletFiring() {
+            try{
             clearInterval(bulletFiringInterval);
+            }catch(e){
+                console.log(e);
+            } try{
+                clearTimeout(bulletFiringInterval);
+            } catch(e){
+                console.log(e);
+            }
+            
         }
+        let startMovingTimeout = null;
         // Start firing bullets
         function startMovingGhosts() {
-            setTimeout(function() {
+            // Clear previous interval and timeout if they exist
+            if (movingGhostInterval) {
+                clearInterval(movingGhostInterval);
+                movingGhostInterval = null;
+            }
+            if (startMovingTimeout) {
+                clearTimeout(startMovingTimeout);
+                startMovingTimeout = null;
+            }
+
+            if(document.getElementById('gameOn').checked === false){
+                toggleGhostMarkersTooltipAndPopup(true);
+                return;
+            }
+
+            startMovingTimeout = setTimeout(function() {
                 console.log("total ghost number: ", ghostMarkers.length);
                 if (ghostMarkers.length === 0 || document.getElementById('ssoOn').checked === false) {
                     return;
                 }
                 movingGhostInterval = setInterval(function () {
                     ghostMarkers.forEach(moveGhosts);
-                }, 200); // Move ghosts every  seconds, adjust as needed          
-            }, 3000); // 3000 milliseconds = 3 seconds  
+                }, 300); // Move ghosts every 300 milliseconds        
+            }, 3000); // Starts moving ghosts after 3 seconds
         }
 
         // Stop firing bullets
@@ -1461,7 +1495,8 @@
         }
 
         function moveGhosts(ghostMarker) {
-            if (document.getElementById('ssoOn').checked === false || unifiedBoundary === null) {
+            if (document.getElementById('ssoOn').checked === false || unifiedBoundary === null
+                || document.getElementById('gameOn').checked === false || ghostMarker === null){
                 console.log("SSO not on");
                 return;
             }
