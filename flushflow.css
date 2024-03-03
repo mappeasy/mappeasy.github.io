@@ -30,7 +30,8 @@ html, body {
 #lastFlushButton {
     position: absolute;
     bottom: 10px;
-    right: 0.5%;
+    /*right: 0.5%;*/
+    right: 10px;
     z-index: 1000;
     background-color: rgba(0, 123, 255, 0.8); /* Semi-transparent blue */
     color: white;
@@ -337,7 +338,8 @@ html, body {
 .collapsible-button {
     position: absolute;
     bottom: 10px;
-    left: 0.5%;
+    /*left: 0.5%;*/
+    left: 10px;
     z-index: 1000;
     background-color: rgba(0, 123, 255, 0.8); /* Semi-transparent blue */
     color: white;
