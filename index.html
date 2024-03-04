@@ -1226,7 +1226,7 @@
                 let causeSSO =target.popupContent.match(/Cause: (.+?)<br>/)
                 let message = "Zapped Ghost!";
                 try{
-                    message = causeSSO[1];
+                    message = "Zapped: " + causeSSO[1];
                 }catch(e){
                     message = "Zapped Ghost!";
                 }
