@@ -16,7 +16,6 @@ async function queryFeaturesByEndPoint(mapServer, unitID) {
     }
     // Check if endPoint was successfully retrieved
     if (!endPoint) {
-        console.log('No endpoint found for the given UNITID.');
         return null;
     }
 
@@ -51,7 +50,6 @@ async function queryFeature2AtFeature1(mapServerFeature1, mapServerFeature2, uni
 
     // Check if endPoint was successfully retrieved
     if (!endPoint) {
-        console.log('No endpoint found for the given UNITID.');
         return [];
     }
 
@@ -94,7 +92,6 @@ async function queryFeaturesAndGetGeoJson(initialUnitId, stopPoint) {
 
         iterationCount++;
         if (iterationCount > maxIterations) {
-            console.log('Maximum iterations reached, stopping to prevent infinite loop.');
             keepQuerying = false; //no need
             break;
         }
@@ -149,7 +146,6 @@ async function queryFeaturesAndGetGeoJson(initialUnitId, stopPoint) {
                 data = await response.json();
             }
             if (data.features.length === 0) {
-                console.log('No more features found.');
                 keepQuerying = false;
             } else {
                 // Process the features
@@ -260,7 +256,6 @@ async function findNearestFeatureUnitId(longitude, latitude) {
         }
     }
 
-    console.log('No features found within the maximum search distance.');
     return null;
 }
 
@@ -330,7 +325,6 @@ function getUniqueSuperNeighborhood(data) {
             return "__INVALID_NAME__";
         }
     });
-    console.log(neighborhoodName);
     // Filter out any invalid addresses and get unique street names
     let neighborhoodNameUnique = [...new Set(neighborhoodName)].filter(SNBNAME => SNBNAME !== "__INVALID_NAME__");
 
@@ -351,8 +345,6 @@ function calculateRoute(data) {
         let type = data[i].properties["SUBTYPECD"];
 
         if (length === undefined || isNaN(length)) {
-            console.log(`Warning: Invalid length at index ${i}`);
-            console.log(data[i]);
             continue;
         }
 
@@ -508,8 +500,6 @@ async function calculateUnifiedBoundaryWithBuffer_polygon(geojsonData) {
 
     // Calculate the convex hull of the buffered area, if desired, for a simplified outer boundary
     const convexHull = turf.convex(buffered);
-
-    console.log(convexHull); // For debugging
     return convexHull;
 }
 
@@ -525,7 +515,6 @@ async function calculateUnifiedBoundaryWithBuffer_polygon_V1(geojsonData) {
 }
 
 async function calculateUnifiedBoundaryWithBuffer_polygon_V2(geojsonData,qualityFactor,buffer_size) {
-    console.log("Start buffering")
 
     const bufferDistanceInMeters = buffer_size * 0.3048;
 
@@ -548,9 +537,6 @@ async function calculateUnifiedBoundaryWithBuffer_polygon_V2(geojsonData,quality
     const simplifiedBuffer  = turf.simplify(buffered, {tolerance: qualityFactor, highQuality: true});
 
     const generalBound = turf.convex(buffered);
-
-    console.log("End buffering");
-    console.log(simplifiedBuffer );
     // Extract the coordinates of the simplified buffer polygon
     // Assuming the simplifiedBuffer is a Feature or FeatureCollection
     let coordinates;
@@ -561,8 +547,6 @@ async function calculateUnifiedBoundaryWithBuffer_polygon_V2(geojsonData,quality
         // If the simplifiedBuffer is a single Feature, take its geometry
         coordinates = simplifiedBuffer.geometry.coordinates;
     } else {
-        // Handle other types appropriately
-        console.log("Unexpected GeoJSON type:", simplifiedBuffer.type);
         return null;
     }
 
@@ -587,8 +571,6 @@ async function queryPointsWithinBoundingBox(bbox) {
     let query = "SYSTEM like '%blic%' AND STARTDATE >= date '2022-01-01'";
     let queryUrl = `${baseUrl}?where=${query}&geometry=${geometry}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&outSR=4326&f=json`;
 
-    console.log(queryUrl); // Log the query URL to debug
-
     try {
         const response = await fetch(queryUrl);
         if (!response.ok) {
@@ -612,18 +594,14 @@ async function queryGISWithinPolygon(arcgis_url,query_cmd, esriPolygonGeometry) 
     let query = query_cmd;
     let queryUrl = `${baseUrl}?where=${query}&geometry=${geometry}&geometryType=esriGeometryPolygon&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&outSR=4326&f=json`;
 
-    console.log(queryUrl); // Log the query URL to debug
-
     try {
         const response = await fetch(queryUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log("GIS query: ",data)
         return data; // Return the data to be used where the function is called
     } catch (error) {
-        console.error("Query failed:", error);
         return null; // Return null to indicate failure
     }
 }
