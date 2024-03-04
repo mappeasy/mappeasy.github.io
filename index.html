@@ -401,6 +401,11 @@
                     console.log("New position is outside the boundary. Not updating position.");
                 }
             });
+            currentLocationIcon.on('drag', function(e) {
+                var marker = e.target;
+                var position = marker.getLatLng();
+                map.panTo(position); // This will move the map's center to the marker's position
+            });
         }
         function setGameOff() {
             console.log("Game off set");
@@ -451,7 +456,7 @@
         };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -867,6 +872,7 @@
             // Remove the previous GeoJSON layer if it exists
             await removeAllLayer();
             try {
+                isGameInProgress = false;
                 const initialUnitId = await findNearestFeatureUnitId(lng, lat);
                 if (initialUnitId) {
                     //15: LS
@@ -929,7 +935,7 @@
                         };
                         if (document.getElementById('gameOn').checked === true) {
                             setGameOn();
-                            toggleGhostMarkersTooltipAndPopup(false);
+                            //toggleGhostMarkersTooltipAndPopup(false);
                         } else {
                             setGameOff();
                             toggleGhostMarkersTooltipAndPopup(true);
@@ -990,10 +996,14 @@
                 LScurrentMarker.bindPopup(LScurrentMarker.popupContent);
                 LScurrentMarker.bindTooltip(LScurrentMarker.popupContent).openTooltip();
             } else {
-                WWTPcurrentMarker.unbindPopup();
-                WWTPcurrentMarker.unbindTooltip();
-                LScurrentMarker.unbindPopup();
-                LScurrentMarker.unbindTooltip();
+                try{
+                    WWTPcurrentMarker.unbindPopup();
+                    WWTPcurrentMarker.unbindTooltip();
+                    LScurrentMarker.unbindPopup();
+                    LScurrentMarker.unbindTooltip();
+                }catch(e){
+                    console.log(e);
+                }
             }
             ghostMarkers.forEach(marker => {
                 if (enable) {
