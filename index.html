@@ -404,11 +404,13 @@
             currentLocationIcon.on('drag', function(e) {
                 var marker = e.target;
                 var position = marker.getLatLng();
-                map.panTo(position); // This will move the map's center to the marker's position
+                map.panTo(position, {
+                    animate: true,
+                    duration: 11// Adjust the duration for smoother or faster animation, as needed
+                });
             });
         }
         function setGameOff() {
-            console.log("Game off set");
             toggleGhostMarkersTooltipAndPopup(true);
             // Disable game features
             map.off('click', function (e) {
@@ -449,9 +451,15 @@
                 score = 0;
                 document.getElementById('score').textContent = score;
                 document.getElementById('ssoOn').checked = true;
+                document.getElementById('onlyFlush').checked = true;
+                onlyFlush = true;
+                toggleOnlyFlush(onlyFlush);                
                 setGameOn();
             } else {
                 setGameOff();
+                document.getElementById('onlyFlush').checked = false;
+                onlyFlush = false;
+                toggleOnlyFlush(onlyFlush);      
             }
         };
         // Configuration
@@ -990,22 +998,20 @@
         });
 
         function toggleGhostMarkersTooltipAndPopup(enable) {
-            if (enable) {
-                WWTPcurrentMarker.bindPopup(WWTPcurrentMarker.popupContent);
-                WWTPcurrentMarker.bindTooltip(WWTPcurrentMarker.popupContent).openTooltip();
-                LScurrentMarker.bindPopup(LScurrentMarker.popupContent);
-                LScurrentMarker.bindTooltip(LScurrentMarker.popupContent).openTooltip();
-            } else {
-                if(WWTPcurrentMarker !== null && LScurrentMarker !== null)
-                {
-                    try{
-                        WWTPcurrentMarker.unbindPopup();
-                        WWTPcurrentMarker.unbindTooltip();
-                        LScurrentMarker.unbindPopup();
-                        LScurrentMarker.unbindTooltip();
-                    }catch(e){
-                        console.log(e);
-                    }
+            if(WWTPcurrentMarker !== null && LScurrentMarker !== null)
+            {            
+                if (enable) {
+
+                    WWTPcurrentMarker.bindPopup(WWTPcurrentMarker.popupContent);
+                    WWTPcurrentMarker.bindTooltip(WWTPcurrentMarker.popupContent).openTooltip();
+                    LScurrentMarker.bindPopup(LScurrentMarker.popupContent);
+                    LScurrentMarker.bindTooltip(LScurrentMarker.popupContent).openTooltip();
+                } else {
+                    
+                    WWTPcurrentMarker.unbindPopup();
+                    WWTPcurrentMarker.unbindTooltip();
+                    LScurrentMarker.unbindPopup();
+                    LScurrentMarker.unbindTooltip();
                 }
             }
             ghostMarkers.forEach(marker => {
@@ -1161,10 +1167,10 @@
                     newWindow: false,
                     close: true,
                     gravity: "bottom", // `top` or `bottom`
-                    position: "center", // `left`, `center` or `right`
+                    position: "top", // `left`, `center` or `right`
                     stopOnFocus: true, // Prevents dismissing of toast on hover
                     style: {
-                        background: "linear-gradient(to right, #4FC3F7, #29B6F6)", // Warm, sunny gradient
+                        background: "linear-gradient(to right, #4FC3F7, #29B6F6)",
                     },
                     onClick: function(){
                         map.setView(currentLocationIcon.getLatLng(), 15);
@@ -1195,7 +1201,7 @@
                             ghostMarkers.splice(index, 1); // Remove ghost from array
                             score += 1; // Increment score
                             console.log("Ghost hit!");
-                            hit = true; // Mark that we hit a ghost            
+                            hit = true; // Mark that we hit a ghost
                         }
                     });
                     if (!hit) {
@@ -1207,7 +1213,7 @@
             });
         }
 
-
+    
         function checkPlayerBulletHit(bullet, target) {
             if (bullet == null || target == null) {
                 return false;
@@ -1217,6 +1223,23 @@
             var targetPosition = target.getLatLng();
             //console.log(bulletPosition.distanceTo(targetPosition));
             if (bulletPosition.distanceTo(targetPosition) < hitThreshold) {
+                let causeSSO =target.popupContent.match(/Cause: (.+?)<br>/)
+                let message = "Zapped Ghost!";
+                try{
+                    message = causeSSO[1];
+                }catch(e){
+                    message = "Zapped Ghost!";
+                }
+               Toastify({
+                text: message,
+                duration: 2000,
+                close: true,
+                gravity: "top",
+                position: "center",
+                style: {
+                    background: "linear-gradient(to right,#00b09b, #96c93d)",
+                },
+            }).showToast();
                 return true; // Indicate a hit was detected
             }
             return false; // No hit detected
@@ -1328,6 +1351,7 @@
         let startMovingTimeout = null;
         // Start firing bullets
         function startMovingGhosts() {
+            map.doubleClickZoom.enable();
             // Clear previous interval and timeout if they exist
             if (movingGhostInterval) {
                 clearInterval(movingGhostInterval);
@@ -1350,15 +1374,18 @@
                 }
                 movingGhostInterval = setInterval(function () {
                     ghostMarkers.forEach(moveGhosts);
-                }, 300); // Move ghosts every 300 milliseconds        
+                }, 300); // Move ghosts every 300 milliseconds   
+                map.doubleClickZoom.disable();     
             }, 3000); // Starts moving ghosts after 3 seconds
             isGameInProgress = true;
+            
         }
 
         // Stop firing bullets
         function stopMovingGhosts() {
             clearInterval(movingGhostInterval);
             isGameInProgress = false;
+            map.doubleClickZoom.enable();
         }
 
         function onHit() {
@@ -1547,6 +1574,7 @@
             if (document.getElementById('ssoOn').checked === false || unifiedBoundary === null
                 || document.getElementById('gameOn').checked === false || ghostMarker === null){
                 console.log("SSO not on");
+                stopMovingGhosts();
                 return;
             }
 
