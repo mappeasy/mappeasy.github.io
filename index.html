@@ -996,13 +996,16 @@
                 LScurrentMarker.bindPopup(LScurrentMarker.popupContent);
                 LScurrentMarker.bindTooltip(LScurrentMarker.popupContent).openTooltip();
             } else {
-                try{
-                    WWTPcurrentMarker.unbindPopup();
-                    WWTPcurrentMarker.unbindTooltip();
-                    LScurrentMarker.unbindPopup();
-                    LScurrentMarker.unbindTooltip();
-                }catch(e){
-                    console.log(e);
+                if(WWTPcurrentMarker !== null && LScurrentMarker !== null)
+                {
+                    try{
+                        WWTPcurrentMarker.unbindPopup();
+                        WWTPcurrentMarker.unbindTooltip();
+                        LScurrentMarker.unbindPopup();
+                        LScurrentMarker.unbindTooltip();
+                    }catch(e){
+                        console.log(e);
+                    }
                 }
             }
             ghostMarkers.forEach(marker => {
