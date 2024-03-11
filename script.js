@@ -86,7 +86,7 @@ async function queryFeaturesAndGetGeoJson(initialUnitId, stopPoint) {
         try{
             if (bad_gis_case[currentUnitId])
             {
-                console.log("reassigned: ", currentUnitId, " to ",(bad_gis_case[currentUnitId]);
+                console.log("reassigned: ", currentUnitId, " to ",bad_gis_case[currentUnitId]);
                 currentUnitId = bad_gis_case[currentUnitId];
             }            
         } catch (error) {
