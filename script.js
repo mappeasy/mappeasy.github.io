@@ -84,11 +84,11 @@ async function queryFeaturesAndGetGeoJson(initialUnitId, stopPoint) {
     let stopPoints =[];
     while (keepQuerying) {
         try{
-            console.log(currentUnitId)
-            if (currentUnitId === '2361191'){//line with UFID = 7852820 not perfect 
-                console.log("reassigned: ",currentUnitId)
-                currentUnitId = '7853045'
-            }
+            if (bad_gis_case[currentUnitId])
+            {
+                console.log("reassigned: ", currentUnitId, " to ",(bad_gis_case[currentUnitId]);
+                currentUnitId = bad_gis_case[currentUnitId];
+            }            
         } catch (error) {
             console.error('Error fetching data:', error);
         }
