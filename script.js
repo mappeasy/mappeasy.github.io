@@ -83,6 +83,15 @@ async function queryFeaturesAndGetGeoJson(initialUnitId, stopPoint) {
     outfieldLine = "FACILITYID,UPSTREAMMANHOLENUMBER,DOWNSTREAMMANHOLENUMBER,DIAMETER,UNITID,UNITID2,MAINCOMP2,UFID,SHAPE.STLength(),ADDRESS,SUBTYPECD"
     let stopPoints =[];
     while (keepQuerying) {
+        try{
+            console.log(currentUnitId)
+            if (currentUnitId === '2361191'){//line with UFID = 7852820 not perfect 
+                console.log("reassigned: ",currentUnitId)
+                currentUnitId = '7853045'
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
         const queryUrl_gravitymain = `${gravityMain_layer}/query?where=UNITID = '${currentUnitId}'&outFields=${outfieldLine}&outSR=4326&f=pjson`;
         //const queryUrl = `https://houstonwatergis.org/arcgis/rest/services/INFORHW/HWWastewaterLineIPS/MapServer/3/query?where=UNITID = '${currentUnitId}'&outFields=FACILITYID,UFID,UPSTREAMMANHOLENUMBER,DOWNSTREAMMANHOLENUMBER,DIAMETER,MEASUREDLENGTH,UNITID,UNITID2,MAINCOMP2,UFID&outSR=4326&f=pjson`;
         const queryUrl_by_DNS_gravitymain = `${gravityMain_layer}/query?where=UPSTREAMMANHOLENUMBER = '${lastDownstreamManholeNumber}'&outFields=${outfieldLine}&outSR=4326&f=pjson`;
@@ -90,6 +99,7 @@ async function queryFeaturesAndGetGeoJson(initialUnitId, stopPoint) {
         const queryUrl_forcemain = `${forceMain_layer}/query?where=UNITID = '${currentUnitId}'&outFields=${outfieldLine}&outSR=4326&f=pjson`;
         const queryUrl_by_DNS_forcemain = `${forceMain_layer}/query?where=UPSTREAMMANHOLENUMBER = '${lastDownstreamManholeNumber}'&outFields=${outfieldLine}&outSR=4326&f=pjson`;
 
+        //manual adding detection if prv
         iterationCount++;
         if (iterationCount > maxIterations) {
             keepQuerying = false; //no need
