@@ -858,8 +858,7 @@
                 }).addTo(map);
 
                 // Add a popup to the marker
-                var popupContent = `Address: ${feature.attributes.ADDRESS}<br>`
-                    + `Cause: ${feature.attributes.CAUSE}<br>`
+                var popupContent = `Cause: ${feature.attributes.CAUSE}<br>`
                     + `System: ${feature.attributes.SYSTEM}<br>`
                     + `StartDate: ${(new Date(feature.attributes.STARTDATE)).toDateString()}<br>`
                     + `ID: ${feature.attributes.EXCURSIONID}`;
