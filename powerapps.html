@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Retrieve User Email</title>
+    <script src="https://unpkg.com/@microsoft/powerapps-js@1"></script>
+</head>
+<body>
+    <h1>User Email</h1>
+    <p id="userEmail">Loading...</p>
+    <script>
+        var globalContext = Xrm.Utility.getGlobalContext();
+        var userSettings = globalContext.userSettings;
+        var userGUID = userSettings.userId;
+
+        Xrm.WebApi.retrieveRecord("systemuser", userGUID, "?$select=internalemailaddress").then(
+            function success(result) {
+                var internalemailaddress = result["internalemailaddress"];
+                document.getElementById("userEmail").textContent = "User email: " + internalemailaddress;
+            },
+            function (error) {
+                console.log(error.message);
+                document.getElementById("userEmail").textContent = "Error retrieving user email.";
+            }
+        );
+    </script>
+</body>
+</html>
