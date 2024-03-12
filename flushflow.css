@@ -381,7 +381,6 @@ html, body {
     max-width: 300px;
     box-sizing: border-box; /* To include padding in the width */
     z-index: 1001;
-    width:120px;
 }
 
 
