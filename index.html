@@ -1,4 +1,5 @@
 <html>
+
 <head>
     <title>Flush FLow Frenzy: Follow the FLush </title>
     <meta charset="utf-8" />
@@ -104,18 +105,21 @@
             <h2 id="cardHeader_gamePlan">Simple Game Plan</h2>
             <p id="generalRoute_container_gamePlan"><span id="generalRoute_gamePlan">
 
-                Hey kiddos! 👋 Jump into "Flush Fighters" for a super-duper sewer ride!<br/>
+                    Hey kiddos! 👋 Jump into "Flush Fighters" for a super-duper sewer ride!<br />
 
-                🗺️ Zoom through sewers just like real ones, thanks to 311 calls! <br/>
-                
-                🌟 Be Flush, our awesome sewer hero! Your mission: Sneak past sneaky sewer ghosts and save the blue Liftstations on your way to the Water Factory! Ghosts are real public sewer overflow<br/>
-                <b> You cannot shoot Liftstation to make it blue until all ghost are gone</b> <br/>
-                
-                🛡️ <b>Your cool challenge:</b> Battle those goofy ghosts, clean up the sewers, and rescue Liftstations before you hit the big splash at the end!<br/>
-                
-                <b>🎮 Ready to play?</b> Dodge, dash, and zap ghosts with Flush! But watch out - if a ghost or Liftstation gets you, it's game over! 🛑 <br/>
-                
-                💨Let's go, Flush Fighters! Make those ghosts wish they never messed with us!  <br/>
+                    🗺️ Zoom through sewers just like real ones, thanks to 311 calls! <br />
+
+                    🌟 Be Flush, our awesome sewer hero! Your mission: Sneak past sneaky sewer ghosts and save the blue
+                    Liftstations on your way to the Water Factory! Ghosts are real public sewer overflow<br />
+                    <b> You cannot shoot Liftstation to make it blue until all ghost are gone</b> <br />
+
+                    🛡️ <b>Your cool challenge:</b> Battle those goofy ghosts, clean up the sewers, and rescue
+                    Liftstations before you hit the big splash at the end!<br />
+
+                    <b>🎮 Ready to play?</b> Dodge, dash, and zap ghosts with Flush! But watch out - if a ghost or
+                    Liftstation gets you, it's game over! 🛑 <br />
+
+                    💨Let's go, Flush Fighters! Make those ghosts wish they never messed with us! <br />
                     <p id="distanceTraveled_container_gamePlan"><span id="distanceTraveled_gamePlan">Made with
                             <i class="fa-solid fa-heart" style="color: #d31717;"></i> by WWO<br></span></p>
                     <button onclick="closeSummaryCard('gamePlan')">Close</button>
@@ -168,7 +172,7 @@
     </div>
     <div id="congratsModal" class="congrats-modal">
         <div class="congrats-message">
-            <div class="modal-note">Flush Flow Frenzy: Follow The Flush</div> 
+            <div class="modal-note">Flush Flow Frenzy: Follow The Flush</div>
             <h1 class="congrats-title">Congratulations! Lift Station is under control now.</h1>
             <h2 class="congrats-subtitle"> Flush made it to Treatment Plant</h2>
             <h3 class="congrats-body">Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h3>
@@ -176,9 +180,9 @@
         </div>
     </div>
     <div id="congratsModalLS" class="congrats-modal">
-        
+
         <div class="congrats-message">
-            <div class="modal-note">Flush Flow Frenzy: Follow The Flush</div> 
+            <div class="modal-note">Flush Flow Frenzy: Follow The Flush</div>
             <h1 class="congrats-title">Congratulations!</h1>
             <h2 class="congrats-subtitle">Lift Station is cleaned now!</h2>
             <h3 class="congrats-body">Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h3>
@@ -186,13 +190,34 @@
         </div>
     </div>
     <div id="gameOver" class="congrats-modal">
-        
+
         <div class="congrats-message">
-            <div class="modal-note">Flush Flow Frenzy: Follow The Flush</div> 
+            <div class="modal-note">Flush Flow Frenzy: Follow The Flush</div>
             <h1 class="congrats-title">Game Over!</h1>
             <h2 class="congrats-subtitle">Please Protect Our Pipes</h2>
             <h3 class="congrats-body">Only Flush the "3-Ps": Pee 💧- Poo 💩 - toilet Paper 🧻</h3>
             <button id="closeModalButtonGameOver" class="closeModalButton">OK</button>
+        </div>
+    </div>
+    <div class="control-pad">
+        <div class="control-pad-row">
+            <!-- Spacer for alignment -->
+            <button class="control-pad-button" style="visibility: hidden;"></button>
+            <button class="control-pad-button" id="upButton">⬆️</button>
+            <!-- Spacer for alignment -->
+            <button class="control-pad-button" style="visibility: hidden;"></button>
+        </div>
+        <div class="control-pad-row">
+            <button class="control-pad-button" id="leftButton">⬅️</button>
+            <button class="control-pad-button" id="fireButton">🔥</button>
+            <button class="control-pad-button" id="rightButton">➡️</button>
+        </div>
+        <div class="control-pad-row">
+            <!-- Spacer for alignment -->
+            <button class="control-pad-button" style="visibility: hidden;"></button>
+            <button class="control-pad-button" id="downButton">⬇️</button>
+            <!-- Spacer for alignment -->
+            <button class="control-pad-button" style="visibility: hidden;"></button>
         </div>
     </div>
     <div id="legendContent" class="legend-content">
@@ -256,6 +281,10 @@
     </div>
 
     <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const controlPad = document.querySelector('.control-pad');
+        controlPad.style.display = 'none';
+    });        
         document.getElementById('scoreContainer').style.display = 'none';
         function adjustMapHeight() {
             var mapElement = document.getElementById('map');
@@ -375,9 +404,9 @@
             }
 
 
-            // Enable dragging for the currentLocationIcon
-            currentLocationIcon.dragging.enable();
-
+            // Disable drag characters
+            //currentLocationIcon.dragging.enable();
+            currentLocationIcon.dragging.disable();
             // Handle drag start and end to disable/enable map dragging
             currentLocationIcon.on('dragstart', function (e) {
                 map.dragging.disable();
@@ -400,7 +429,7 @@
                     console.log("New position is outside the boundary. Not updating position.");
                 }
             });
-            currentLocationIcon.on('drag', function(e) {
+            currentLocationIcon.on('drag', function (e) {
                 var marker = e.target;
                 var position = marker.getLatLng();
                 map.panTo(position, {
@@ -415,17 +444,17 @@
             map.off('click', function (e) {
                 firePlayerBullet(e.latlng);
             });
-            try{
+            try {
                 clearInterval(bulletFiringInterval); // Stop firing bullets
-            }catch(e){
+            } catch (e) {
                 console.log(e);
             }
             LScurrentMarker.setIcon(pumpIcon); //just in case pump got hit
 
             stopMovingGhosts();
-            
+
             clearAllGhostMarkers();
-        
+
             showScoreLabel(false);
 
             if (currentLocationIcon !== null) {
@@ -435,10 +464,10 @@
                 currentLocationIcon.setLatLng([geojsonData_game.features[0].geometry.coordinates[0][1], geojsonData_game.features[0].geometry.coordinates[0][0]]);
             }
 
-           if(document.getElementById('ssoOn').checked === true){
-               if (queryResultSSO !== null) {
+            if (document.getElementById('ssoOn').checked === true) {
+                if (queryResultSSO !== null) {
                     displayPointsOnMap(queryResultSSO);
-              }
+                }
             }
 
             if (unifiedBoundary_warzone !== null) {
@@ -446,19 +475,22 @@
             }
         }
         document.getElementById('gameOn').onchange = function () {
+            const controlPad = document.querySelector('.control-pad');
             if (this.checked === true) {
+                controlPad.style.display = 'flex'; // Show control pad
                 score = 0;
                 document.getElementById('score').textContent = score;
                 document.getElementById('ssoOn').checked = true;
                 document.getElementById('onlyFlush').checked = true;
                 onlyFlush = true;
-                toggleOnlyFlush(onlyFlush);                
+                toggleOnlyFlush(onlyFlush);
                 setGameOn();
             } else {
+                controlPad.style.display = 'none'; // Hide control pad
                 setGameOff();
                 document.getElementById('onlyFlush').checked = false;
                 onlyFlush = false;
-                toggleOnlyFlush(onlyFlush);      
+                toggleOnlyFlush(onlyFlush);
             }
         };
         // Configuration
@@ -502,7 +534,7 @@
             maxZoom: config.maxZoom,
             zoomControl: config.zoomControl // Disable the default zoom control
         });
-
+        map.keyboard.disable();
         // Add a toilet marker
         var toiletIcon = L.divIcon({
             className: 'fa-icon',
@@ -864,7 +896,7 @@
                 //marker.bindPopup(popupContent);
                 //marker.bindPopup(popupContent);
                 //marker.bindTooltip(popupContent);          
-                marker.popupContent=popupContent;
+                marker.popupContent = popupContent;
                 marker.tooltipContent = popupContent;
                 ghostMarkers.push(marker);
             });
@@ -971,14 +1003,14 @@
                     markerOptions = { icon: new L.Icon.Default() };
                     LScurrentMarker = L.marker([lat, long], { icon: pumpIcon });
                     LScurrentMarker.addTo(map);
-                    LScurrentMarker.popupContent=text + " LS";
+                    LScurrentMarker.popupContent = text + " LS";
                     LScurrentMarker.tooltipContent = text + " LS";
                     //LScurrentMarker.bindPopup(text + " LS");
                     //LScurrentMarker.bindTooltip(text + " LS").openTooltip();
                 } else {
                     WWTPcurrentMarker = L.marker([lat, long], { icon: wwtpIcon });//wwtpIcon
                     WWTPcurrentMarker.addTo(map);
-                    WWTPcurrentMarker.popupContent=text + " WWTP";
+                    WWTPcurrentMarker.popupContent = text + " WWTP";
                     WWTPcurrentMarker.tooltipContent = text + " WWTP";
                     //WWTPcurrentMarker.bindPopup(text);
                     //WWTPcurrentMarker.bindTooltip(text).openTooltip();
@@ -988,7 +1020,7 @@
             }
         }
         map.on('dblclick', async function (e) {
-            if(isGameInProgress === true){
+            if (isGameInProgress === true) {
                 return;
             }
             closeSummaryCard('summaryCard');
@@ -996,8 +1028,7 @@
         });
 
         function toggleGhostMarkersTooltipAndPopup(enable) {
-            if(WWTPcurrentMarker !== null && LScurrentMarker !== null)
-            {            
+            if (WWTPcurrentMarker !== null && LScurrentMarker !== null) {
                 if (enable) {
 
                     WWTPcurrentMarker.bindPopup(WWTPcurrentMarker.popupContent);
@@ -1005,7 +1036,7 @@
                     LScurrentMarker.bindPopup(LScurrentMarker.popupContent);
                     LScurrentMarker.bindTooltip(LScurrentMarker.popupContent).openTooltip();
                 } else {
-                    
+
                     WWTPcurrentMarker.unbindPopup();
                     WWTPcurrentMarker.unbindTooltip();
                     LScurrentMarker.unbindPopup();
@@ -1024,7 +1055,7 @@
                     marker.unbindTooltip();
                 }
             });
-            }
+        }
         function gameClickHandler(e) {
             // Get the lat and lng of the clicked point
             var clickedLat = e.latlng.lat;
@@ -1154,11 +1185,11 @@
         }
 
         function firePlayerBullet(targetLatLng) {
-            if (document.getElementById('gameOn').checked === false){ 
+            if (document.getElementById('gameOn').checked === false) {
                 toggleGhostMarkersTooltipAndPopup(true);
                 return;
             }
-            if(map.getZoom() <= 14){
+            if (map.getZoom() <= 14) {
                 Toastify({
                     text: "Fair Game! Zoom in & zap those ghosts with bullets!",
                     duration: 3000,
@@ -1170,12 +1201,12 @@
                     style: {
                         background: "linear-gradient(to right, #4FC3F7, #29B6F6)",
                     },
-                    onClick: function(){
+                    onClick: function () {
                         map.setView(currentLocationIcon.getLatLng(), 15);
                     } // Callback after click
                 }).showToast();
-                            
-                map.setView(currentLocationIcon.getLatLng(), 15);
+
+                map.setView(currentLocationIcon.getLatLng(), 16);
             }
             var playerPosition = currentLocationIcon.getLatLng();
             var bullet = L.marker(playerPosition, { icon: gemIconSmall }).addTo(map);
@@ -1211,7 +1242,7 @@
             });
         }
 
-    
+
         function checkPlayerBulletHit(bullet, target) {
             if (bullet == null || target == null) {
                 return false;
@@ -1221,23 +1252,23 @@
             var targetPosition = target.getLatLng();
             //console.log(bulletPosition.distanceTo(targetPosition));
             if (bulletPosition.distanceTo(targetPosition) < hitThreshold) {
-                let causeSSO =target.popupContent.match(/Cause: (.+?)<br>/)
+                let causeSSO = target.popupContent.match(/Cause: (.+?)<br>/)
                 let message = "Zapped Ghost!";
-                try{
+                try {
                     message = "Zapped: " + causeSSO[1];
-                }catch(e){
+                } catch (e) {
                     message = "Zapped Ghost!";
                 }
-               Toastify({
-                text: message,
-                duration: 2000,
-                close: true,
-                gravity: "top",
-                position: "center",
-                style: {
-                    background: "linear-gradient(to right,#00b09b, #96c93d)",
-                },
-            }).showToast();
+                Toastify({
+                    text: message,
+                    duration: 2000,
+                    close: true,
+                    gravity: "top",
+                    position: "center",
+                    style: {
+                        background: "linear-gradient(to right,#00b09b, #96c93d)",
+                    },
+                }).showToast();
                 return true; // Indicate a hit was detected
             }
             return false; // No hit detected
@@ -1335,16 +1366,16 @@
 
         // Stop firing bullets
         function stopBulletFiring() {
-            try{
-            clearInterval(bulletFiringInterval);
-            }catch(e){
+            try {
+                clearInterval(bulletFiringInterval);
+            } catch (e) {
                 console.log(e);
-            } try{
+            } try {
                 clearTimeout(bulletFiringInterval);
-            } catch(e){
+            } catch (e) {
                 console.log(e);
             }
-            
+
         }
         let startMovingTimeout = null;
         // Start firing bullets
@@ -1360,12 +1391,12 @@
                 startMovingTimeout = null;
             }
 
-            if(document.getElementById('gameOn').checked === false){
+            if (document.getElementById('gameOn').checked === false) {
                 toggleGhostMarkersTooltipAndPopup(true);
                 return;
             }
 
-            startMovingTimeout = setTimeout(function() {
+            startMovingTimeout = setTimeout(function () {
                 console.log("total ghost number: ", ghostMarkers.length);
                 if (ghostMarkers.length === 0 || document.getElementById('ssoOn').checked === false) {
                     return;
@@ -1373,10 +1404,10 @@
                 movingGhostInterval = setInterval(function () {
                     ghostMarkers.forEach(moveGhosts);
                 }, 300); // Move ghosts every 300 milliseconds   
-                map.doubleClickZoom.disable();     
+                map.doubleClickZoom.disable();
             }, 3000); // Starts moving ghosts after 3 seconds
             isGameInProgress = true;
-            
+
         }
 
         // Stop firing bullets
@@ -1397,7 +1428,7 @@
             clearAllGhostMarkers();
             if (queryResultSSO !== null) {
                 displayPointsOnMap(queryResultSSO);
-            }             
+            }
             showGameOver(); // Show game over modal
         }
         var bullets_ls = [];
@@ -1512,14 +1543,14 @@
             var congratsModal = document.getElementById('gameOver');
             congratsModal.style.visibility = 'visible';
             console.log('Game Over!');
-           
+
             // Create and add balloons to the modal
             var closeButton = document.getElementById('closeModalButtonGameOver');
             closeButton.onclick = function () {
                 congratsModal.style.visibility = 'hidden';
                 // Place the reset logic here
                 startBulletFiring();
-                startMovingGhosts();                
+                startMovingGhosts();
             };
         }
 
@@ -1570,7 +1601,7 @@
 
         function moveGhosts(ghostMarker) {
             if (document.getElementById('ssoOn').checked === false || unifiedBoundary === null
-                || document.getElementById('gameOn').checked === false || ghostMarker === null){
+                || document.getElementById('gameOn').checked === false || ghostMarker === null) {
                 console.log("SSO not on");
                 stopMovingGhosts();
                 return;
@@ -1635,7 +1666,112 @@
                 console.log("Well! no ghost to hunt", e.message)
             }
         }
+        function moveIconWithKeyboard(e, simulatedKey = null) {
+            if(document.getElementById('gameOn').checked === false){
+                return;
+            }
+            const key = simulatedKey || e.key
+            if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'].includes(key)) return;
 
+            const stepSize = 0.0001; // Adjust based on your map's scale and projection
+            let currentPosition = currentLocationIcon.getLatLng();
+            let newPosition = { ...currentPosition };
+
+            switch (e.key) {
+                case "ArrowUp":
+                case "w":
+                    newPosition.lat += stepSize;
+                    break;
+                case "ArrowDown":
+                case "s":
+                    newPosition.lat -= stepSize;
+                    break;
+                case "ArrowLeft":
+                case "a":
+                    newPosition.lng -= stepSize;
+                    break;
+                case "ArrowRight":
+                case "d":
+                    newPosition.lng += stepSize;
+                    break;
+            }
+
+            // Move back a little if hitting the boundary
+            function adjustPositionBackInside() {
+                const adjustmentFactor = 0.00005; // Half of the stepSize for slight adjustment
+                switch (e.key) {
+                    case "ArrowUp":
+                    case "w":
+                        newPosition.lat -= adjustmentFactor;
+                        break;
+                    case "ArrowDown":
+                    case "s":
+                        newPosition.lat += adjustmentFactor;
+                        break;
+                    case "ArrowLeft":
+                    case "a":
+                        newPosition.lng += adjustmentFactor;
+                        break;
+                    case "ArrowRight":
+                    case "d":
+                        newPosition.lng -= adjustmentFactor;
+                        break;
+                }
+            }
+
+            if (isPointInsideBoundary(newPosition, unifiedBoundary.generalBound)) {
+                currentLocationIcon.setLatLng(new L.LatLng(newPosition.lat, newPosition.lng));
+                map.panTo(currentPosition);
+            } else {
+                adjustPositionBackInside();
+                if (isPointInsideBoundary(newPosition, unifiedBoundary.generalBound)) {
+                    currentLocationIcon.setLatLng(new L.LatLng(newPosition.lat, newPosition.lng));
+
+                } else {
+                    // If still out of bounds after adjustment, do not move and optionally handle this case
+                    console.log("Unable to move further without leaving boundary.");
+                }
+            }
+
+            e.preventDefault(); // Prevent the default action (scroll / move).
+        }
+
+        document.addEventListener('keydown', moveIconWithKeyboard);
+
+        let movementInterval = null;
+
+        // Function to start moving the icon
+        function startMoving(direction) {
+            // Clear any existing intervals to avoid multiple intervals running
+            if (movementInterval !== null) {
+                clearInterval(movementInterval);
+            }
+            // Start a new interval
+            movementInterval = setInterval(() => {
+                moveIconWithKeyboard({ key: direction });
+            }, 100); // Adjust the interval time as needed
+        }
+
+        // Function to stop moving the icon
+        function stopMoving() {
+            if (movementInterval !== null) {
+                clearInterval(movementInterval);
+                movementInterval = null;
+            }
+        }
+        // Attach event listeners to your buttons
+        document.getElementById('upButton').addEventListener('mousedown', function() { startMoving("ArrowUp"); });
+        document.getElementById('downButton').addEventListener('mousedown', function() { startMoving("ArrowDown"); });
+        document.getElementById('leftButton').addEventListener('mousedown', function() { startMoving("ArrowLeft"); });
+        document.getElementById('rightButton').addEventListener('mousedown', function() { startMoving("ArrowRight"); });
+
+        // Use both mouseup and mouseleave to ensure movement stops when the mouse is released or leaves the button
+        ['mouseup', 'mouseleave'].forEach(event => {
+            document.getElementById('upButton').addEventListener(event, stopMoving);
+            document.getElementById('downButton').addEventListener(event, stopMoving);
+            document.getElementById('leftButton').addEventListener(event, stopMoving);
+            document.getElementById('rightButton').addEventListener(event, stopMoving);
+        });
 
     </script>
 </body>
