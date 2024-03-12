@@ -1760,10 +1760,10 @@
             }
         }
         // Attach event listeners to your buttons
-        document.getElementById('upButton').addEventListener('mousedown', function() { startMoving("ArrowUp"); });
-        document.getElementById('downButton').addEventListener('mousedown', function() { startMoving("ArrowDown"); });
-        document.getElementById('leftButton').addEventListener('mousedown', function() { startMoving("ArrowLeft"); });
-        document.getElementById('rightButton').addEventListener('mousedown', function() { startMoving("ArrowRight"); });
+        document.getElementById('upButton').addEventListener('mousedown', function() { startMoving("w"); });
+        document.getElementById('downButton').addEventListener('mousedown', function() { startMoving("s"); });
+        document.getElementById('leftButton').addEventListener('mousedown', function() { startMoving("a"); });
+        document.getElementById('rightButton').addEventListener('mousedown', function() { startMoving("d"); });
 
         // Use both mouseup and mouseleave to ensure movement stops when the mouse is released or leaves the button
         ['mouseup', 'mouseleave'].forEach(event => {
