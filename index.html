@@ -1785,7 +1785,20 @@
             document.getElementById('leftButton').addEventListener(event, handleStopMoving);
             document.getElementById('rightButton').addEventListener(event, handleStopMoving);
         });
-
+        // Prevent zooming on double-tap without disabling zoom entirely
+        document.querySelectorAll('.control-pad-button').forEach(button => {
+            button.addEventListener('dblclick', function(e) {
+                e.preventDefault();
+            });
+        });
+        ['mousedown', 'touchstart'].forEach(event => {
+                document.getElementById('fireButton').addEventListener(event, function(e) {
+                    e.preventDefault(); // Prevent any default touch action like zooming
+                    map.on('click', function (emap) {
+                        firePlayerBullet(emap.latlng);
+                    });
+                });
+            });
     </script>
 </body>
 
