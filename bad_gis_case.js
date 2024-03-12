@@ -4,5 +4,4 @@
 var bad_gis_case = {
     '2361191': '7853045',
     '4153751' : '4188067'
-    // Add more pairs if needed - replace key by value
 };
