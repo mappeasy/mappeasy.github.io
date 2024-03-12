@@ -1759,18 +1759,31 @@
                 movementInterval = null;
             }
         }
-        // Attach event listeners to your buttons
-        document.getElementById('upButton').addEventListener('mousedown', function() { startMoving("w"); });
-        document.getElementById('downButton').addEventListener('mousedown', function() { startMoving("s"); });
-        document.getElementById('leftButton').addEventListener('mousedown', function() { startMoving("a"); });
-        document.getElementById('rightButton').addEventListener('mousedown', function() { startMoving("d"); });
+        function handleStartMoving(direction) {
+            return function(event) {
+                event.preventDefault(); // Prevent default action (zooming) on touch
+                startMoving(direction);
+            }
+        }
 
-        // Use both mouseup and mouseleave to ensure movement stops when the mouse is released or leaves the button
-        ['mouseup', 'mouseleave'].forEach(event => {
-            document.getElementById('upButton').addEventListener(event, stopMoving);
-            document.getElementById('downButton').addEventListener(event, stopMoving);
-            document.getElementById('leftButton').addEventListener(event, stopMoving);
-            document.getElementById('rightButton').addEventListener(event, stopMoving);
+        // Function to handle stop moving with preventDefault to maintain consistency
+        function handleStopMoving(event) {
+            event.preventDefault(); // Prevent default action on touch
+            stopMoving();
+        }       
+                ['mousedown', 'touchstart'].forEach(event => {
+            document.getElementById('upButton').addEventListener(event, handleStartMoving("w"));
+            document.getElementById('downButton').addEventListener(event, handleStartMoving("s"));
+            document.getElementById('leftButton').addEventListener(event, handleStartMoving("a"));
+            document.getElementById('rightButton').addEventListener(event, handleStartMoving("d"));
+        });
+
+        // Adding both touch and mouse events for stop moving
+        ['mouseup', 'mouseleave', 'touchend', 'touchcancel'].forEach(event => {
+            document.getElementById('upButton').addEventListener(event, handleStopMoving);
+            document.getElementById('downButton').addEventListener(event, handleStopMoving);
+            document.getElementById('leftButton').addEventListener(event, handleStopMoving);
+            document.getElementById('rightButton').addEventListener(event, handleStopMoving);
         });
 
     </script>
