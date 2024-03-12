@@ -354,6 +354,7 @@ html, body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.5);
     transition: background-color 0.3s, opacity 0.3s;
     align-items: center; /* To align text and icon */
+    width:120px;
 }
 
 .collapsible-button:hover {
