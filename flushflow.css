@@ -380,6 +380,7 @@ html, body {
     display: none; /* Initially hidden */
     max-width: 300px;
     box-sizing: border-box; /* To include padding in the width */
+    z-index: 1001;
 }
 
 
@@ -651,4 +652,35 @@ hr {
     position: relative;
     left: -20px;
     top: -20px;
+}
+.control-pad {
+    position: fixed;
+    bottom: 60px; /* Adjust based on the height of your legend-content and desired spacing */
+    left: 0.5%;
+    background-color: rgba(0, 123, 255, 0.8);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    padding: 8px;
+    z-index: 1000; /* Ensure it's properly layered with other elements */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px; /* Space between buttons and rows */
+    box-sizing: border-box;
+}
+
+.control-pad-button {
+    background-color: #007bff; /* Bootstrap primary button color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 2px 2px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.control-pad-row {
+    display: flex;
+    gap: 5px;
 }
