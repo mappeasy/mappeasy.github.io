@@ -1771,7 +1771,7 @@
         function handleStopMoving(event) {
             event.preventDefault(); // Prevent default action on touch
             stopMoving();
-            e.stopPropagation();
+            event.stopPropagation();
         }       
                 ['mousedown', 'touchstart'].forEach(event => {
             document.getElementById('upButton').addEventListener(event, handleStartMoving("w"));
