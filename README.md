@@ -3,3 +3,18 @@ Check it out:
 [https://mappeasy.com](https://mappeasy.com)
 
 [![Mappeasy](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/e83add49-dd5e-40b5-9480-69426fa1df5f)](https://mappeasy.com)
+
+
+
+Assets:
+
+
+![w](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/4872d36b-31c4-45b4-817f-1461a3b57ad8)
+![sw](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/ed9a0778-ccf9-44b1-a2ec-84d65c7f54b1)
+![se](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/49ebae00-8375-46dd-9542-38cd8ecd3fda)
+![s](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/8e0abe98-0fff-4930-a1b0-f46b7e67e2f9)
+![nw](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/d324b6d4-3925-49e0-a120-b041fe582cb6)
+![ne](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/f4284066-422c-41e3-9f72-91c28e0ac36e)
+![n](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/540d21f7-e4f8-4a4b-b371-3b2f53e674ee)
+![e](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/1bd7e64c-bdbd-4508-a60b-63e588445ab6)
+![poo](https://github.com/mappeasy/mappeasy.github.io/assets/147260512/092b658e-4fe1-4f81-a661-9b83305a23ad)
