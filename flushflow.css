@@ -661,15 +661,16 @@ hr {
     background-color: rgba(0, 123, 255, 0.8);
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    padding: 8px;
+    padding: 0px;
     z-index: 1000; /* Ensure it's properly layered with other elements */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 5px; /* Space between buttons and rows */
+    gap: 0px; /* Space between buttons and rows */
     box-sizing: border-box;
     width:120px;
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
 }
 
 .control-pad-button {
@@ -679,10 +680,26 @@ hr {
     border-radius: 5px;
     padding: 2px 2px;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 40px;
+    user-select: none;
+    margin: 0;
+    align-items: center;
+    justify-content: center;    
 }
 
+.control-pad-button:active {
+    background-color: #0056b3;
+  }
 .control-pad-row {
     display: flex;
     gap: 5px;
 }
+
+#fireButton {
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+    font-size: 22px; /* Adjust size as needed */
+    padding: 0; /* Remove padding */
+  }
+  
