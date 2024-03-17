@@ -203,19 +203,19 @@
         <div class="control-pad-row">
             <!-- Spacer for alignment -->
             <button class="control-pad-button" style="visibility: hidden;"></button>
-            <button class="control-pad-button" id="upButton">⬆️</button>
+            <button class="control-pad-button" id="upButton">&#9650;</button>
             <!-- Spacer for alignment -->
             <button class="control-pad-button" style="visibility: hidden;"></button>
         </div>
         <div class="control-pad-row">
-            <button class="control-pad-button" id="leftButton">⬅️</button>
-            <button class="control-pad-button" id="fireButton">🔥</button>
-            <button class="control-pad-button" id="rightButton">➡️</button>
+            <button class="control-pad-button" id="leftButton">&#9664;</button>
+            <button  id="fireButton">🎮</button>
+            <button class="control-pad-button" id="rightButton">&#9654;</button>
         </div>
         <div class="control-pad-row">
             <!-- Spacer for alignment -->
             <button class="control-pad-button" style="visibility: hidden;"></button>
-            <button class="control-pad-button" id="downButton">⬇️</button>
+            <button class="control-pad-button" id="downButton">&#9660</button>
             <!-- Spacer for alignment -->
             <button class="control-pad-button" style="visibility: hidden;"></button>
         </div>
@@ -495,7 +495,7 @@
         };
         // Configuration
         const config = {
-            esri_basemap: false,
+            esri_basemap: true,
             mapCenter: [29.76, -95.37], // Houston's coordinates
             initialZoom: 13,
             layerTransparency: 0.4,
@@ -536,12 +536,18 @@
         });
         map.keyboard.disable();
         // Add a toilet marker
-        var toiletIcon = L.divIcon({
+        var toiletIcon_awesome = L.divIcon({
             className: 'fa-icon',
             html: '<i class="fa-solid fa-poo fa-4x fa-beat" style="color: #8b4513;"></i>',
             iconSize: [40, 40], // size of the icon in pixels
             iconAnchor: [20, 20] // point of the icon which will correspond to marker's location
         });
+        var toiletIcon =L.icon({
+                    iconUrl: "https://github.com/mappeasy/mappeasy.github.io/assets/147260512/092b658e-4fe1-4f81-a661-9b83305a23ad",
+                    iconSize: [44, 44], // Adjusted size
+                    iconAnchor: [22, 25], // Adjusted for the new size
+                    popupAnchor: [-3, -76] // Adjust if you're using popups
+                });
         var toiletIconAction = L.divIcon({ //<i class="fa-solid fa-toilet-paper"></i>
             className: 'fa-icon',
             html: '<i class="fa-solid fa-poo-storm fa-shake fa-4x" style="color:#e8e117;"></i>',
@@ -600,6 +606,9 @@
             iconAnchor: [10, 20] // point of the icon which will correspond to marker's location
         });
 
+
+// Repeat for other directions...
+
         if (config.esri_basemap === true) {
             L.esri.basemapLayer('Streets').addTo(map);
         }
@@ -624,8 +633,50 @@
         const manholeLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [12], config.layerTransparencyView, false);
 
         const manholeLayerLabel = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [13], config.layerTransparencyView, false);
+        function getPooIcon(direction) {
+            const validDirections = ['n', 'e', 's', 'w', 'gif'];
+           /*  backup asset
+           const directImage = {
+                "e": "https://live.staticflickr.com/65535/53591774546_39f1245480_o.png",
 
+                "w": "https://live.staticflickr.com/65535/53592222875_8278b4a1b6_o.png",
 
+                "s": "https://live.staticflickr.com/65535/53590904157_c093726904_o.png",
+
+                "n": "https://live.staticflickr.com/65535/53592222855_ca4c95b7d3_o.png",
+
+                "gif": "https://live.staticflickr.com/65535/53591981598_725144a793_o.gif"
+            }*/
+
+            const directImage = {
+                "e": "https://github.com/mappeasy/mappeasy.github.io/assets/147260512/1bd7e64c-bdbd-4508-a60b-63e588445ab6",
+
+                "w": "https://github.com/mappeasy/mappeasy.github.io/assets/147260512/4872d36b-31c4-45b4-817f-1461a3b57ad8",
+
+                "s": "https://github.com/mappeasy/mappeasy.github.io/assets/147260512/8e0abe98-0fff-4930-a1b0-f46b7e67e2f9",
+
+                "n": "https://github.com/mappeasy/mappeasy.github.io/assets/147260512/540d21f7-e4f8-4a4b-b371-3b2f53e674ee",
+
+                "gif": "https://github.com/mappeasy/mappeasy.github.io/assets/147260512/092b658e-4fe1-4f81-a661-9b83305a23ad"
+            } 
+            if(validDirections.includes(direction)){            
+                return L.icon({
+                    iconUrl: directImage[direction],
+                    iconSize: [44, 44], // Adjusted size
+                    iconAnchor: [22, 25], // Adjusted for the new size
+                    popupAnchor: [-3, -76] // Adjust if you're using popups
+                });
+            }
+            else {
+               return L.icon({
+                    iconUrl: directImage["gif"],
+                    iconSize: [44, 44], // Adjusted size
+                    iconAnchor: [22, 25], // Adjusted for the new size
+                    popupAnchor: [-3, -76] // Adjust if you're using popups
+                });
+            }
+        }
+        //toiletIcon = getPooIcon("e");
         // Utility Functions
         function createEsriLayer(url, layers, opacity, addIn) {
             if (addIn === true) {
@@ -806,9 +857,9 @@
             flusingPoint = geojsonData.features[0].geometry.coordinates[0];
             currentLocationIcoSpin = L.marker([flusingPoint[1], flusingPoint[0]], { icon: spinLocation })
                 .addTo(map)
-
+                
             currentLocationIcon = L.marker([flusingPoint[1], flusingPoint[0]], {
-                icon: toiletIcon,
+                icon: getPooIcon("gif"),
                 draggable: false,
                 zIndexOffset: 1000
             }).addTo(map);
@@ -919,6 +970,7 @@
                         let street = [];
                         let generalRoute = "";
                         result.geojson = processGeoJsonData(result.geojson);
+                       
                         geojsonData_game = result.geojson;
                         //let bbox = calculateBoundingBox(result.geojson);
 
@@ -1218,6 +1270,7 @@
                         console.log("Hit on LS!");
                         stopBulletFiring(); // Assuming this function stops all bullet firings
                         LScurrentMarker.setIcon(pumpIconBlue); // Assuming this changes the icon of the LS to indicate it's hit
+                        // Assuming this changes the icon of the player to indicate the game is over
                         //showCongratulationsLSKilled();
                         showCongratulations();
                     }
@@ -1240,6 +1293,7 @@
                 map.removeLayer(bullet); // Remove the bullet in all cases
                 document.getElementById('score').textContent = score; // Update score display
             });
+            currentLocationIcon.setIcon(getPooIcon("gif")); // Assuming this changes the icon of the player to indicate a bullet was fired
         }
 
 
@@ -1256,10 +1310,7 @@
                 let message = "Zapped Ghost!";
                 try {
                     message = "Zapped: " + causeSSO[1];
-                } catch (e) {
-                    message = "Zapped Ghost!";
-                }
-                Toastify({
+                    Toastify({
                     text: message,
                     duration: 2000,
                     close: true,
@@ -1268,7 +1319,11 @@
                     style: {
                         background: "linear-gradient(to right,#00b09b, #96c93d)",
                     },
-                }).showToast();
+                }).showToast();                    
+                } catch (e) {
+                    message = "Zapped Ghost!";
+                }
+
                 return true; // Indicate a hit was detected
             }
             return false; // No hit detected
@@ -1293,11 +1348,14 @@
             var closeButton = document.getElementById('closeModalButton');
             closeButton.onclick = function () {
                 congratsModal.style.visibility = 'hidden';
+                currentLocationIcon.setIcon(getPooIcon("gif"));
             };
             // Optional: Set a timeout to hide the modal and clear balloons after a certain time
             setTimeout(function () {
                 congratsModal.style.visibility = 'hidden';
+                currentLocationIcon.setIcon(getPooIcon("gif"));
             }, 30000); // 10 seconds
+            
         }
 
         function showCongratulationsLSKilled() {
@@ -1673,7 +1731,7 @@
             const key = simulatedKey || e.key
             if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'].includes(key)) return;
 
-            const stepSize = 0.0001; // Adjust based on your map's scale and projection
+            const stepSize = 0.00015; // Adjust based on your map's scale and projection
             let currentPosition = currentLocationIcon.getLatLng();
             let newPosition = { ...currentPosition };
 
@@ -1681,18 +1739,22 @@
                 case "ArrowUp":
                 case "w":
                     newPosition.lat += stepSize;
+                    toiletIcon = getPooIcon("n");
                     break;
                 case "ArrowDown":
                 case "s":
                     newPosition.lat -= stepSize;
+                    toiletIcon = getPooIcon("s");
                     break;
                 case "ArrowLeft":
                 case "a":
                     newPosition.lng -= stepSize;
+                    toiletIcon = getPooIcon("w");
                     break;
                 case "ArrowRight":
                 case "d":
                     newPosition.lng += stepSize;
+                    toiletIcon = getPooIcon("e");
                     break;
             }
 
@@ -1702,22 +1764,27 @@
                 switch (e.key) {
                     case "ArrowUp":
                     case "w":
+                        toiletIcon = getPooIcon("n");
                         newPosition.lat -= adjustmentFactor;
                         break;
                     case "ArrowDown":
                     case "s":
                         newPosition.lat += adjustmentFactor;
+                        toiletIcon = getPooIcon("s");
                         break;
                     case "ArrowLeft":
                     case "a":
                         newPosition.lng += adjustmentFactor;
+                        toiletIcon = getPooIcon("w");
                         break;
                     case "ArrowRight":
                     case "d":
                         newPosition.lng -= adjustmentFactor;
+                        toiletIcon = getPooIcon("e");
                         break;
                 }
             }
+            currentLocationIcon.setIcon(toiletIcon)
 
             if (isPointInsideBoundary(newPosition, unifiedBoundary.generalBound)) {
                 currentLocationIcon.setLatLng(new L.LatLng(newPosition.lat, newPosition.lng));
@@ -1732,8 +1799,11 @@
                     console.log("Unable to move further without leaving boundary.");
                 }
             }
-
-            e.preventDefault(); // Prevent the default action (scroll / move).
+            try{
+                e.preventDefault(); // Prevent the default action (scroll / move).
+            }catch(e){
+                console.log("Not supported by this button" + e.message);
+            }
         }
 
         document.addEventListener('keydown', moveIconWithKeyboard);
@@ -1760,6 +1830,13 @@
             }
         }
         function handleStartMoving(direction) {
+            let direction_translation = {
+                "w": "n",
+                "s": "s",
+                "a": "w",
+                "d": "e"
+            }
+            toiletIcon = getPooIcon(direction_translation);
             return function(event) {
                 event.preventDefault(); // Prevent default action (zooming) on touch
                 startMoving(direction);
