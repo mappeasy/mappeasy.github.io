@@ -78,8 +78,8 @@ async function queryFeaturesAndGetGeoJson(initialUnitId, stopPoint) {
     const maxIterations = 250; // Adjust this value as needed
     let loopCount = 0;
     const forcemain_enable = true;
-    const gravityMain_layer = "https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer/1"
-    const forceMain_layer = "https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer/4"
+    const gravityMain_layer = "https://geogimsms.houstontx.gov/arcgis/rest/services/HW/OutsideWastewater_gx/MapServer/25"
+    const forceMain_layer = "https://geogimsms.houstontx.gov/arcgis/rest/services/HW/OutsideWastewater_gx/MapServer/24"
     outfieldLine = "FACILITYID,UPSTREAMMANHOLENUMBER,DOWNSTREAMMANHOLENUMBER,DIAMETER,UNITID,UNITID2,MAINCOMP2,UFID,SHAPE.STLength(),ADDRESS,SUBTYPECD"
     let stopPoints =[];
     while (keepQuerying) {
@@ -247,7 +247,7 @@ async function findNearestFeatureUnitId(longitude, latitude) {
     const increment = 10; // Distance increment in feet
 
     while (distance <= maxDistance) {
-        const queryUrl = `https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer/12/query?geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&distance=${distance}&outFields=UNITID&geometry={"x":${longitude},"y":${latitude}}&units=esriSRUnit_Foot&f=json`;
+        const queryUrl = `https://geogimsms.houstontx.gov/arcgis/rest/services/HW/OutsideWastewater_gx/MapServer/18/query?geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&distance=${distance}&outFields=UNITID&geometry={"x":${longitude},"y":${latitude}}&units=esriSRUnit_Foot&f=json`;
 
         try {
             const response = await fetch(queryUrl);
@@ -275,15 +275,15 @@ async function findLSWWTP(assetType, unitID) {
     let queryUrl = ""
     //98: wwtp - 15: lift station - 25: PS
     if([98,15,25].includes(assetType)){
-         queryUrl = `https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer/16/query?where=UNITID='${unitID}'&outFields=${outfield}&f=pjson&outSR=4326`;
+         queryUrl = `https://geogimsms.houstontx.gov/arcgis/rest/services/HW/OutsideWastewater_gx/MapServer/17/query?where=UNITID='${unitID}'&outFields=${outfield}&f=pjson&outSR=4326`;
     } else {
-         let queryUrl_manhole = `https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer/12/query?where=UNITID='${unitID}'&outFields=TREATMENTPLANTID&f=pjson&outSR=4326`;
+         let queryUrl_manhole = `https://geogimsms.houstontx.gov/arcgis/rest/services/HW/OutsideWastewater_gx/MapServer/18/query?where=UNITID='${unitID}'&outFields=TREATMENTPLANTID&f=pjson&outSR=4326`;
          let response = await fetch(queryUrl_manhole);
          let data = await response.json();
          if (data.features.length > 0) {
              let refID =  data.features[0].attributes.TREATMENTPLANTID;
              refID = "0"+refID.toString();
-             queryUrl = `https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer/16/query?where=REFERENCEID='${refID}'&outFields=${outfield}&f=pjson&outSR=4326`;
+             queryUrl = `https://geogimsms.houstontx.gov/arcgis/rest/services/HW/OutsideWastewater_gx/MapServer/17/query?where=REFERENCEID='${refID}'&outFields=${outfield}&f=pjson&outSR=4326`;
          } else {
             return null;
          }
