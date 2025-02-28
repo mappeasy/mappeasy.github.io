@@ -623,15 +623,15 @@
             }).addTo(map);
         }
         // Layer Definitions
-        const gravityMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [1], config.layerTransparency, true);
-        const forceMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [4], config.layerTransparency, true);
-        const lsWwtpLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [16], config.layerTransparency, true);
-        const lsWwtpLabelLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [17], config.layerTransparency, true);
+        const gravityMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/OutsideWastewater_gx/MapServer", [25], config.layerTransparency, true);
+        const forceMainLayer = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/OutsideWastewater_gx/MapServer", [24], config.layerTransparency, true);
+        const lsWwtpLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/OutsideWastewater_gx/MapServer', [17], config.layerTransparency, true);
+        const lsWwtpLabelLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/OutsideWastewater_gx/MapServer', [44], config.layerTransparency, true);
 
-        const gravityMainLayerlabel = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer", [2], config.layerTransparency, false);
-        const manholeLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [12], config.layerTransparencyView, false);
+        const gravityMainLayerlabel = createEsriLayer("https://geogimsms.houstontx.gov/arcgis/rest/services/HW/OutsideWastewater_gx/MapServer", [52], config.layerTransparency, false);
+        const manholeLayer = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/OutsideWastewater_gx/MapServer', [18], config.layerTransparencyView, false);
 
-        const manholeLayerLabel = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/WasteWaterUtilities_gx/MapServer', [13], config.layerTransparencyView, false);
+        const manholeLayerLabel = createEsriLayer('https://geogimsms.houstontx.gov/arcgis/rest/services/HW/OutsideWastewater_gx/MapServer', [49], config.layerTransparencyView, false);
         function getPooIcon(direction) {
             const validDirections = ['n', 'e', 's', 'w', 'gif'];
            /*  backup asset
