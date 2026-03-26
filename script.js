@@ -277,7 +277,7 @@ async function findLSWWTP(assetType, unitID) {
     if([98,15,25].includes(assetType)){
          queryUrl = `https://geogimstest.houstontx.gov/arcgis/rest/services/HW/WastewaterUtilities/MapServer/17/query?where=UNITID='${unitID}'&outFields=${outfield}&f=pjson&outSR=4326`;
     } else {
-         let queryUrl_manhole = https://geogimstest.houstontx.gov/arcgis/rest/services/HW/WastewaterUtilities/MapServer/18/query?where=UNITID='${unitID}'&outFields=TREATMENTPLANTID&f=pjson&outSR=4326`;
+         let queryUrl_manhole = `https://geogimstest.houstontx.gov/arcgis/rest/services/HW/WastewaterUtilities/MapServer/18/query?where=UNITID='${unitID}'&outFields=TREATMENTPLANTID&f=pjson&outSR=4326`;
          let response = await fetch(queryUrl_manhole);
          let data = await response.json();
          if (data.features.length > 0) {
