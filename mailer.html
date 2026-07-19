@@ -1086,6 +1086,7 @@
       </div>
       <div class="header-actions">
         <span class="status-pill" id="serviceStatus"><i class="fa-solid fa-circle-notch fa-spin"></i> Checking services</span>
+         <button class="btn btn-secondary" id="btnUserGuide" title="Open User Guide"><i class="fa-solid fa-gear"></i><span> User Guide</span></button>
         <button class="btn btn-secondary" id="configBtn" title="Service configuration"><i class="fa-solid fa-gear"></i><span> Config</span></button>
         <button class="btn btn-secondary" id="aboutBtn" title="Method"><i class="fa-regular fa-circle-question"></i><span> Method</span></button>
       </div>
@@ -1695,7 +1696,13 @@
       state.dialogResolve = null;
       if (resolve) resolve(result);
     }
-
+document.getElementById("btnUserGuide").addEventListener("click", () => {
+    window.open(
+        "https://mappeasy.com/mailerdoc",
+        "_blank",
+        "noopener"
+    );
+});
     function showDialog({ title, bodyHtml, actions = [], wide = false, panelClass = "", closeValue = null }) {
       if (state.dialogResolve) closeDialog(null);
       $("dialogTitle").textContent = title;
