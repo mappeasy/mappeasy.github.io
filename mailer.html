@@ -316,6 +316,13 @@
       box-shadow: 0 2px 8px rgba(16,24,40,.12);
     }
     .map-tool.active { color: white; background: var(--orange); border-color: var(--orange); }
+    .map-switch-control { display:inline-flex; align-items:center; gap:7px; cursor:pointer; user-select:none; }
+    .map-switch-control input { position:absolute; opacity:0; pointer-events:none; }
+    .map-switch-control .mini-switch-track { flex:0 0 auto; width:32px; height:18px; }
+    .map-switch-control .mini-switch-track::after { width:14px; height:14px; }
+    .map-switch-control input:checked + .mini-switch-track::after { transform:translateX(14px); }
+    .map-switch-control input:focus-visible + .mini-switch-track { outline:3px solid rgba(0,94,168,.24); outline-offset:2px; }
+    .append-results-text { white-space:nowrap; }
 
     .map-note {
       position: absolute;
@@ -571,6 +578,7 @@
       .attribute-grid dt { padding-bottom:2px; }
       .attribute-grid dd { padding-top:2px; }
       .map-tool .tool-label-mobile-hide { display:none; }
+      .append-results-text { display:none; }
     }
     @media (max-width: 760px) {
       body { overflow: auto; }
@@ -1288,18 +1296,18 @@
               <div class="field full">
                 <label for="traceLimitMode">Stop upstream trace by</label>
                 <select id="traceLimitMode">
-                  <option value="distance" selected>Upstream path distance</option>
-                  <option value="lines">Total number of upstream lines</option>
+                  <option value="distance">Upstream path distance</option>
+                  <option value="lines" selected>Total number of upstream lines</option>
                 </select>
               </div>
               <div class="mode-fields">
-                <div class="field mode-field" id="distanceModeField">
+                <div class="field mode-field is-disabled" id="distanceModeField">
                   <label for="upstreamFeet">Upstream distance (ft)</label>
-                  <input id="upstreamFeet" type="number" min="50" max="50000" step="50" value="500" />
+                  <input id="upstreamFeet" type="number" min="50" max="50000" step="50" value="500" disabled />
                 </div>
-                <div class="field mode-field is-disabled" id="lineModeField">
+                <div class="field mode-field" id="lineModeField">
                   <label for="upstreamLineCount">Upstream line limit</label>
-                  <input id="upstreamLineCount" type="number" min="1" max="5000" step="1" value="3" disabled />
+                  <input id="upstreamLineCount" type="number" min="1" max="5000" step="1" value="3" />
                 </div>
               </div>
               <div class="field">
@@ -1370,6 +1378,11 @@
           <div class="map-toolbar-group">
             <button class="map-tool" id="fitBtn"><i class="fa-solid fa-expand"></i> Fit results</button>
             <button class="map-tool" id="clearMapBtn"><i class="fa-solid fa-broom"></i> Clear analysis</button>
+            <label class="map-tool map-switch-control" id="appendResultsLabel" title="Keep existing results and add unique addresses from the next run">
+              <input id="appendResults" type="checkbox" checked />
+              <span class="mini-switch-track" aria-hidden="true"></span>
+              <span class="append-results-text">Add to results</span>
+            </label>
             <button class="map-tool" id="selectAreaBtn" title="Draw a polygon to select GIS features"><i class="fa-solid fa-draw-polygon"></i> <span class="tool-label-mobile-hide">Select area</span></button>
           </div>
           <div class="map-toolbar-group">
@@ -2860,6 +2873,20 @@ document.getElementById("btnUserGuide").addEventListener("click", () => {
       $("upstreamLineCount").disabled = distanceMode;
       $("distanceModeField").classList.toggle("is-disabled", !distanceMode);
       $("lineModeField").classList.toggle("is-disabled", distanceMode);
+    }
+
+    function applySystemTraceDefaults() {
+      const system = $("systemFilter").value;
+      $("traceLimitMode").value = "lines";
+      if (system === "Private") {
+        $("upstreamLineCount").value = "1";
+        $("downstreamSegments").value = "0";
+      } else {
+        // Public and All use the same operational defaults.
+        $("upstreamLineCount").value = "3";
+        $("downstreamSegments").value = "1";
+      }
+      updateTraceLimitMode();
     }
 
     function parsePastedAddresses(value) {
@@ -4781,7 +4808,9 @@ document.getElementById("btnUserGuide").addEventListener("click", () => {
       try { settings = readSettings(); }
       catch (error) { toast(error.message, "error"); return; }
 
-      clearAnalysis({ keepSsoCache: true });
+      const appendToExisting = $("appendResults").checked && state.traceBySso.size > 0;
+      if (!appendToExisting) clearAnalysis({ keepSsoCache: true });
+      else resetLiveState();
       state.runSettings = settings;
       state.abortController = new AbortController();
       setRunning(true);
@@ -4798,8 +4827,12 @@ document.getElementById("btnUserGuide").addEventListener("click", () => {
           if (!proceed) throw new DOMException("Cancelled by user", "AbortError");
         }
 
-        state.matchedSsos = sources;
-        state.sourceByKey = new Map(sources.map(source => [sourceKey(source), source]));
+        const mergedSources = appendToExisting
+          ? new Map(state.matchedSsos.map(source => [sourceKey(source), source]))
+          : new Map();
+        sources.forEach(source => mergedSources.set(sourceKey(source), source));
+        state.matchedSsos = [...mergedSources.values()];
+        state.sourceByKey = new Map(state.matchedSsos.map(source => [sourceKey(source), source]));
         $("filterCountLabel").textContent = `${matchedSsos.length.toLocaleString()} matched`;
         initializeProgressRows(sources);
         buildLocationRows();
@@ -4816,10 +4849,10 @@ document.getElementById("btnUserGuide").addEventListener("click", () => {
         results.forEach(result => state.traceBySso.set(result.key, result));
         aggregateResults();
           $("exportBtn").disabled = state.locationRows.length === 0;
-        updateProgress(sources.length, sources.length, `Completed ${sources.length} traces · ${state.addressRows.length.toLocaleString()} unique mailing addresses`);
+        updateProgress(sources.length, sources.length, `${appendToExisting ? "Added" : "Completed"} ${sources.length} traces · ${state.addressRows.length.toLocaleString()} unique mailing addresses total`);
         fitResults();
         setTab(state.addressRows.length ? "addresses" : "locations");
-        toast(`Completed ${sources.length} upstream traces and found ${state.addressRows.length} unique mailing addresses.`, "success", 6500);
+        toast(`${appendToExisting ? "Added" : "Completed"} ${sources.length} upstream traces. The combined result contains ${state.addressRows.length} unique mailing addresses.`, "success", 6500);
       } catch (error) {
         if (error.name === "AbortError") {
           for (const row of state.progressRows.values()) {
@@ -5241,7 +5274,7 @@ document.getElementById("btnUserGuide").addEventListener("click", () => {
         bodyHtml: `<ol class="method-list">
           <li>Choose one input source per run: filtered SSO GIS records or addresses batch-geocoded from an uploaded Excel/CSV <b>Address</b> column. Duplicate addresses are geocoded once and reused.</li>
           <li>Uploaded addresses are submitted to the configured composite locator in batches of up to <b>1,000 records per request</b>.</li>
-          <li>Each input point snaps to the nearest gravity-main line. The snapped line is included. The default upstream distance is <b>500 ft</b>, and the default optional downstream extension is <b>1 line</b>.</li>
+          <li>Each input point snaps to the nearest gravity-main line. The snapped line is included. The default trace method is <b>line count</b>. Public and All default to <b>3 upstream lines and 1 downstream line</b>; Private defaults to <b>1 upstream line and 0 downstream lines</b>.</li>
           <li>Network connectivity primarily uses the string fields <b>unitid</b> and <b>unitid2</b>. Every candidate must have an endpoint within 5 ft of the current line endpoint.</li>
           <li>If ID linkage fails, the planner searches for gravity-main endpoints within 5 ft and selects only the closest unvisited line. If none is found, that trace branch stops.</li>
           <li>The upstream trace stops by path distance or by a total line-count cap. Valid ID-supported upstream branches are followed until the selected limit is reached.</li>
@@ -5464,7 +5497,11 @@ document.getElementById("btnUserGuide").addEventListener("click", () => {
       });
       $("ssoFilterEnabled").addEventListener("change", event => setSsoLayerVisibility(event.target.checked));
       $("uploadedLayerVisible").addEventListener("change", event => setUploadedLayerVisibility(event.target.checked));
-      ["systemFilter", "startDateFrom", "startDateTo"].forEach(id => $(id).addEventListener("change", () => scheduleSsoMapFilter(0)));
+      $("systemFilter").addEventListener("change", () => {
+        applySystemTraceDefaults();
+        scheduleSsoMapFilter(0);
+      });
+      ["startDateFrom", "startDateTo"].forEach(id => $(id).addEventListener("change", () => scheduleSsoMapFilter(0)));
       ["keywordFilter", "causeFilter", "actionFilter", "recurrenceFilter"].forEach(id => $(id).addEventListener("input", () => scheduleSsoMapFilter()));
       document.querySelectorAll(".tab").forEach(button => button.addEventListener("click", () => setTab(button.dataset.tab)));
       $("togglePanelBtn").addEventListener("click", togglePanel);
