@@ -1072,6 +1072,34 @@
       }
     }
 
+    /* Export controls */
+    .results-actions {
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .results-actions .btn {
+      white-space: nowrap;
+    }
+    #exportCurrentTabBtn {
+      color: #005e9e;
+      border-color: #9fc4dc;
+      background: #f3f9fd;
+    }
+    #exportCurrentTabBtn:not(:disabled):hover {
+      color: #004f86;
+      border-color: #6da8cd;
+      background: #e5f3fb;
+    }
+    @media (max-width: 760px) {
+      .results-actions .search-box {
+        flex: 1 1 100%;
+        width: 100%;
+      }
+      .results-actions .btn {
+        flex: 1 1 calc(50% - 4px);
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1376,7 +1404,8 @@
         </div>
         <div class="results-actions">
           <input class="search-box" id="tableSearch" placeholder="Search current table…" />
-          <button class="btn btn-primary" id="exportBtn" disabled><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+          <button class="btn btn-secondary" id="exportCurrentTabBtn" disabled title="Export the active tab using the current search and sort"><i class="fa-solid fa-table"></i> Export Tab</button>
+          <button class="btn btn-primary" id="exportBtn" disabled title="Export the complete workbook"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
         </div>
       </div>
       <div class="table-wrap" id="tableWrap"><div class="empty-state">Run an analysis to build the mailing list.</div></div>
@@ -1698,7 +1727,7 @@
     }
 document.getElementById("btnUserGuide").addEventListener("click", () => {
     window.open(
-        "https://mappeasy.com/mailerdoc",
+        "./mailerdoc.html",
         "_blank",
         "noopener"
     );
@@ -4704,6 +4733,7 @@ document.getElementById("btnUserGuide").addEventListener("click", () => {
         if (name !== "uploadedAddresses") layer.clearLayers();
       });
       $("exportBtn").disabled = true;
+      $("exportCurrentTabBtn").disabled = true;
       $("tableSearch").value = "";
       state.uploadedRows.forEach(row => {
         if (row.feature) row.status = "Geocoded";
@@ -5080,24 +5110,39 @@ document.getElementById("btnUserGuide").addEventListener("click", () => {
         const note = document.createElement("div");
         note.className = "hint";
         note.style.padding = "6px 10px";
-        note.textContent = `Showing the first ${shown.length.toLocaleString()} of ${sorted.length.toLocaleString()} rows. Excel export includes all rows.`;
+        note.textContent = `Showing the first ${shown.length.toLocaleString()} of ${sorted.length.toLocaleString()} rows. Export Tab includes all rows matching the current search.`;
         wrap.appendChild(note);
       }
       wrap.appendChild(table);
     }
 
-    function renderActiveTable() {
-      const wrap = $("tableWrap");
+    function activeTabFilteredRows() {
       const search = normalize($("tableSearch").value);
       if (state.activeTab === "warnings") {
-        const warnings = state.warnings.filter(warning => !search || normalize(warning).includes(search));
-        wrap.innerHTML = warnings.length
-          ? `<ul class="warning-list">${warnings.map(warning => `<li>${htmlEscape(warning)}</li>`).join("")}</ul>`
-          : '<div class="empty-state">No warnings for the current result.</div>';
-        return;
+        return state.warnings
+          .filter(warning => !search || normalize(warning).includes(search))
+          .map(Warning => ({ Warning }));
       }
       let rows = rowsForActiveTab();
       if (search) rows = rows.filter(row => normalize(Object.values(row).join(" ")).includes(search));
+      return sortRows(rows, state.activeTab);
+    }
+
+    function updateExportButtons() {
+      const currentRows = activeTabFilteredRows();
+      $("exportCurrentTabBtn").disabled = currentRows.length === 0;
+    }
+
+    function renderActiveTable() {
+      const wrap = $("tableWrap");
+      const rows = activeTabFilteredRows();
+      updateExportButtons();
+      if (state.activeTab === "warnings") {
+        wrap.innerHTML = rows.length
+          ? `<ul class="warning-list">${rows.map(row => `<li>${htmlEscape(row.Warning)}</li>`).join("")}</ul>`
+          : '<div class="empty-state">No warnings for the current result.</div>';
+        return;
+      }
       const empty = state.activeTab === "progress" ? "Run an analysis to see each location update while it is processed."
         : state.activeTab === "addresses" ? "Run an analysis to build the mailing list."
           : state.activeTab === "locations" ? "No filtered SSO locations or uploaded addresses are available."
@@ -5138,6 +5183,32 @@ document.getElementById("btnUserGuide").addEventListener("click", () => {
       XLSX.utils.book_append_sheet(workbook, worksheet, "Addresses");
       XLSX.writeFile(workbook, "SSO_Upstream_Mailer_Address_Template.xlsx");
       toast("Address template downloaded.", "success");
+    }
+
+    function exportCurrentTabExcel() {
+      const rows = activeTabFilteredRows();
+      if (!rows.length) {
+        toast("There are no rows in the current tab to export.", "warning");
+        return;
+      }
+
+      const exportNames = {
+        progress: { sheet: "Live Progress", file: "Live_Progress" },
+        addresses: { sheet: "Mailing Addresses", file: "Mailing_Addresses" },
+        locations: { sheet: "Input Locations", file: "Input_Locations" },
+        ssos: { sheet: "SSO Summary", file: "SSO_Summary" },
+        associations: { sheet: "Parcel Links", file: "Parcel_Links" },
+        warnings: { sheet: "Warnings", file: "Warnings" }
+      };
+      const names = exportNames[state.activeTab] || { sheet: "Current Tab", file: "Current_Tab" };
+      const columns = state.activeTab === "warnings" ? ["Warning"] : (TABLE_COLUMNS[state.activeTab] || Object.keys(rows[0] || {}));
+      const safeRows = rows.map(row => Object.fromEntries(columns.map(column => [column, row[column] ?? ""])));
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(safeRows, { header: columns });
+      setColumnWidths(worksheet, safeRows);
+      XLSX.utils.book_append_sheet(workbook, worksheet, names.sheet.slice(0, 31));
+      XLSX.writeFile(workbook, `SSO_Upstream_Mailer_${names.file}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      toast(`Exported ${safeRows.length.toLocaleString()} row${safeRows.length === 1 ? "" : "s"} from ${names.sheet}.`, "success");
     }
 
     async function exportExcel() {
@@ -5337,6 +5408,7 @@ document.getElementById("btnUserGuide").addEventListener("click", () => {
         if (state.selectionBusy) return;
         state.polygonDrawer.enable();
       });
+      $("exportCurrentTabBtn").addEventListener("click", exportCurrentTabExcel);
       $("exportBtn").addEventListener("click", exportExcel);
       $("configBtn").addEventListener("click", openConfigDialog);
       $("aboutBtn").addEventListener("click", showMethod);
