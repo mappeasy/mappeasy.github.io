@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0b2d48" />
-  <title>Address Sewer & CIP Lookup v5</title>
+  <title>Address Sewer & CIP Lookup</title>
   <link rel="stylesheet" href="https://js.arcgis.com/4.31/esri/themes/light/main.css" />
   <style>
     :root{
@@ -209,18 +209,18 @@
 
   const APPEND_COLUMNS = [
     "Lookup_Status","Matched_Address","Address_Match",
-    "Sewer_Size_in","Sewer_Distance_ft","Pipe_Location","Property_Type","Manhole_Number","Manhole_Depth_ft","Depth_Source",
+    "Sewer_Size_in","Sewer_Length_ft","Sewer_Distance_ft","Pipe_Location","Property_Type","Manhole_Number","Manhole_Depth_ft","Depth_Source",
     "CIP_Match","CIP_Match_Count","CIP_Category","CIP_No","CIP_Project","CIP_Stage","CIP_Distance_ft","Notes"
   ];
   const COLUMN_LABELS = Object.freeze({
     Lookup_Status:"Lookup Status",Matched_Address:"Matched Address",Address_Match:"Address Match",
-    Sewer_Size_in:"Sewer Size (in)",Sewer_Distance_ft:"Sewer Distance (ft)",Pipe_Location:"Pipe Location",Property_Type:"Property Type",Manhole_Number:"Manhole",
+    Sewer_Size_in:"Sewer Size (in)",Sewer_Length_ft:"Sewer Length (ft)",Sewer_Distance_ft:"Sewer Distance (ft)",Pipe_Location:"Pipe Location",Property_Type:"Property Type",Manhole_Number:"Manhole",
     Manhole_Depth_ft:"Manhole Depth (ft)",Depth_Source:"Depth Source",CIP_Match:"CIP Match",
     CIP_Match_Count:"CIP Matches",CIP_Category:"CIP Category",CIP_No:"CIP No.",CIP_Project:"CIP Project",
     CIP_Stage:"CIP Stage",CIP_Distance_ft:"CIP Distance (ft)",Notes:"Notes"
   });
   const LEGACY_OUTPUT_COLUMNS = new Set([
-    "Lookup_Status","Geocode_Match","Geocode_Score","Sewer_Line_ID","Sewer_Size_in","Sewer_Distance_ft",
+    "Lookup_Status","Geocode_Match","Geocode_Score","Sewer_Line_ID","Sewer_Size_in","Sewer_Length_ft","Sewer_Distance_ft",
     "Upstream_Manhole","Downstream_Manhole","Manhole_Number","Manhole_Depth_ft","Manhole_Depth_Source",
     "Depth_Trace_Lines_Upstream","CIP_Status","CIP_Within_Buffer","CIP_Buffer_ft","CIP_Project_Count",
     "CIP_Wastewater","CIP_Primary_Category","CIP_CIP_NO","CIP_Project_No","CIP_Project_Type",
@@ -229,7 +229,7 @@
     "CIP_Match","CIP_Match_Count","CIP_Category","CIP_No","CIP_Project","Notes","Pipe_Location","Property_Type",...APPEND_COLUMNS,...Object.values(COLUMN_LABELS)
   ]);
 
-  const LINE_FIELDS = ["OBJECTID","facilityid","ufid","diameter","unitid","unitid2","upstreammanholenumber","downstreammanholenumber","ASSETGROUP","ASSETTYPE"].join(",");
+  const LINE_FIELDS = ["OBJECTID","facilityid","ufid","diameter","Shape__Length","unitid","unitid2","upstreammanholenumber","downstreammanholenumber","ASSETGROUP","ASSETTYPE"].join(",");
   const MANHOLE_FIELDS = ["OBJECTID","manholenumber","depth","unitid","ufid","facilityid","latitude","longitude","rimelev","invertelev","facilityaddress"].join(",");
   const PARCEL_FIELDS = ["OBJECTID","HCAD_NUM","LocAddr","LocNum","LocName","city","zip","Site_addr_1","group_cd","group_dscr","landuse_cd","landuse_dscr"].join(",");
 
@@ -491,9 +491,9 @@
     const [nearest,cipMatches,parcel]=await Promise.all([findNearestGravityLine(meta.point,signal,s),findCipMatches(meta.point,signal,s),findAddressParcel(meta.point,address,signal)]);meta.nearest=nearest;meta.cipMatches=cipMatches;meta.primaryCip=applyCipColumns(out,cipMatches,s);meta.parcel=parcel;
     const parcelResult=await applyParcelColumns(out,nearest,parcel,signal);meta.parcelIntersectsLine=parcelResult.intersects;
     if(!nearest){out.Lookup_Status="Needs review";out.Notes=`Address match verified, but no gravity sewer was found within ${s.lineRadiusFt} ft.${parcel?` Property type: ${safe(parcel.attributes?.group_dscr)||"not listed"}.`:" No matching HCAD parcel was found."}${cipMatches.length?` ${cipMatches.length} active CIP match${cipMatches.length===1?"":"es"} found.`:" No active CIP match found."}`;return{out,meta};}
-    const a=nearest.feature.attributes||{};out.Sewer_Size_in=Number.isFinite(Number(a.diameter))&&Number(a.diameter)>0?round(a.diameter,2):"";out.Sewer_Distance_ft=round(nearest.distanceFt,1);
+    const a=nearest.feature.attributes||{};out.Sewer_Size_in=Number.isFinite(Number(a.diameter))&&Number(a.diameter)>0?round(a.diameter,2):"";out.Sewer_Length_ft=Number.isFinite(Number(a.Shape__Length))&&Number(a.Shape__Length)>0?round(a.Shape__Length,1):"";out.Sewer_Distance_ft=round(nearest.distanceFt,1);
     const depth=await resolveManholeDepth(nearest,meta.point,signal,s);meta.depth=depth;out.Manhole_Number=depth.number;out.Manhole_Depth_ft=round(depth.depth,2);out.Depth_Source=depth.source;
-    const notes=[];if(depth.assumed)notes.push(`Manhole depth was not available after ${s.depthHops} upstream hops; ${s.assumedDepthFt} ft was assumed.`);if(!out.Sewer_Size_in)notes.push("Pipe size is missing in the sewer layer.");
+    const notes=[];if(depth.assumed)notes.push(`Manhole depth was not available after ${s.depthHops} upstream hops; ${s.assumedDepthFt} ft was assumed.`);if(!out.Sewer_Size_in)notes.push("Pipe size is missing in the sewer layer.");if(!out.Sewer_Length_ft)notes.push("Sewer shape length is missing in the sewer layer.");
     if(!parcel)notes.push("No matching HCAD parcel was found near the verified address, so pipe location and property type could not be confirmed.");
     else if(out.Pipe_Location!=="Unknown")notes.push(`Pipe location classified as ${out.Pipe_Location}: the snapped sewer ${meta?.parcelIntersectsLine===true?"intersects":"does not intersect"} the matched parcel.`);
     if(cipMatches.length){const ww=cipMatches.some(m=>m.wastewater);notes.push(`${cipMatches.length} active CIP match${cipMatches.length===1?"":"es"} within ${s.cipBufferFt} ft${ww?", including Wastewater":""}.`);}else notes.push(`No active CIP project within ${s.cipBufferFt} ft.`);
@@ -510,7 +510,7 @@
       },(result,index)=>{
         state.results[index]=result.out;state.resultMeta[index]=result.meta;complete++;if(result.out.Lookup_Status==="Completed - depth assumed")assumed++;if(!String(result.out.Lookup_Status||"").startsWith("Completed"))issues++;if(result.out.CIP_Match==="Yes")cip++;if(result.meta?.cipMatches?.some(m=>m.wastewater))wastewaterCip++;updateMetrics(rows.length,complete,cip,wastewaterCip,assumed,issues);updateProgress(complete,rows.length,`Processed ${complete.toLocaleString()} of ${rows.length.toLocaleString()} rows`,`Sewer + CIP lookup`);addResultGraphic(index);if(complete%10===0||complete===rows.length)renderResults();
       });
-      renderResults();$("downloadCsvBtn").disabled=false;$("downloadExcelBtn").disabled=false;$("resultsSubtext").textContent=`${rows.length.toLocaleString()} rows processed. Summary view shows sewer, parcel, and CIP fields; exports preserve the original input columns.`;setStatus("Completed","success");fitResults();
+      renderResults();$("downloadCsvBtn").disabled=false;$("downloadExcelBtn").disabled=false;$("resultsSubtext").textContent=`${rows.length.toLocaleString()} rows processed. Summary view shows sewer size, segment length, parcel, and CIP fields; exports preserve the original input columns.`;setStatus("Completed","success");fitResults();
     }catch(error){if(error.name==="AbortError"){setStatus("Cancelled","error");$("progressDetail").textContent="Processing cancelled.";}else{setStatus("Processing error","error");$("progressDetail").textContent=error.message||"Processing failed.";}}
     finally{setRunning(false);state.controller=null;}
   }
@@ -531,7 +531,7 @@
   function downloadTemplate(){const ws=XLSX.utils.aoa_to_sheet([["address","source_id","note"],["901 Bagby St, Houston, TX 77002","A-001",""]]),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Addresses");XLSX.writeFile(wb,"Address_Sewer_CIP_Template.xlsx");}
   function clearAll(){if(state.running)return;state.rows=[];state.results=[];state.resultMeta=[];state.originalColumns=[];state.fileName="";state.showAllColumns=false;$("pasteInput").value="";$("fileInput").value="";$("fileMeta").textContent="No file loaded.";$("searchInput").value="";$("progress").classList.remove("visible");$("downloadCsvBtn").disabled=true;$("downloadExcelBtn").disabled=true;$("resultsSubtext").textContent="Run a lookup to append sewer, parcel, and CIP information to each input row.";$("columnViewBtn").textContent="Show all columns";$("columnViewBtn").classList.remove("active");updatePasteMeta();updateMetrics(0,0,0,0,0,0);renderResults();clearResultGraphics();setStatus("Ready");}
 
-  function popupHtmlForResult(index){const row=state.results[index]||{},address=safe(row[state.addressColumn])||safe(row.Matched_Address);return `<div style="font-size:12px;line-height:1.5;min-width:255px"><b style="font-size:13px">${htmlEscape(address)}</b><div style="margin:4px 0 10px;color:#617787">${htmlEscape(row.Matched_Address||"")}</div><b>Sewer</b><br>${htmlEscape(row.Sewer_Size_in||"—")} in main · ${htmlEscape(row.Sewer_Distance_ft||"—")} ft from address<br>${htmlEscape(row.Pipe_Location||"Unknown")} · ${htmlEscape(row.Property_Type||"Property type unavailable")}<br>Manhole ${htmlEscape(row.Manhole_Number||"—")} · depth ${htmlEscape(row.Manhole_Depth_ft||"—")} ft<br><br><b>Active CIP</b><br>${row.CIP_Match==="Yes"?`${htmlEscape(row.CIP_Category||"Project")} · ${htmlEscape(row.CIP_No||"")}<br>${htmlEscape(row.CIP_Project||"")}${row.CIP_Distance_ft!==""?`<br>${htmlEscape(row.CIP_Distance_ft)} ft from address`:""}`:"No project within buffer"}</div>`;}
+  function popupHtmlForResult(index){const row=state.results[index]||{},address=safe(row[state.addressColumn])||safe(row.Matched_Address);return `<div style="font-size:12px;line-height:1.5;min-width:255px"><b style="font-size:13px">${htmlEscape(address)}</b><div style="margin:4px 0 10px;color:#617787">${htmlEscape(row.Matched_Address||"")}</div><b>Sewer</b><br>${htmlEscape(row.Sewer_Size_in||"—")} in main · ${htmlEscape(row.Sewer_Length_ft||"—")} ft long · ${htmlEscape(row.Sewer_Distance_ft||"—")} ft from address<br>${htmlEscape(row.Pipe_Location||"Unknown")} · ${htmlEscape(row.Property_Type||"Property type unavailable")}<br>Manhole ${htmlEscape(row.Manhole_Number||"—")} · depth ${htmlEscape(row.Manhole_Depth_ft||"—")} ft<br><br><b>Active CIP</b><br>${row.CIP_Match==="Yes"?`${htmlEscape(row.CIP_Category||"Project")} · ${htmlEscape(row.CIP_No||"")}<br>${htmlEscape(row.CIP_Project||"")}${row.CIP_Distance_ft!==""?`<br>${htmlEscape(row.CIP_Distance_ft)} ft from address`:""}`:"No project within buffer"}</div>`;}
   function addResultGraphic(index){if(!state.mapReady||!state.Graphic||!state.addressLayer)return;const meta=state.resultMeta[index];if(!meta?.point)return;const row=state.results[index]||{},hasCip=row.CIP_Match==="Yes",assumed=row.Lookup_Status==="Completed - depth assumed",symbol={type:"simple-marker",style:"circle",size:9,color:assumed?[217,119,6,235]:hasCip?[109,69,184,235]:[20,108,164,235],outline:{color:[255,255,255,255],width:1.5}};state.addressLayer.add(new state.Graphic({geometry:{type:"point",longitude:meta.point[0],latitude:meta.point[1]},symbol,attributes:{rowIndex:index},popupTemplate:{title:"Address lookup result",content:popupHtmlForResult(index)}}));}
   function rebuildResultGraphics(){if(!state.mapReady)return;clearResultGraphics();state.results.forEach((r,i)=>{if(r)addResultGraphic(i);});}
   function clearResultGraphics(){state.addressLayer?.removeAll();}
@@ -580,7 +580,7 @@
     require(["esri/Map","esri/views/MapView","esri/layers/FeatureLayer","esri/layers/GroupLayer","esri/layers/GraphicsLayer","esri/Graphic","esri/widgets/LayerList","esri/widgets/Legend","esri/widgets/Expand","esri/widgets/Home","esri/widgets/ScaleBar"],
     (Map,MapView,FeatureLayer,GroupLayer,GraphicsLayer,Graphic,LayerList,Legend,Expand,Home,ScaleBar)=>{
       state.Graphic=Graphic;
-      const sewerPopup={title:"Gravity Sewer Main",content:[{type:"fields",fieldInfos:[{fieldName:"facilityid",label:"Facility ID"},{fieldName:"diameter",label:"Diameter (in)"},{fieldName:"upstreammanholenumber",label:"Upstream Manhole"},{fieldName:"downstreammanholenumber",label:"Downstream Manhole"},{fieldName:"measuredlength",label:"Measured Length (ft)"},{fieldName:"slope",label:"Slope"}]}]};
+      const sewerPopup={title:"Gravity Sewer Main",content:[{type:"fields",fieldInfos:[{fieldName:"facilityid",label:"Facility ID"},{fieldName:"diameter",label:"Diameter (in)"},{fieldName:"Shape__Length",label:"Shape Length (ft)"},{fieldName:"upstreammanholenumber",label:"Upstream Manhole"},{fieldName:"downstreammanholenumber",label:"Downstream Manhole"},{fieldName:"measuredlength",label:"Measured Length (ft)"},{fieldName:"slope",label:"Slope"}]}]};
       const manholePopup={title:"Manhole {manholenumber}",content:[{type:"fields",fieldInfos:[{fieldName:"manholenumber",label:"Manhole Number"},{fieldName:"depth",label:"Depth (ft)"},{fieldName:"rimelev",label:"Rim Elevation"},{fieldName:"invertelev",label:"Invert Elevation"},{fieldName:"facilityaddress",label:"Facility Address"}]}]};
       const sewerRenderer={type:"simple",symbol:sewerFlowSymbol(),label:"Gravity sewer / flow direction"};
       const manholeRenderer={type:"simple",symbol:{type:"simple-marker",style:"circle",size:7.5,color:[255,255,255,245],outline:{color:[145,28,28,255],width:1.8}},label:"Wastewater manhole"};
