@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b2d48" />
+  <title>Address Sewer & CIP Lookup v4</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.31/esri/themes/light/main.css" />
+  <style>
+    :root{
+      --navy-950:#071e33;--navy-900:#0b2d48;--navy-800:#124566;--blue:#146ca4;--blue-2:#1685c3;
+      --bg:#edf3f7;--card:#fff;--line:#d4dfe7;--text:#142634;--muted:#617787;--green:#087c59;
+      --amber:#a15c00;--red:#b42318;--purple:#6d45b8;--shadow:0 6px 22px rgba(7,30,51,.10);
+      --sidebar:390px;--results:34vh;--header:60px;
+    }
+    *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--text);background:var(--bg);overflow:hidden}
+    button,input,textarea,select{font:inherit}button{cursor:pointer}
+    .app{height:100vh;display:grid;grid-template-rows:var(--header) minmax(260px,1fr) minmax(220px,var(--results));background:var(--bg)}
+    .header{z-index:50;background:linear-gradient(120deg,var(--navy-950),var(--navy-800));color:#fff;border-bottom:3px solid var(--blue-2);box-shadow:0 3px 12px rgba(7,30,51,.16);display:flex;align-items:center;justify-content:space-between;padding:0 16px;gap:18px}
+    .brand{min-width:0}.brand h1{margin:0;font-size:20px;letter-spacing:-.02em}.brand p{margin:3px 0 0;font-size:11px;color:rgba(255,255,255,.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .status-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:7px 11px;background:rgba(255,255,255,.09);font-size:12px;font-weight:750;white-space:nowrap}.status-dot{width:8px;height:8px;border-radius:50%;background:#9ec6dc}.status-pill.running .status-dot{background:#ffd464}.status-pill.success .status-dot{background:#47d69c}.status-pill.error .status-dot{background:#ff766d}
+    .workspace{min-height:0;display:grid;grid-template-columns:minmax(320px,var(--sidebar)) minmax(0,1fr);border-bottom:1px solid #c5d3dd}
+    .sidebar{min-height:0;overflow:auto;background:#f8fbfd;border-right:1px solid #bdccd7;padding:12px}
+    .card{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 2px 8px rgba(7,30,51,.05);margin-bottom:11px;overflow:hidden}
+    .card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border-bottom:1px solid var(--line);background:#f7fafc}.card-head b{font-size:12px;color:var(--navy-900)}.card-body{padding:12px}
+    .tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;border:1px solid #cbd8e1;border-radius:10px;background:#eef4f7}.tab{border:1px solid transparent;background:transparent;border-radius:8px;padding:9px 8px;color:#587083;font-size:11px;font-weight:800}.tab small{display:block;margin-top:2px;font-weight:500;font-size:9.5px}.tab.active{background:#fff;border-color:#7eb7d8;color:var(--navy-900);box-shadow:0 1px 4px rgba(7,30,51,.08)}
+    .input-panel{margin-top:10px}.input-panel[hidden]{display:none}.label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}.label-row label{font-size:11px;font-weight:800;color:#334e61}.count{font-size:10px;color:var(--muted)}
+    textarea{width:100%;min-height:175px;resize:vertical;border:1px solid #b9cad6;border-radius:10px;padding:10px 11px;outline:none;line-height:1.45;background:#fff;color:var(--text)}textarea:focus,input:focus,select:focus{border-color:var(--blue-2);box-shadow:0 0 0 3px rgba(22,133,195,.12);outline:none}
+    .drop-zone{min-height:175px;border:1.5px dashed #8da9bc;border-radius:10px;display:grid;place-items:center;text-align:center;padding:18px;background:#fbfdff;transition:.15s}.drop-zone.drag{border-color:var(--blue-2);background:#eef8fd}.drop-zone b{display:block;color:var(--navy-900);font-size:12px}.drop-zone span{display:block;margin-top:6px;color:var(--muted);font-size:10.5px;line-height:1.4}.drop-zone input{display:none}.file-meta{margin-top:8px;font-size:10.5px;color:var(--muted);line-height:1.45;overflow-wrap:anywhere}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field{min-width:0}.field.full{grid-column:1/-1}.field label{display:block;margin-bottom:5px;font-size:10px;font-weight:800;color:#496072}.field input,.field select{width:100%;height:35px;border:1px solid #b9cad6;border-radius:8px;padding:0 9px;background:#fff;color:var(--text);font-size:11px}.hint{margin-top:7px;font-size:10px;line-height:1.45;color:var(--muted)}
+    .rules{border-left:3px solid var(--blue-2);background:#eef8fd;border-radius:0 8px 8px 0;padding:9px 10px;font-size:10px;line-height:1.5;color:#426075}.rules b{color:var(--navy-900)}
+    .button-row{display:flex;gap:7px;flex-wrap:wrap}.btn{min-height:36px;border:1px solid transparent;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:6px}.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#0f5b8c}.btn-secondary{background:#fff;border-color:#b9cad6;color:#334e61}.btn-secondary:hover{background:#f5f9fb}.btn-danger{background:#fff7f6;border-color:#efc5c1;color:var(--red)}.btn:disabled{opacity:.48;cursor:not-allowed}.run-row{margin-top:10px}.run-row .btn-primary{flex:1 1 150px}
+    .progress{display:none;margin-top:10px}.progress.visible{display:block}.progress-head{display:flex;justify-content:space-between;gap:8px;font-size:10.5px}.progress-head b{color:var(--navy-900)}.track{height:8px;margin-top:6px;border-radius:999px;background:#dfe8ee;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .2s}.progress-detail{margin-top:5px;font-size:10px;color:var(--muted);line-height:1.4}
+    .map-shell{position:relative;min-width:0;min-height:0;background:#dce8ef}#mapView{position:absolute;inset:0}.map-toolbar{position:absolute;z-index:10;top:10px;left:10px;display:flex;gap:7px;pointer-events:none}.map-toolbar .btn{pointer-events:auto;background:rgba(255,255,255,.96);box-shadow:0 2px 8px rgba(7,30,51,.14)}
+    .map-note{position:absolute;z-index:9;left:50%;bottom:14px;transform:translateX(-50%);max-width:min(720px,calc(100% - 30px));padding:7px 11px;border:1px solid #c4d2dc;border-radius:999px;background:rgba(255,255,255,.94);box-shadow:0 2px 8px rgba(7,30,51,.10);font-size:10px;color:#496072;text-align:center;pointer-events:none}
+    .results{min-height:0;background:#fff;display:grid;grid-template-rows:auto auto minmax(0,1fr);border-top:1px solid #bfcdd7}
+    .metrics{display:grid;grid-template-columns:repeat(6,minmax(110px,1fr));gap:6px;padding:7px;background:#f5f9fb;border-bottom:1px solid var(--line);overflow-x:auto}.metric{min-width:110px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:7px 9px}.metric span{display:block;font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.035em;color:var(--muted)}.metric b{display:block;margin-top:2px;font-size:17px;color:var(--navy-900)}.metric.cip b{color:var(--purple)}.metric.assumed b{color:var(--amber)}.metric.issue b{color:var(--red)}
+    .results-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;border-bottom:1px solid var(--line)}.results-title{font-size:11px;color:var(--muted)}.results-title b{color:var(--navy-900);font-size:12px}.search{width:260px;height:34px;border:1px solid #b9cad6;border-radius:8px;padding:0 9px;font-size:11px}.table-wrap{min-height:0;overflow:auto}.empty{padding:32px;text-align:center;color:var(--muted);font-size:12px}table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;font-size:10.5px}th{position:sticky;top:0;z-index:2;background:#f7fafc;color:#496072;text-transform:uppercase;letter-spacing:.025em;font-size:8.5px;text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}td{padding:7px 8px;border-bottom:1px solid #edf1f4;vertical-align:top;max-width:300px;line-height:1.35;overflow-wrap:anywhere}tbody tr:hover{background:#f5faff}tbody tr.clickable{cursor:pointer}.status-good{color:var(--green);font-weight:800}.status-warn{color:var(--amber);font-weight:800}.status-bad{color:var(--red);font-weight:800}.cip-yes{color:var(--purple);font-weight:800}
+    .esri-popup__main-container{max-width:390px!important}.esri-layer-list{font-size:12px}
+    @media(max-width:980px){:root{--sidebar:340px}.metrics{grid-template-columns:repeat(6,120px)}.search{width:190px}}
+    @media(max-width:760px){html,body{overflow:auto}.app{height:auto;min-height:100vh;display:block}.header{min-height:58px}.workspace{display:block}.sidebar{max-height:none;border-right:0}.map-shell{height:55vh;min-height:420px}.results{height:55vh;min-height:420px}.results-toolbar{align-items:flex-start;flex-direction:column}.search{width:100%}}
+
+    /* Human-centered map/table refinements */
+    .range-row{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:9px;align-items:center}
+    .range-row input[type="range"]{width:100%;accent-color:var(--purple)}
+    .range-value{height:30px;display:grid;place-items:center;border:1px solid #cbd8e1;border-radius:8px;background:#f8fbfd;color:#4d3b73;font-size:10.5px;font-weight:800}
+    .sewer-range input[type="range"]{accent-color:#c62828}.sewer-value{color:#a51f1f;background:#fff7f7;border-color:#edcaca}
+    .manhole-range input[type="range"]{accent-color:#8f1f1f}.manhole-value{color:#7c1d1d;background:#fffafa;border-color:#ead4d4}
+    .map-display-field{padding-top:1px}
+    .advanced{margin-top:9px;border-top:1px solid #e3eaf0;padding-top:8px}.advanced summary{cursor:pointer;font-size:10.5px;font-weight:800;color:#496072}.advanced .hint{margin-top:8px}
+    .map-help{position:absolute;z-index:9;right:12px;bottom:12px;padding:6px 9px;border:1px solid #c4d2dc;border-radius:8px;background:rgba(255,255,255,.92);box-shadow:0 2px 8px rgba(7,30,51,.08);font-size:9.5px;color:#587083;pointer-events:none}
+    .view-toggle.active{background:#eef8fd;border-color:#8fc6e5;color:#0f5b8c}
+    .status-badge{display:inline-flex;align-items:center;min-height:22px;padding:3px 7px;border-radius:999px;font-size:9.5px;font-weight:800;white-space:nowrap}
+    .status-badge.good{background:#e7f7f0;color:#087c59}.status-badge.warn{background:#fff4dc;color:#9a5a00}.status-badge.bad{background:#feeceb;color:#a52a22}
+    .match-badge{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;font-size:9.5px;font-weight:800;background:#edf6fb;color:#0f5b8c;white-space:nowrap}
+    .match-badge.review{background:#fff4dc;color:#9a5a00}
+    .cip-pill{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;font-size:9.5px;font-weight:800;background:#f1ebff;color:#6542a4;white-space:nowrap}
+    .table-wrap th:first-child,.table-wrap td:first-child{position:sticky;left:0;z-index:1;background:#fff;box-shadow:1px 0 0 #e4eaf0}.table-wrap th:first-child{z-index:4;background:#f7fafc}.table-wrap tbody tr:hover td:first-child{background:#f5faff}
+    .esri-expand__content{border-radius:10px!important;overflow:hidden}.esri-legend{max-height:60vh;overflow:auto}.esri-layer-list{max-height:60vh;overflow:auto}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <h1>Address Sewer & CIP Lookup</h1>
+      <p>Address → nearest gravity sewer → manhole depth → active CIP proximity</p>
+    </div>
+    <div class="status-pill" id="statusPill"><span class="status-dot"></span><span id="statusText">Ready</span></div>
+  </header>
+
+  <section class="workspace">
+    <aside class="sidebar">
+      <section class="card">
+        <div class="card-head"><b>Input locations</b><span class="count" id="sourceLabel">Paste addresses</span></div>
+        <div class="card-body">
+          <div class="tabs" role="tablist" aria-label="Input method">
+            <button class="tab active" id="pasteTab" type="button">Paste addresses<small>One address per line</small></button>
+            <button class="tab" id="fileTab" type="button">Upload file<small>CSV or Excel</small></button>
+          </div>
+
+          <div class="input-panel" id="pastePanel">
+            <div class="label-row"><label for="pasteInput">Addresses</label><span class="count" id="pasteMeta">0 addresses</span></div>
+            <textarea id="pasteInput" spellcheck="false" placeholder="901 Bagby St, Houston, TX 77002&#10;611 Walker St, Houston, TX 77002"></textarea>
+          </div>
+
+          <div class="input-panel" id="filePanel" hidden>
+            <div class="drop-zone" id="dropZone" tabindex="0" role="button">
+              <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" />
+              <div><b>Drop a CSV or Excel file here</b><span>or click to browse. Recognized columns include full_address, full address, address, site address, and similar address fields.</span></div>
+            </div>
+            <div class="file-meta" id="fileMeta">No file loaded.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><b>Lookup settings</b></div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="field">
+              <label for="lineRadius">Sewer search radius (ft)</label>
+              <input id="lineRadius" type="number" min="25" max="2500" step="25" value="500" />
+            </div>
+            <div class="field">
+              <label for="cipBuffer">CIP project buffer (ft)</label>
+              <input id="cipBuffer" type="number" min="0" max="1000" step="25" value="100" />
+            </div>
+            <div class="field">
+              <label for="depthHops">Upstream depth trace</label>
+              <input id="depthHops" type="number" min="0" max="10" step="1" value="5" />
+            </div>
+            <div class="field">
+              <label for="assumedDepth">Fallback depth (ft)</label>
+              <input id="assumedDepth" type="number" min="1" max="50" step="0.5" value="8" />
+            </div>
+            <div class="field full">
+              <label for="cipOpacity">CIP map opacity</label>
+              <div class="range-row"><input id="cipOpacity" type="range" min="10" max="90" step="5" value="45" /><span class="range-value" id="cipOpacityValue">45%</span></div>
+            </div>
+            <div class="field full map-display-field">
+              <label for="sewerOpacity">Gravity sewer opacity</label>
+              <div class="range-row sewer-range"><input id="sewerOpacity" type="range" min="20" max="100" step="5" value="90" /><span class="range-value sewer-value" id="sewerOpacityValue">90%</span></div>
+            </div>
+            <div class="field full map-display-field">
+              <label for="manholeOpacity">Manhole opacity</label>
+              <div class="range-row manhole-range"><input id="manholeOpacity" type="range" min="20" max="100" step="5" value="95" /><span class="range-value manhole-value" id="manholeOpacityValue">95%</span></div>
+            </div>
+          </div>
+          <div class="rules" style="margin-top:9px"><b>Map display:</b> red sewer lines include repeated flow-direction arrows. CIP layers start off and can be enabled from Layers. Use the opacity sliders above when CIP, mains, and manholes overlap. Address matching still requires a strong Houston-area geocode with a compatible house number.</div>
+          <details class="advanced"><summary>How CIP and depth are selected</summary><div class="hint">Wastewater CIP is preferred as the primary match when projects overlap. Otherwise the nearest active CIP project is shown. For depth, the app checks the snapped sewer endpoints, then traces upstream before using the fallback depth.</div></details>
+          <div class="button-row run-row">
+            <button class="btn btn-primary" id="runBtn" type="button">Run lookup</button>
+            <button class="btn btn-secondary" id="templateBtn" type="button">Template</button>
+            <button class="btn btn-danger" id="clearBtn" type="button">Clear</button>
+            <button class="btn btn-secondary" id="cancelBtn" type="button" disabled>Cancel</button>
+          </div>
+          <div class="progress" id="progress">
+            <div class="progress-head"><b id="progressTitle">Processing</b><span id="progressPercent">0%</span></div>
+            <div class="track"><div class="bar" id="progressBar"></div></div>
+            <div class="progress-detail" id="progressDetail"></div>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <div class="map-shell">
+      <div id="mapView"></div>
+      <div class="map-toolbar">
+        <button class="btn btn-secondary" id="fitBtn" type="button">Fit valid addresses</button>
+        <button class="btn btn-secondary" id="clearMapBtn" type="button">Clear points</button>
+      </div>
+      <div class="map-help">Red arrows = gravity sewer flow · White/red circles = manholes · Blue = verified address · Purple = CIP match · Gold = assumed depth. Layers + Legend are at upper right.</div>
+    </div>
+  </section>
+
+  <section class="results">
+    <div class="metrics">
+      <div class="metric"><span>Total rows</span><b id="metricTotal">0</b></div>
+      <div class="metric"><span>Processed</span><b id="metricComplete">0</b></div>
+      <div class="metric cip"><span>Active CIP match</span><b id="metricCip">0</b></div>
+      <div class="metric cip"><span>Wastewater CIP</span><b id="metricWastewaterCip">0</b></div>
+      <div class="metric assumed"><span>Assumed depth</span><b id="metricAssumed">0</b></div>
+      <div class="metric issue"><span>Needs review</span><b id="metricIssues">0</b></div>
+    </div>
+    <div class="results-toolbar">
+      <div class="results-title"><b>Results</b> <span id="resultsSubtext">Run a lookup to append sewer and CIP information to each input row.</span></div>
+      <div class="button-row">
+        <input class="search" id="searchInput" type="search" placeholder="Filter current table…" />
+        <button class="btn btn-secondary view-toggle" id="columnViewBtn" type="button">Show all columns</button>
+        <button class="btn btn-secondary" id="downloadCsvBtn" type="button" disabled>Export CSV</button>
+        <button class="btn btn-secondary" id="downloadExcelBtn" type="button" disabled>Export Excel</button>
+      </div>
+    </div>
+    <div class="table-wrap" id="tableWrap"><div class="empty">No results yet.</div></div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+<script src="https://js.arcgis.com/4.31/"></script>
+<script>
+(() => {
+  "use strict";
+
+  const CONFIG = {
+    lineUrl:"https://geogimstest.houstontx.gov/arcgis/rest/services/HW/WastewaterUNPublic/FeatureServer/4",
+    manholeUrl:"https://geogimstest.houstontx.gov/arcgis/rest/services/HW/WastewaterUNPublic/FeatureServer/3",
+    cipBaseUrl:"https://geogimstest.houstontx.gov/arcgis/rest/services/CIP/CIPProgramming_gx/MapServer",
+    geocodeUrl:"https://geosop1.houstontx.gov/arcgis/rest/services/Geocoders/COH_Locator_Compo/GeocodeServer/geocodeAddresses",
+    geocodeMinScore:85,rowConcurrency:2,geocodeBatchSize:500
+  };
+
+  const CIP_SPECS = [
+    {id:2, category:"Street & Traffic", title:"Street & Traffic CIP", visible:false, color:[234,88,12]},
+    {id:4, category:"Overlay - Asphalt", title:"Asphalt Overlay CIP", visible:false, color:[100,116,139]},
+    {id:5, category:"Overlay - Concrete", title:"Concrete Overlay CIP", visible:false, color:[120,113,108]},
+    {id:6, category:"Sidewalk", title:"Sidewalk CIP", visible:false, color:[22,163,74]},
+    {id:7, category:"Stormwater", title:"Stormwater CIP", visible:true, color:[15,118,110]},
+    {id:8, category:"Wastewater", title:"Wastewater CIP", visible:true, wastewater:true, color:[124,58,237]},
+    {id:9, category:"Water", title:"Water CIP", visible:true, color:[37,99,235]},
+    {id:10, category:"Interagency", title:"Interagency CIP", visible:false, color:[190,24,93]},
+    {id:11, category:"Benefit Drainage Area", title:"Benefit Drainage Area", visible:false, polygon:true, color:[217,119,6]},
+    {id:12, category:"Street & Drainage Operations", title:"Street & Drainage Operations", visible:false, operations:true, color:[146,64,14]}
+  ];
+
+  const APPEND_COLUMNS = [
+    "Lookup_Status","Matched_Address","Address_Match",
+    "Sewer_Size_in","Sewer_Distance_ft","Manhole_Number","Manhole_Depth_ft","Depth_Source",
+    "CIP_Match","CIP_Match_Count","CIP_Category","CIP_No","CIP_Project","CIP_Stage","CIP_Distance_ft","Notes"
+  ];
+  const COLUMN_LABELS = Object.freeze({
+    Lookup_Status:"Lookup Status",Matched_Address:"Matched Address",Address_Match:"Address Match",
+    Sewer_Size_in:"Sewer Size (in)",Sewer_Distance_ft:"Sewer Distance (ft)",Manhole_Number:"Manhole",
+    Manhole_Depth_ft:"Manhole Depth (ft)",Depth_Source:"Depth Source",CIP_Match:"CIP Match",
+    CIP_Match_Count:"CIP Matches",CIP_Category:"CIP Category",CIP_No:"CIP No.",CIP_Project:"CIP Project",
+    CIP_Stage:"CIP Stage",CIP_Distance_ft:"CIP Distance (ft)",Notes:"Notes"
+  });
+  const LEGACY_OUTPUT_COLUMNS = new Set([
+    "Lookup_Status","Geocode_Match","Geocode_Score","Sewer_Line_ID","Sewer_Size_in","Sewer_Distance_ft",
+    "Upstream_Manhole","Downstream_Manhole","Manhole_Number","Manhole_Depth_ft","Manhole_Depth_Source",
+    "Depth_Trace_Lines_Upstream","CIP_Status","CIP_Within_Buffer","CIP_Buffer_ft","CIP_Project_Count",
+    "CIP_Wastewater","CIP_Primary_Category","CIP_CIP_NO","CIP_Project_No","CIP_Project_Type",
+    "CIP_Project_Description","CIP_Stage","CIP_Distance_ft","CIP_Construction_Start","CIP_Construction_End",
+    "CIP_Council_District","CIP_All_Matches","Note","Matched_Address","Address_Match","Depth_Source",
+    "CIP_Match","CIP_Match_Count","CIP_Category","CIP_No","CIP_Project","Notes",...Object.values(COLUMN_LABELS)
+  ]);
+
+  const LINE_FIELDS = ["OBJECTID","facilityid","ufid","diameter","unitid","unitid2","upstreammanholenumber","downstreammanholenumber","ASSETGROUP","ASSETTYPE"].join(",");
+  const MANHOLE_FIELDS = ["OBJECTID","manholenumber","depth","unitid","ufid","facilityid","latitude","longitude","rimelev","invertelev","facilityaddress"].join(",");
+
+  const state = {
+    inputMode:"paste",rows:[],originalColumns:[],addressColumn:"Address",fileName:"",results:[],resultMeta:[],controller:null,running:false,startupAddresses:[],
+    manholeNodeCache:new Map(),upstreamLineCache:new Map(),cipCache:new Map(),
+    mapReady:false,mapView:null,addressLayer:null,Graphic:null,cipLayers:[],showAllColumns:false
+  };
+
+  const $ = id => document.getElementById(id);
+  const safe = v => v == null ? "" : String(v).trim();
+  const htmlEscape = value => String(value ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+  const normalizeHeader = v => safe(v).toLowerCase().replace(/[^a-z0-9]/g,"");
+  const normalizeAddress = v => safe(v).toUpperCase().replace(/\s+/g," ");
+  const sqlValue = v => safe(v).replace(/'/g,"''");
+  const round = (v,d=1) => Number.isFinite(Number(v)) ? Number(Number(v).toFixed(d)) : "";
+  const sleep = ms => new Promise(r=>setTimeout(r,ms));
+  const HOUSTON_BOUNDS = Object.freeze({minX:-96.10,maxX:-94.70,minY:29.25,maxY:30.35});
+  function houseNumber(value){const m=safe(value).toUpperCase().match(/(?:^|\s)(\d{1,6}[A-Z]?)(?=\s|$)/);return m?m[1]:"";}
+  function geocodeInputAddress(value){const a=safe(value);if(!a)return"";const hasTexas=/\b(TX|TEXAS)\b/i.test(a),hasZip=/\b\d{5}(?:-\d{4})?\b/.test(a);return !hasTexas&&!hasZip?`${a}, Houston, TX`:a;}
+  function inHoustonArea(x,y){return Number.isFinite(x)&&Number.isFinite(y)&&x>=HOUSTON_BOUNDS.minX&&x<=HOUSTON_BOUNDS.maxX&&y>=HOUSTON_BOUNDS.minY&&y<=HOUSTON_BOUNDS.maxY;}
+  function validateGeocode(input,g){
+    if(!g)return{ok:false,label:"Needs review",reason:"No geocode match was returned."};
+    if(!Number.isFinite(g.x)||!Number.isFinite(g.y))return{ok:false,label:"Needs review",reason:"The geocoder did not return valid coordinates."};
+    if(!inHoustonArea(g.x,g.y))return{ok:false,label:"Needs review",reason:"The geocode result is outside the Houston area."};
+    if(!Number.isFinite(g.score)||g.score<CONFIG.geocodeMinScore)return{ok:false,label:"Needs review",reason:`Geocode score ${round(g.score,0)||0} is below ${CONFIG.geocodeMinScore}.`};
+    const inputNo=houseNumber(input),matchNo=houseNumber(g.match);if(inputNo&&matchNo&&inputNo!==matchNo)return{ok:false,label:"Needs review",reason:`House number does not match (${inputNo} vs ${matchNo}).`};
+    const region=safe(g.region).toUpperCase();if(region&&region!=="TX"&&region!=="TEXAS")return{ok:false,label:"Needs review",reason:`Matched region is ${region}, not Texas.`};
+    const type=safe(g.addrType).toLowerCase();if(["postal","locality","city","state","county","subregion","zone"].includes(type))return{ok:false,label:"Needs review",reason:`The geocoder returned a ${g.addrType} location instead of a street address.`};
+    return{ok:true,label:"Verified",reason:""};
+  }
+
+  function settings(){
+    return {
+      lineRadiusFt: Math.max(25,Math.min(2500,Number($("lineRadius").value)||500)),
+      cipBufferFt: Math.max(0,Math.min(1000,Number($("cipBuffer").value)||0)),
+      depthHops: Math.max(0,Math.min(10,Math.round(Number($("depthHops").value)||0))),
+      assumedDepthFt: Math.max(1,Math.min(50,Number($("assumedDepth").value)||8))
+    };
+  }
+
+  function setStatus(text,kind="ready"){$("statusText").textContent=text;$("statusPill").className=`status-pill ${kind==="ready"?"":kind}`.trim();}
+  function setRunning(running){
+    state.running=running;
+    ["runBtn","clearBtn","templateBtn","pasteTab","fileTab","fileInput","pasteInput","lineRadius","cipBuffer","depthHops","assumedDepth"].forEach(id=>$(id).disabled=running);
+    $("cancelBtn").disabled=!running;
+  }
+  function updateProgress(done,total,detail,title="Processing"){
+    $("progress").classList.add("visible");const pct=total?Math.min(100,Math.round(done/total*100)):0;
+    $("progressTitle").textContent=title;$("progressPercent").textContent=`${pct}%`;$("progressBar").style.width=`${pct}%`;$("progressDetail").textContent=detail||"";
+  }
+  function parsePastedAddresses(){return $("pasteInput").value.split(/\r?\n/).map(v=>v.trim().replace(/^[•●▪◦⁃∙-]\s*/,"")).filter(Boolean);}
+  function updatePasteMeta(){const a=parsePastedAddresses();const u=new Set(a.map(normalizeAddress)).size;$("pasteMeta").textContent=`${a.length.toLocaleString()} address${a.length===1?"":"es"}${u!==a.length?` · ${u.toLocaleString()} unique`:""}`;}
+
+  function getUrlAddresses(){
+    const values=[];
+    const add=value=>{
+      const cleaned=safe(value).replace(/\+/g," ").trim();
+      if(cleaned)values.push(cleaned);
+    };
+
+    // Standard form: ?address=123+Main+St&address=456+Oak+St
+    // Also tolerates a repeated ?address= separator copied into the query string.
+    const rawQuery=String(window.location.search||"").replace(/^\?/,"").replace(/\?address=/gi,"&address=");
+    const params=new URLSearchParams(rawQuery);
+    params.getAll("address").forEach(add);
+
+    // Friendly fallback for links written as /address=123+Main+St
+    // Query-string links are still preferred because they support multiple addresses cleanly.
+    const pathMatch=String(window.location.pathname||"").match(/(?:^|\/)address=([^/]+)$/i);
+    if(pathMatch){
+      try{add(decodeURIComponent(pathMatch[1]));}catch(_){add(pathMatch[1]);}
+    }
+
+    const seen=new Set();
+    return values.filter(value=>{
+      const key=normalizeAddress(value);
+      if(!key||seen.has(key))return false;
+      seen.add(key);
+      return true;
+    });
+  }
+  function setInputMode(mode){if(state.running)return;state.inputMode=mode==="file"?"file":"paste";$("pasteTab").classList.toggle("active",state.inputMode==="paste");$("fileTab").classList.toggle("active",state.inputMode==="file");$("pastePanel").hidden=state.inputMode!=="paste";$("filePanel").hidden=state.inputMode!=="file";$("sourceLabel").textContent=state.inputMode==="paste"?"Paste addresses":"Address file";}
+  function detectAddressColumn(columns){const c=columns.map(name=>({name,normalized:normalizeHeader(name)}));for(const p of ["fulladdress","address","siteaddress","propertyaddress","locationaddress","serviceaddress","streetaddress","mailingaddress"]){const f=c.find(x=>x.normalized===p);if(f)return f.name;}return c.find(x=>x.normalized.includes("address")&&!x.normalized.includes("email"))?.name||"";}
+
+  async function loadAddressFile(file){
+    if(!file)return;
+    try{
+      const ext=(file.name.split(".").pop()||"").toLowerCase();let rows=[],columns=[];
+      if(ext==="csv"){
+        const text=await file.text();const parsed=Papa.parse(text,{header:true,skipEmptyLines:"greedy",transformHeader:h=>h.replace(/^\uFEFF/,"").trim()});
+        if(parsed.errors?.length&&!parsed.data?.length)throw new Error(parsed.errors[0].message);rows=parsed.data||[];columns=parsed.meta?.fields||Object.keys(rows[0]||{});
+      }else if(ext==="xlsx"||ext==="xls"){
+        const buffer=await file.arrayBuffer();const wb=XLSX.read(buffer,{type:"array",cellDates:false});if(!wb.SheetNames.length)throw new Error("Workbook has no worksheets.");rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:"",raw:false});columns=Object.keys(rows[0]||{});
+      }else throw new Error("Use a CSV, XLSX, or XLS file.");
+      if(!rows.length)throw new Error("The file has no data rows.");
+      const addressColumn=detectAddressColumn(columns);if(!addressColumn)throw new Error("No address column found. Use full_address, full address, address, or a similar address field.");
+      const sourceColumns=columns.filter(c=>!LEGACY_OUTPUT_COLUMNS.has(c));
+      state.rows=rows.map(r=>{const clean={};sourceColumns.forEach(c=>clean[c]=r[c]??"");return clean;});state.originalColumns=sourceColumns;state.addressColumn=addressColumn;state.fileName=file.name;state.inputMode="file";
+      const removed=columns.length-sourceColumns.length;
+      $("fileMeta").innerHTML=`<b>${htmlEscape(file.name)}</b> · ${rows.length.toLocaleString()} row${rows.length===1?"":"s"} · using <b>${htmlEscape(addressColumn)}</b>${removed?` · removed ${removed} prior lookup column${removed===1?"":"s"}`:""}`;setStatus("File loaded","success");
+    }catch(error){state.rows=[];$("fileMeta").textContent=error.message;setStatus("File error","error");}
+  }
+  function prepareInputRows(){
+    if(state.inputMode==="paste"){
+      const addresses=parsePastedAddresses();if(!addresses.length)throw new Error("Paste at least one address.");state.originalColumns=["Address"];state.addressColumn="Address";state.fileName="pasted_addresses.csv";return addresses.map(Address=>({Address}));
+    }
+    if(!state.rows.length)throw new Error("Upload an address file first.");return state.rows.map(r=>({...r}));
+  }
+
+  async function arcgisPost(url,params,signal,maxAttempts=2){
+    const body=new URLSearchParams();for(const [k,v] of Object.entries({f:"json",...params})){if(v!==undefined&&v!==null)body.set(k,typeof v==="string"?v:JSON.stringify(v));}
+    let lastError;
+    for(let attempt=1;attempt<=maxAttempts;attempt++){
+      if(signal?.aborted)throw new DOMException("Cancelled","AbortError");
+      try{const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body,signal});if(!response.ok)throw new Error(`HTTP ${response.status}`);const data=await response.json();if(data.error){const details=Array.isArray(data.error.details)?data.error.details.join(" "):"";throw new Error(`${data.error.message||"ArcGIS error"}${details?`: ${details}`:""}`);}return data;}catch(error){if(error.name==="AbortError")throw error;lastError=error;if(attempt<maxAttempts)await sleep(250*attempt);}
+    }
+    throw lastError||new Error("GIS request failed.");
+  }
+  const arcgisQuery=(url,params,signal)=>arcgisPost(`${url.replace(/\/$/,"")}/query`,params,signal);
+
+  async function geocodeBatch(groups,signal){
+    const records=groups.map((g,i)=>({attributes:{OBJECTID:i+1,Address:geocodeInputAddress(g.address)}}));
+    const data=await arcgisPost(CONFIG.geocodeUrl,{addresses:{records},outSR:4326,outFields:"*",matchOutOfRange:false},signal);const locations=data.locations||[],byId=new Map();
+    locations.forEach((loc,i)=>{const id=Number(loc.attributes?.ResultID??loc.attributes?.OBJECTID??i+1);if(Number.isFinite(id))byId.set(id,loc);});
+    return groups.map((group,i)=>({group,location:byId.get(i+1)||(locations.length===groups.length?locations[i]:null)}));
+  }
+  async function geocodeAll(rows,signal){
+    const groupsMap=new Map();rows.forEach((row,index)=>{const address=safe(row[state.addressColumn]);if(!address)return;const key=normalizeAddress(address);if(!groupsMap.has(key))groupsMap.set(key,{key,address,indexes:[]});groupsMap.get(key).indexes.push(index);});
+    const groups=[...groupsMap.values()],resultByIndex=new Map();let done=0;
+    async function processBatch(batch){
+      try{const results=await geocodeBatch(batch,signal);for(const {group,location} of results){const attrs=location?.attributes||{},score=Number(location?.score??attrs.Score??0),x=Number(location?.location?.x??attrs.X??attrs.DisplayX),y=Number(location?.location?.y??attrs.Y??attrs.DisplayY);const value=location&&Number.isFinite(x)&&Number.isFinite(y)?{match:safe(location.address)||safe(attrs.Match_addr)||safe(attrs.LongLabel),score,x,y,city:safe(attrs.City)||safe(attrs.Municipality),region:safe(attrs.Region)||safe(attrs.State)||safe(attrs.StateAbbr),postal:safe(attrs.Postal)||safe(attrs.ZIP),addrType:safe(attrs.Addr_type)}:null;group.indexes.forEach(index=>resultByIndex.set(index,value));done++;updateProgress(done,Math.max(1,groups.length),`Geocoded ${done.toLocaleString()} of ${groups.length.toLocaleString()} unique addresses`,"Geocoding");}}
+      catch(error){if(error.name==="AbortError")throw error;if(batch.length===1){batch[0].indexes.forEach(i=>resultByIndex.set(i,null));done++;return;}const m=Math.ceil(batch.length/2);await processBatch(batch.slice(0,m));await processBatch(batch.slice(m));}
+    }
+    for(let i=0;i<groups.length;i+=CONFIG.geocodeBatchSize)await processBatch(groups.slice(i,i+CONFIG.geocodeBatchSize));return resultByIndex;
+  }
+
+  const geometryPaths=f=>Array.isArray(f?.geometry?.paths)?f.geometry.paths.filter(p=>Array.isArray(p)&&p.length>=2):[];
+  function longestPath(feature){const paths=geometryPaths(feature);if(!paths.length)return null;let best=paths[0],len=-1;for(const path of paths){try{const l=turf.length(turf.lineString(path),{units:"miles"});if(l>len){best=path;len=l;}}catch{}}return best;}
+  async function findNearestGravityLine(point,signal,s){
+    const data=await arcgisQuery(CONFIG.lineUrl,{where:"ASSETGROUP = 1",geometry:{x:point[0],y:point[1],spatialReference:{wkid:4326}},geometryType:"esriGeometryPoint",inSR:4326,spatialRel:"esriSpatialRelIntersects",distance:s.lineRadiusFt,units:"esriSRUnit_Foot",outFields:LINE_FIELDS,returnGeometry:true,outSR:4326,resultRecordCount:500,returnZ:false,returnM:false},signal);
+    const p=turf.point(point),c=[];for(const feature of data.features||[]){const path=longestPath(feature);if(!path)continue;try{const snap=turf.nearestPointOnLine(turf.lineString(path),p,{units:"miles"});c.push({feature,path,snap:snap.geometry.coordinates,distanceFt:Number(snap.properties?.dist||0)*5280});}catch{}}
+    c.sort((a,b)=>a.distanceFt-b.distanceFt||Number(b.feature.attributes?.diameter||0)-Number(a.feature.attributes?.diameter||0));return c[0]||null;
+  }
+  const nodeKey=(id,name)=>safe(id)?`ID:${safe(id).toUpperCase()}`:safe(name)?`MH:${safe(name).toUpperCase()}`:"";
+  async function queryManholesByNode(node,signal){
+    const key=nodeKey(node?.id,node?.name);if(!key)return[];if(!state.manholeNodeCache.has(key)){
+      const id=safe(node?.id),name=safe(node?.name);const clauses=[];if(id)clauses.push(`UPPER(unitid)=UPPER('${sqlValue(id)}')`);if(name)clauses.push(`UPPER(manholenumber)=UPPER('${sqlValue(name)}')`);
+      state.manholeNodeCache.set(key,arcgisQuery(CONFIG.manholeUrl,{where:clauses.join(" OR ")||"1=0",outFields:MANHOLE_FIELDS,returnGeometry:true,outSR:4326,resultRecordCount:20,returnZ:false,returnM:false},signal).then(d=>d.features||[]).catch(e=>{state.manholeNodeCache.delete(key);throw e;}));
+    }return state.manholeNodeCache.get(key);
+  }
+  const validDepth=f=>{const d=Number(f?.attributes?.depth);return Number.isFinite(d)&&d>0&&d<200?d:null;};
+  function featurePoint(f){const x=Number(f?.geometry?.x),y=Number(f?.geometry?.y);return Number.isFinite(x)&&Number.isFinite(y)?[x,y]:null;}
+  function chooseBestManhole(features,addressPoint,requireDepth=true){const a=turf.point(addressPoint),c=[];for(const f of features){const d=validDepth(f);if(requireDepth&&d===null)continue;const p=featurePoint(f);let dist=Infinity;if(p){try{dist=turf.distance(a,turf.point(p),{units:"miles"})*5280;}catch{}}c.push({f,dist});}c.sort((x,y)=>x.dist-y.dist);return c[0]?.f||null;}
+  const manholeNumber=(f,fallback="")=>safe(f?.attributes?.manholenumber)||safe(fallback);
+  async function queryUpstreamLines(node,signal){
+    const key=nodeKey(node?.id,node?.name);if(!key)return[];if(!state.upstreamLineCache.has(key)){
+      const id=safe(node?.id),name=safe(node?.name);const where=id?`ASSETGROUP = 1 AND UPPER(unitid2)=UPPER('${sqlValue(id)}')`:`ASSETGROUP = 1 AND UPPER(downstreammanholenumber)=UPPER('${sqlValue(name)}')`;
+      state.upstreamLineCache.set(key,arcgisQuery(CONFIG.lineUrl,{where,outFields:LINE_FIELDS,returnGeometry:false,resultRecordCount:1000,returnZ:false,returnM:false},signal).then(d=>d.features||[]).catch(e=>{state.upstreamLineCache.delete(key);throw e;}));
+    }return state.upstreamLineCache.get(key);
+  }
+  async function resolveManholeDepth(lineCandidate,addressPoint,signal,s){
+    const a=lineCandidate.feature.attributes||{},upstream={id:safe(a.unitid),name:safe(a.upstreammanholenumber)},downstream={id:safe(a.unitid2),name:safe(a.downstreammanholenumber)},endpointNodes=[upstream,downstream].filter(n=>n.id||n.name),endpointFeatures=[];
+    for(const node of endpointNodes)endpointFeatures.push(...await queryManholesByNode(node,signal));const nearestEndpoint=chooseBestManhole(endpointFeatures,addressPoint,false),direct=chooseBestManhole(endpointFeatures,addressPoint,true);
+    if(direct)return{number:manholeNumber(direct),depth:validDepth(direct),source:"Snapped line endpoint",hops:0,assumed:false,note:`Depth from manhole ${manholeNumber(direct)||"on snapped line"}.`};
+    let frontier=upstream.id||upstream.name?[upstream]:[],visited=new Set(frontier.map(n=>nodeKey(n.id,n.name)).filter(Boolean));
+    for(let hop=1;hop<=s.depthHops&&frontier.length;hop++){
+      const next=[];for(const current of frontier){const lines=await queryUpstreamLines(current,signal);lines.sort((x,y)=>Math.abs(Number(x.attributes?.diameter||0)-Number(a.diameter||0))-Math.abs(Number(y.attributes?.diameter||0)-Number(a.diameter||0)));for(const line of lines){const la=line.attributes||{},n={id:safe(la.unitid),name:safe(la.upstreammanholenumber)},k=nodeKey(n.id,n.name);if(!k||visited.has(k))continue;visited.add(k);next.push(n);}}
+      if(!next.length)break;const candidates=[];for(const node of next.slice(0,30))candidates.push(...(await queryManholesByNode(node,signal)).filter(f=>validDepth(f)!==null));const found=chooseBestManhole(candidates,addressPoint,true);if(found){const number=manholeNumber(found);return{number,depth:validDepth(found),source:`Upstream trace (${hop} line${hop===1?"":"s"})`,hops:hop,assumed:false,note:`Snapped-line endpoint depth unavailable; used manhole ${number||"upstream"} found ${hop} line${hop===1?"":"s"} upstream.`};}frontier=next.slice(0,30);
+    }
+    return{number:manholeNumber(nearestEndpoint)||safe(upstream.name)||safe(downstream.name),depth:s.assumedDepthFt,source:"Assumed",hops:s.depthHops,assumed:true,note:`No valid manhole depth found on the snapped line or within ${s.depthHops} upstream gravity-main hops; assumed ${s.assumedDepthFt} ft.`};
+  }
+  const lineId=a=>safe(a?.facilityid)||safe(a?.ufid)||safe(a?.OBJECTID);
+
+  function featureDistanceFt(feature,point){
+    const p=turf.point(point),g=feature?.geometry||{};let best=Infinity;
+    if(Array.isArray(g.paths))for(const path of g.paths){if(!Array.isArray(path)||path.length<2)continue;try{best=Math.min(best,turf.pointToLineDistance(p,turf.lineString(path),{units:"miles"})*5280);}catch{}}
+    if(Array.isArray(g.rings)){
+      try{if(turf.booleanPointInPolygon(p,turf.polygon(g.rings)))return 0;}catch{}
+      for(const ring of g.rings){if(!Array.isArray(ring)||ring.length<2)continue;try{best=Math.min(best,turf.pointToLineDistance(p,turf.lineString(ring),{units:"miles"})*5280);}catch{}}
+    }
+    return Number.isFinite(best)?best:0;
+  }
+  const arcDate=v=>{const n=Number(v);if(!Number.isFinite(n)||n<=0)return"";const d=new Date(n);return Number.isNaN(d.getTime())?"":d.toISOString().slice(0,10);};
+  function normalizeCipFeature(spec,feature,point){
+    const a=feature.attributes||{},operations=spec.operations;
+    return {
+      category:spec.category,wastewater:!!spec.wastewater,distanceFt:featureDistanceFt(feature,point),
+      cipNo:operations?safe(a.SDD_YEAR):safe(a.CIP_NO),projectNo:operations?"":safe(a.PROJ_NO),
+      projectType:operations?safe(a.SDD_TYPE):safe(a.PRO_TYPE),description:operations?safe(a.FULL_NAME):safe(a.PRO_DESC),
+      stage:operations?safe(a.SDD_STATUS):safe(a.STAGE_DESCRIPTION)||safe(a.STAGE),start:operations?safe(a.SDD_SCHEDULE):arcDate(a.CONST_STAR),end:operations?"":arcDate(a.CONST_END),
+      council:operations?safe(a.COUNCIL_CALC):safe(a.COUN_DIST),objectId:safe(a.OBJECTID),feature
+    };
+  }
+  function cipKey(m){return [m.category,m.cipNo,m.projectNo,m.description].map(safe).join("|").toUpperCase();}
+  async function findCipMatches(point,signal,s){
+    const key=`${point[0].toFixed(5)},${point[1].toFixed(5)}|${s.cipBufferFt}`;if(state.cipCache.has(key))return state.cipCache.get(key);
+    const promise=Promise.allSettled(CIP_SPECS.map(async spec=>{
+      const data=await arcgisQuery(`${CONFIG.cipBaseUrl}/${spec.id}`,{where:"1=1",geometry:{x:point[0],y:point[1],spatialReference:{wkid:4326}},geometryType:"esriGeometryPoint",inSR:4326,spatialRel:"esriSpatialRelIntersects",distance:s.cipBufferFt,units:"esriSRUnit_Foot",outFields:"*",returnGeometry:true,outSR:4326,resultRecordCount:200,returnZ:false,returnM:false},signal);
+      return (data.features||[]).map(f=>normalizeCipFeature(spec,f,point));
+    })).then(settled=>{
+      const merged=[];settled.forEach(r=>{if(r.status==="fulfilled")merged.push(...r.value);});
+      const dedupe=new Map();for(const m of merged){const k=cipKey(m),existing=dedupe.get(k);if(!existing||m.distanceFt<existing.distanceFt)dedupe.set(k,m);}const matches=[...dedupe.values()];
+      matches.sort((a,b)=>(b.wastewater?1:0)-(a.wastewater?1:0)||a.distanceFt-b.distanceFt||a.category.localeCompare(b.category));return matches;
+    }).catch(e=>{state.cipCache.delete(key);throw e;});state.cipCache.set(key,promise);return promise;
+  }
+  function applyCipColumns(out,matches,s){
+    out.CIP_Match=matches.length?"Yes":"No";out.CIP_Match_Count=matches.length;
+    if(!matches.length)return null;
+    const primary=matches.find(m=>m.wastewater)||matches[0];
+    out.CIP_Category=primary.category;out.CIP_No=primary.cipNo||primary.projectNo;out.CIP_Project=primary.description||primary.projectType;out.CIP_Stage=primary.stage;out.CIP_Distance_ft=round(primary.distanceFt,1);
+    return primary;
+  }
+
+  async function processRow(originalRow,geocode,signal,s){
+    const address=safe(originalRow[state.addressColumn]),out={...originalRow};APPEND_COLUMNS.forEach(c=>out[c]="");const meta={point:null,nearest:null,depth:null,cipMatches:[],primaryCip:null,geocode:null};
+    if(!address){out.Lookup_Status="Needs review";out.Address_Match="Needs review";out.Notes=`No value in ${state.addressColumn}.`;return{out,meta};}
+    const check=validateGeocode(address,geocode);out.Matched_Address=safe(geocode?.match);out.Address_Match=check.label;
+    if(!check.ok){out.Lookup_Status="Needs review";out.Notes=check.reason;return{out,meta};}
+    meta.point=[Number(geocode.x),Number(geocode.y)];meta.geocode=geocode;
+
+    const [nearest,cipMatches]=await Promise.all([findNearestGravityLine(meta.point,signal,s),findCipMatches(meta.point,signal,s)]);meta.nearest=nearest;meta.cipMatches=cipMatches;meta.primaryCip=applyCipColumns(out,cipMatches,s);
+    if(!nearest){out.Lookup_Status="Needs review";out.Notes=`Address match verified, but no gravity sewer was found within ${s.lineRadiusFt} ft.${cipMatches.length?` ${cipMatches.length} active CIP match${cipMatches.length===1?"":"es"} found.`:" No active CIP match found."}`;return{out,meta};}
+    const a=nearest.feature.attributes||{};out.Sewer_Size_in=Number.isFinite(Number(a.diameter))&&Number(a.diameter)>0?round(a.diameter,2):"";out.Sewer_Distance_ft=round(nearest.distanceFt,1);
+    const depth=await resolveManholeDepth(nearest,meta.point,signal,s);meta.depth=depth;out.Manhole_Number=depth.number;out.Manhole_Depth_ft=round(depth.depth,2);out.Depth_Source=depth.source;
+    const notes=[];if(depth.assumed)notes.push(`Manhole depth was not available after ${s.depthHops} upstream hops; ${s.assumedDepthFt} ft was assumed.`);if(!out.Sewer_Size_in)notes.push("Pipe size is missing in the sewer layer.");
+    if(cipMatches.length){const ww=cipMatches.some(m=>m.wastewater);notes.push(`${cipMatches.length} active CIP match${cipMatches.length===1?"":"es"} within ${s.cipBufferFt} ft${ww?", including Wastewater":""}.`);}else notes.push(`No active CIP project within ${s.cipBufferFt} ft.`);
+    out.Notes=notes.join(" ");out.Lookup_Status=depth.assumed?"Completed - depth assumed":"Completed";return{out,meta};
+  }
+
+  async function runPool(items,concurrency,worker,onComplete){let next=0;const runners=Array.from({length:Math.min(concurrency,items.length)},async()=>{while(true){const index=next++;if(index>=items.length)return;const value=await worker(items[index],index);onComplete(value,index);}});await Promise.all(runners);}
+  async function runLookup(){
+    if(state.running)return;let rows;try{rows=prepareInputRows();}catch(error){setStatus(error.message,"error");return;}const s=settings();state.controller=new AbortController();const signal=state.controller.signal;state.results=new Array(rows.length);state.resultMeta=new Array(rows.length);state.manholeNodeCache.clear();state.upstreamLineCache.clear();state.cipCache.clear();clearResultGraphics();setRunning(true);setStatus("Processing","running");$("downloadCsvBtn").disabled=true;$("downloadExcelBtn").disabled=true;$("searchInput").value="";updateMetrics(rows.length,0,0,0,0,0);renderResults();
+    try{
+      updateProgress(0,1,"Preparing unique addresses…","Geocoding");const geocodes=await geocodeAll(rows,signal);let complete=0,assumed=0,issues=0,cip=0,wastewaterCip=0;updateProgress(0,rows.length,`Starting GIS lookup for ${rows.length.toLocaleString()} rows…`,`Sewer + CIP lookup`);
+      await runPool(rows,CONFIG.rowConcurrency,async(row,index)=>{
+        try{return await processRow(row,geocodes.get(index),signal,s);}catch(error){if(error.name==="AbortError")throw error;const out={...row};APPEND_COLUMNS.forEach(c=>out[c]="");out.Lookup_Status="GIS error";out.Matched_Address=geocodes.get(index)?.match||"";out.Address_Match="Needs review";out.Notes=error.message||"GIS lookup failed.";return{out,meta:{point:null,cipMatches:[]}};}
+      },(result,index)=>{
+        state.results[index]=result.out;state.resultMeta[index]=result.meta;complete++;if(result.out.Lookup_Status==="Completed - depth assumed")assumed++;if(!String(result.out.Lookup_Status||"").startsWith("Completed"))issues++;if(result.out.CIP_Match==="Yes")cip++;if(result.meta?.cipMatches?.some(m=>m.wastewater))wastewaterCip++;updateMetrics(rows.length,complete,cip,wastewaterCip,assumed,issues);updateProgress(complete,rows.length,`Processed ${complete.toLocaleString()} of ${rows.length.toLocaleString()} rows`,`Sewer + CIP lookup`);addResultGraphic(index);if(complete%10===0||complete===rows.length)renderResults();
+      });
+      renderResults();$("downloadCsvBtn").disabled=false;$("downloadExcelBtn").disabled=false;$("resultsSubtext").textContent=`${rows.length.toLocaleString()} rows processed. Summary view shows the useful lookup fields; exports preserve the original input columns.`;setStatus("Completed","success");fitResults();
+    }catch(error){if(error.name==="AbortError"){setStatus("Cancelled","error");$("progressDetail").textContent="Processing cancelled.";}else{setStatus("Processing error","error");$("progressDetail").textContent=error.message||"Processing failed.";}}
+    finally{setRunning(false);state.controller=null;}
+  }
+
+  function updateMetrics(total,complete,cip,wastewater,assumed,issues){$("metricTotal").textContent=total.toLocaleString();$("metricComplete").textContent=complete.toLocaleString();$("metricCip").textContent=cip.toLocaleString();$("metricWastewaterCip").textContent=wastewater.toLocaleString();$("metricAssumed").textContent=assumed.toLocaleString();$("metricIssues").textContent=issues.toLocaleString();}
+  function statusClass(status){if(status==="Completed")return"good";if(status==="Completed - depth assumed")return"warn";return"bad";}
+  function displayLabel(column){return COLUMN_LABELS[column]||column;}
+  function summaryColumns(){const context=["System","Management_Status"].filter(c=>state.originalColumns.includes(c));return [...new Set([state.addressColumn,...context,...APPEND_COLUMNS])];}
+  function displayColumns(){return state.showAllColumns?[...state.originalColumns,...APPEND_COLUMNS.filter(c=>!state.originalColumns.includes(c))]:summaryColumns();}
+  function cellHtml(column,value){const text=htmlEscape(value??"");if(column==="Lookup_Status")return `<span class="status-badge ${statusClass(value)}">${text||"—"}</span>`;if(column==="Address_Match")return `<span class="match-badge ${value==="Verified"?"":"review"}">${text||"—"}</span>`;if(column==="CIP_Match"&&value==="Yes")return `<span class="cip-pill">Yes</span>`;return text;}
+  function renderResults(){
+    const entries=state.results.map((row,index)=>({row,index})).filter(x=>x.row);if(!entries.length){$("tableWrap").innerHTML='<div class="empty">No results yet.</div>';return;}const filter=safe($("searchInput").value).toLowerCase(),filtered=filter?entries.filter(({row})=>Object.values(row).some(v=>safe(v).toLowerCase().includes(filter))):entries;const columns=displayColumns();const head=columns.map(c=>`<th>${htmlEscape(displayLabel(c))}</th>`).join("");const body=filtered.map(({row,index})=>`<tr class="clickable" data-row-index="${index}">${columns.map(c=>`<td>${cellHtml(c,row[c]??"")}</td>`).join("")}</tr>`).join("");$("tableWrap").innerHTML=filtered.length?`<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`:'<div class="empty">No rows match the filter.</div>';$("tableWrap").querySelectorAll("tbody tr").forEach(tr=>tr.addEventListener("click",()=>zoomToResult(Number(tr.dataset.rowIndex))));
+  }
+  function exportColumns(){return[...state.originalColumns,...APPEND_COLUMNS.filter(c=>!state.originalColumns.includes(c))];}
+  function exportHeader(column){return COLUMN_LABELS[column]||column;}
+  function downloadCsv(){const rows=state.results.filter(Boolean);if(!rows.length)return;const fields=exportColumns(),csv=Papa.unparse({fields:fields.map(exportHeader),data:rows.map(r=>fields.map(f=>r[f]??""))});downloadBlob(new Blob(["\uFEFF",csv],{type:"text/csv;charset=utf-8"}),`Address_Sewer_CIP_Lookup_${new Date().toISOString().slice(0,10)}.csv`);}
+  function downloadExcel(){const rows=state.results.filter(Boolean);if(!rows.length)return;const fields=exportColumns(),data=rows.map(r=>{const o={};fields.forEach(f=>o[exportHeader(f)]=r[f]??"");return o;}),ws=XLSX.utils.json_to_sheet(data,{header:fields.map(exportHeader)}),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Lookup Results");XLSX.writeFile(wb,`Address_Sewer_CIP_Lookup_${new Date().toISOString().slice(0,10)}.xlsx`);}
+  function downloadTemplate(){const ws=XLSX.utils.aoa_to_sheet([["address","source_id","note"],["901 Bagby St, Houston, TX 77002","A-001",""]]),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Addresses");XLSX.writeFile(wb,"Address_Sewer_CIP_Template.xlsx");}
+  function clearAll(){if(state.running)return;state.rows=[];state.results=[];state.resultMeta=[];state.originalColumns=[];state.fileName="";state.showAllColumns=false;$("pasteInput").value="";$("fileInput").value="";$("fileMeta").textContent="No file loaded.";$("searchInput").value="";$("progress").classList.remove("visible");$("downloadCsvBtn").disabled=true;$("downloadExcelBtn").disabled=true;$("resultsSubtext").textContent="Run a lookup to append sewer and CIP information to each input row.";$("columnViewBtn").textContent="Show all columns";$("columnViewBtn").classList.remove("active");updatePasteMeta();updateMetrics(0,0,0,0,0,0);renderResults();clearResultGraphics();setStatus("Ready");}
+
+  function popupHtmlForResult(index){const row=state.results[index]||{},address=safe(row[state.addressColumn])||safe(row.Matched_Address);return `<div style="font-size:12px;line-height:1.5;min-width:240px"><b style="font-size:13px">${htmlEscape(address)}</b><div style="margin:4px 0 10px;color:#617787">${htmlEscape(row.Matched_Address||"")}</div><b>Sewer</b><br>${htmlEscape(row.Sewer_Size_in||"—")} in main · ${htmlEscape(row.Sewer_Distance_ft||"—")} ft from address<br>Manhole ${htmlEscape(row.Manhole_Number||"—")} · depth ${htmlEscape(row.Manhole_Depth_ft||"—")} ft<br><br><b>Active CIP</b><br>${row.CIP_Match==="Yes"?`${htmlEscape(row.CIP_Category||"Project")} · ${htmlEscape(row.CIP_No||"")}<br>${htmlEscape(row.CIP_Project||"")}${row.CIP_Distance_ft!==""?`<br>${htmlEscape(row.CIP_Distance_ft)} ft from address`:""}`:"No project within buffer"}</div>`;}
+  function addResultGraphic(index){if(!state.mapReady||!state.Graphic||!state.addressLayer)return;const meta=state.resultMeta[index];if(!meta?.point)return;const row=state.results[index]||{},hasCip=row.CIP_Match==="Yes",assumed=row.Lookup_Status==="Completed - depth assumed",symbol={type:"simple-marker",style:"circle",size:9,color:assumed?[217,119,6,235]:hasCip?[109,69,184,235]:[20,108,164,235],outline:{color:[255,255,255,255],width:1.5}};state.addressLayer.add(new state.Graphic({geometry:{type:"point",longitude:meta.point[0],latitude:meta.point[1]},symbol,attributes:{rowIndex:index},popupTemplate:{title:"Address lookup result",content:popupHtmlForResult(index)}}));}
+  function rebuildResultGraphics(){if(!state.mapReady)return;clearResultGraphics();state.results.forEach((r,i)=>{if(r)addResultGraphic(i);});}
+  function clearResultGraphics(){state.addressLayer?.removeAll();}
+  function fitResults(){
+    if(!state.mapReady||!state.addressLayer?.graphics?.length)return;
+    const graphics=state.addressLayer.graphics.toArray();
+    if(graphics.length===1){
+      const g=graphics[0];
+      state.mapView.goTo({center:[g.geometry.longitude,g.geometry.latitude],zoom:17},{duration:450}).catch(()=>{});
+      return;
+    }
+    state.mapView.goTo(graphics,{duration:450}).then(()=>{if(state.mapView.zoom>17)state.mapView.zoom=17;}).catch(()=>{});
+  }
+  function zoomToResult(index){if(!state.mapReady)return;const meta=state.resultMeta[index];if(!meta?.point)return;state.mapView.goTo({center:meta.point,zoom:18},{duration:350}).then(()=>{const graphic=state.addressLayer.graphics.find(g=>g.attributes?.rowIndex===index);if(graphic)state.mapView.openPopup({features:[graphic],location:graphic.geometry});}).catch(()=>{});}
+
+  function setCipOpacity(value){const pct=Math.max(10,Math.min(90,Number(value)||45));$("cipOpacityValue").textContent=`${pct}%`;state.cipLayers.forEach(layer=>layer.opacity=pct/100);}
+  function setSewerOpacity(value){const pct=Math.max(20,Math.min(100,Number(value)||90));$("sewerOpacityValue").textContent=`${pct}%`;if(state.sewerLineLayer)state.sewerLineLayer.opacity=pct/100;}
+  function setManholeOpacity(value){const pct=Math.max(20,Math.min(100,Number(value)||95));$("manholeOpacityValue").textContent=`${pct}%`;if(state.manholeLayer)state.manholeLayer.opacity=pct/100;}
+
+  function sewerFlowSymbol(){
+    const red=[198,40,40,255];
+    return {
+      type:"cim",
+      data:{
+        type:"CIMSymbolReference",
+        symbol:{
+          type:"CIMLineSymbol",
+          symbolLayers:[
+            {type:"CIMSolidStroke",enable:true,color:red,width:2.1},
+            {
+              type:"CIMVectorMarker",enable:true,colorLocked:true,size:7,
+              markerPlacement:{type:"CIMMarkerPlacementAlongLineSameSize",angleToLine:true,keepUpright:false,endings:"WithHalfGap",placementTemplate:[30]},
+              frame:{xmin:-5,ymin:-5,xmax:5,ymax:5},
+              markerGraphics:[{
+                type:"CIMMarkerGraphic",
+                geometry:{rings:[[[-4,-3],[4,0],[-4,3],[-2,0],[-4,-3]]]},
+                symbol:{type:"CIMPolygonSymbol",symbolLayers:[{type:"CIMSolidFill",enable:true,color:red}]}
+              }]
+            }
+          ]
+        }
+      }
+    };
+  }
+  function initMap(){
+    require(["esri/Map","esri/views/MapView","esri/layers/FeatureLayer","esri/layers/GroupLayer","esri/layers/GraphicsLayer","esri/Graphic","esri/widgets/LayerList","esri/widgets/Legend","esri/widgets/Expand","esri/widgets/Home","esri/widgets/ScaleBar"],
+    (Map,MapView,FeatureLayer,GroupLayer,GraphicsLayer,Graphic,LayerList,Legend,Expand,Home,ScaleBar)=>{
+      state.Graphic=Graphic;
+      const sewerPopup={title:"Gravity Sewer Main",content:[{type:"fields",fieldInfos:[{fieldName:"facilityid",label:"Facility ID"},{fieldName:"diameter",label:"Diameter (in)"},{fieldName:"upstreammanholenumber",label:"Upstream Manhole"},{fieldName:"downstreammanholenumber",label:"Downstream Manhole"},{fieldName:"measuredlength",label:"Measured Length (ft)"},{fieldName:"slope",label:"Slope"}]}]};
+      const manholePopup={title:"Manhole {manholenumber}",content:[{type:"fields",fieldInfos:[{fieldName:"manholenumber",label:"Manhole Number"},{fieldName:"depth",label:"Depth (ft)"},{fieldName:"rimelev",label:"Rim Elevation"},{fieldName:"invertelev",label:"Invert Elevation"},{fieldName:"facilityaddress",label:"Facility Address"}]}]};
+      const sewerRenderer={type:"simple",symbol:sewerFlowSymbol(),label:"Gravity sewer / flow direction"};
+      const manholeRenderer={type:"simple",symbol:{type:"simple-marker",style:"circle",size:7.5,color:[255,255,255,245],outline:{color:[145,28,28,255],width:1.8}},label:"Wastewater manhole"};
+      const sewerLineLayer=new FeatureLayer({url:CONFIG.lineUrl,title:"Gravity Sewer Mains · Flow",definitionExpression:"ASSETGROUP = 1",outFields:["*"],popupEnabled:true,popupTemplate:sewerPopup,renderer:sewerRenderer,opacity:Number($("sewerOpacity").value)/100,visible:true,minScale:60000});
+      const manholeLayer=new FeatureLayer({url:CONFIG.manholeUrl,title:"Wastewater Manholes",outFields:["*"],popupEnabled:true,popupTemplate:manholePopup,renderer:manholeRenderer,opacity:Number($("manholeOpacity").value)/100,visible:true,minScale:35000});
+      state.sewerLineLayer=sewerLineLayer;state.manholeLayer=manholeLayer;
+      const cipLayers=CIP_SPECS.slice().reverse().map(spec=>{
+        const popup=spec.operations?{title:"Street & Drainage - {FULL_NAME}",content:[{type:"fields",fieldInfos:[{fieldName:"FULL_NAME",label:"Project / Street"},{fieldName:"SDD_YEAR",label:"Year"},{fieldName:"SDD_SCHEDULE",label:"Schedule"},{fieldName:"SDD_STATUS",label:"Status"},{fieldName:"SDD_TYPE",label:"Type"},{fieldName:"COUNCIL_CALC",label:"Council"}]}]}:{title:`${spec.category} - {CIP_NO}`,content:[{type:"fields",fieldInfos:[{fieldName:"CIP_NO",label:"CIP No."},{fieldName:"PROJ_NO",label:"Project No."},{fieldName:"PRO_DESC",label:"Description"},{fieldName:"STAGE",label:"Stage"},{fieldName:"CONST_STAR",label:"Construction Start",format:{dateFormat:"short-date"}},{fieldName:"CONST_END",label:"Construction End",format:{dateFormat:"short-date"}},{fieldName:"COUN_DIST",label:"Council District"}]}]};
+        const c=spec.color||[109,69,184];
+        const renderer=spec.polygon?{type:"simple",symbol:{type:"simple-fill",style:"solid",color:[c[0],c[1],c[2],55],outline:{color:[c[0],c[1],c[2],230],width:2}}}:{type:"simple",symbol:{type:"simple-line",style:"solid",color:[c[0],c[1],c[2],245],width:4}};
+        return new FeatureLayer({url:`${CONFIG.cipBaseUrl}/${spec.id}`,title:spec.title,outFields:["*"],popupEnabled:true,popupTemplate:popup,renderer,opacity:Number($("cipOpacity").value)/100,visible:spec.visible});
+      });state.cipLayers=cipLayers;
+      const cipGroup=new GroupLayer({title:"Active CIP Projects",visibilityMode:"independent",layers:cipLayers,visible:false});
+      const sewerGroup=new GroupLayer({title:"Wastewater Infrastructure",visibilityMode:"independent",layers:[sewerLineLayer,manholeLayer],visible:true});
+      const addressLayer=new GraphicsLayer({title:"Lookup Results",listMode:"show"});state.addressLayer=addressLayer;
+      const map=new Map({basemap:"streets-navigation-vector",layers:[cipGroup,sewerGroup,addressLayer]});
+      const view=new MapView({container:"mapView",map,center:[-95.3698,29.7604],zoom:10,popup:{dockEnabled:false,dockOptions:{buttonEnabled:false,position:"top-right"}}});state.mapView=view;
+      const layerList=new LayerList({view});const legend=new Legend({view,style:"card"});
+      view.ui.add(new Expand({view,content:layerList,expanded:false,group:"top-right",expandTooltip:"Layers"}),"top-right");
+      view.ui.add(new Expand({view,content:legend,expanded:false,group:"top-right",expandTooltip:"Legend"}),"top-right");
+      view.ui.add(new Home({view}),"top-left");view.ui.add(new ScaleBar({view,unit:"dual"}),"bottom-left");
+      view.when(()=>{
+        state.mapReady=true;
+        setCipOpacity($("cipOpacity").value);
+        setSewerOpacity($("sewerOpacity").value);
+        setManholeOpacity($("manholeOpacity").value);
+        rebuildResultGraphics();
+        if(state.startupAddresses.length){
+          state.startupAddresses=[];
+          setTimeout(()=>runLookup(),0);
+        }
+      });
+    });
+  }
+
+  $("pasteTab").addEventListener("click",()=>setInputMode("paste"));$("fileTab").addEventListener("click",()=>setInputMode("file"));$("pasteInput").addEventListener("input",updatePasteMeta);$("runBtn").addEventListener("click",runLookup);$("clearBtn").addEventListener("click",clearAll);$("cancelBtn").addEventListener("click",()=>state.controller?.abort());$("templateBtn").addEventListener("click",downloadTemplate);$("downloadCsvBtn").addEventListener("click",downloadCsv);$("downloadExcelBtn").addEventListener("click",downloadExcel);$("searchInput").addEventListener("input",renderResults);$("columnViewBtn").addEventListener("click",()=>{state.showAllColumns=!state.showAllColumns;$("columnViewBtn").textContent=state.showAllColumns?"Summary view":"Show all columns";$("columnViewBtn").classList.toggle("active",state.showAllColumns);renderResults();});$("cipOpacity").addEventListener("input",e=>setCipOpacity(e.target.value));$("sewerOpacity").addEventListener("input",e=>setSewerOpacity(e.target.value));$("manholeOpacity").addEventListener("input",e=>setManholeOpacity(e.target.value));$("fitBtn").addEventListener("click",fitResults);$("clearMapBtn").addEventListener("click",clearResultGraphics);
+  $("fileInput").addEventListener("change",e=>loadAddressFile(e.target.files?.[0]));$("dropZone").addEventListener("click",()=>$("fileInput").click());$("dropZone").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("fileInput").click();}});["dragenter","dragover"].forEach(t=>$("dropZone").addEventListener(t,e=>{e.preventDefault();$("dropZone").classList.add("drag");}));["dragleave","drop"].forEach(t=>$("dropZone").addEventListener(t,e=>{e.preventDefault();$("dropZone").classList.remove("drag");}));$("dropZone").addEventListener("drop",e=>{const file=e.dataTransfer?.files?.[0];if(file)loadAddressFile(file);});
+
+  state.startupAddresses=getUrlAddresses();
+  if(state.startupAddresses.length){
+    setInputMode("paste");
+    $("pasteInput").value=state.startupAddresses.join("\n");
+    updatePasteMeta();
+    setStatus(`${state.startupAddresses.length.toLocaleString()} linked address${state.startupAddresses.length===1?"":"es"} loaded`);
+  }else{
+    updatePasteMeta();
+  }
+  initMap();
+})();
+</script>
+</body>
+</html>
