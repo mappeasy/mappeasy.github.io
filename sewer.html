@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0b2d48" />
-  <title>Address Sewer & CIP Lookup</title>
+  <title>Address Sewer & CIP Lookup v10</title>
   <link rel="stylesheet" href="https://js.arcgis.com/4.31/esri/themes/light/main.css" />
   <style>
     :root{
@@ -26,17 +26,58 @@
     .tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;border:1px solid #cbd8e1;border-radius:10px;background:#eef4f7}.tab{border:1px solid transparent;background:transparent;border-radius:8px;padding:9px 8px;color:#587083;font-size:11px;font-weight:800}.tab small{display:block;margin-top:2px;font-weight:500;font-size:9.5px}.tab.active{background:#fff;border-color:#7eb7d8;color:var(--navy-900);box-shadow:0 1px 4px rgba(7,30,51,.08)}
     .input-panel{margin-top:10px}.input-panel[hidden]{display:none}.label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}.label-row label{font-size:11px;font-weight:800;color:#334e61}.count{font-size:10px;color:var(--muted)}
     textarea{width:100%;min-height:175px;resize:vertical;border:1px solid #b9cad6;border-radius:10px;padding:10px 11px;outline:none;line-height:1.45;background:#fff;color:var(--text)}textarea:focus,input:focus,select:focus{border-color:var(--blue-2);box-shadow:0 0 0 3px rgba(22,133,195,.12);outline:none}
-    .drop-zone{min-height:175px;border:1.5px dashed #8da9bc;border-radius:10px;display:grid;place-items:center;text-align:center;padding:18px;background:#fbfdff;transition:.15s}.drop-zone.drag{border-color:var(--blue-2);background:#eef8fd}.drop-zone b{display:block;color:var(--navy-900);font-size:12px}.drop-zone span{display:block;margin-top:6px;color:var(--muted);font-size:10.5px;line-height:1.4}.drop-zone input{display:none}.file-meta{margin-top:8px;font-size:10.5px;color:var(--muted);line-height:1.45;overflow-wrap:anywhere}
+    .drop-zone{min-height:175px;border:1.5px dashed #8da9bc;border-radius:10px;display:grid;place-items:center;text-align:center;padding:18px;background:#fbfdff;transition:.15s;position:relative;overflow:hidden}.drop-zone.drag{border-color:var(--blue-2);background:#eef8fd}.drop-zone.is-loading{border-style:solid;border-color:#79b7d8;background:#f2f9fd;cursor:wait}.drop-zone b{display:block;color:var(--navy-900);font-size:12px}.drop-zone span{display:block;margin-top:6px;color:var(--muted);font-size:10.5px;line-height:1.4}.drop-zone input{display:none}.file-meta{margin-top:8px;font-size:10.5px;color:var(--muted);line-height:1.45;overflow-wrap:anywhere}.file-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:18px;background:rgba(247,252,255,.94);color:var(--navy-900);font-size:11px;font-weight:800}.file-loading[hidden]{display:none}.spinner{width:22px;height:22px;border:3px solid #c9e1ef;border-top-color:var(--blue-2);border-radius:50%;animation:spin .75s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field{min-width:0}.field.full{grid-column:1/-1}.field label{display:block;margin-bottom:5px;font-size:10px;font-weight:800;color:#496072}.field input,.field select{width:100%;height:35px;border:1px solid #b9cad6;border-radius:8px;padding:0 9px;background:#fff;color:var(--text);font-size:11px}.hint{margin-top:7px;font-size:10px;line-height:1.45;color:var(--muted)}
     .rules{border-left:3px solid var(--blue-2);background:#eef8fd;border-radius:0 8px 8px 0;padding:9px 10px;font-size:10px;line-height:1.5;color:#426075}.rules b{color:var(--navy-900)}
     .button-row{display:flex;gap:7px;flex-wrap:wrap}.btn{min-height:36px;border:1px solid transparent;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:6px}.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#0f5b8c}.btn-secondary{background:#fff;border-color:#b9cad6;color:#334e61}.btn-secondary:hover{background:#f5f9fb}.btn-danger{background:#fff7f6;border-color:#efc5c1;color:var(--red)}.btn:disabled{opacity:.48;cursor:not-allowed}.run-row{margin-top:10px}.run-row .btn-primary{flex:1 1 150px}
-    .progress{display:none;margin-top:10px}.progress.visible{display:block}.progress-head{display:flex;justify-content:space-between;gap:8px;font-size:10.5px}.progress-head b{color:var(--navy-900)}.track{height:8px;margin-top:6px;border-radius:999px;background:#dfe8ee;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .2s}.progress-detail{margin-top:5px;font-size:10px;color:var(--muted);line-height:1.4}
+    .progress{display:none;margin-top:10px}.progress.visible{display:block}.progress-head{display:flex;justify-content:space-between;gap:8px;font-size:10.5px}.progress-head b{color:var(--navy-900)}.track{height:8px;margin-top:6px;border-radius:999px;background:#dfe8ee;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .2s}.bar.indeterminate{width:38%!important;animation:indeterminate 1.15s ease-in-out infinite;transition:none}@keyframes indeterminate{0%{transform:translateX(-105%)}50%{transform:translateX(85%)}100%{transform:translateX(270%)}}.progress-detail{margin-top:5px;font-size:10px;color:var(--muted);line-height:1.4}
     .map-shell{position:relative;min-width:0;min-height:0;background:#dce8ef}#mapView{position:absolute;inset:0}.map-toolbar{position:absolute;z-index:10;top:10px;left:10px;display:flex;gap:7px;pointer-events:none}.map-toolbar .btn{pointer-events:auto;background:rgba(255,255,255,.96);box-shadow:0 2px 8px rgba(7,30,51,.14)}
     .map-note{position:absolute;z-index:9;left:50%;bottom:14px;transform:translateX(-50%);max-width:min(720px,calc(100% - 30px));padding:7px 11px;border:1px solid #c4d2dc;border-radius:999px;background:rgba(255,255,255,.94);box-shadow:0 2px 8px rgba(7,30,51,.10);font-size:10px;color:#496072;text-align:center;pointer-events:none}
     .results{min-height:0;background:#fff;display:grid;grid-template-rows:auto auto minmax(0,1fr);border-top:1px solid #bfcdd7}
     .metrics{display:grid;grid-template-columns:repeat(6,minmax(110px,1fr));gap:6px;padding:7px;background:#f5f9fb;border-bottom:1px solid var(--line);overflow-x:auto}.metric{min-width:110px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:7px 9px}.metric span{display:block;font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.035em;color:var(--muted)}.metric b{display:block;margin-top:2px;font-size:17px;color:var(--navy-900)}.metric.cip b{color:var(--purple)}.metric.assumed b{color:var(--amber)}.metric.issue b{color:var(--red)}
     .results-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;border-bottom:1px solid var(--line)}.results-title{font-size:11px;color:var(--muted)}.results-title b{color:var(--navy-900);font-size:12px}.search{width:260px;height:34px;border:1px solid #b9cad6;border-radius:8px;padding:0 9px;font-size:11px}.table-wrap{min-height:0;overflow:auto}.empty{padding:32px;text-align:center;color:var(--muted);font-size:12px}table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;font-size:10.5px}th{position:sticky;top:0;z-index:2;background:#f7fafc;color:#496072;text-transform:uppercase;letter-spacing:.025em;font-size:8.5px;text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}td{padding:7px 8px;border-bottom:1px solid #edf1f4;vertical-align:top;max-width:300px;line-height:1.35;overflow-wrap:anywhere}tbody tr:hover{background:#f5faff}tbody tr.clickable{cursor:pointer}.status-good{color:var(--green);font-weight:800}.status-warn{color:var(--amber);font-weight:800}.status-bad{color:var(--red);font-weight:800}.cip-yes{color:var(--purple);font-weight:800}
-    .esri-popup__main-container{max-width:390px!important}.esri-layer-list{font-size:12px}
+    /* Refined ArcGIS popup shell */
+    .esri-popup__main-container{width:min(420px,calc(100vw - 28px))!important;max-width:420px!important;border:1px solid #c8d6df!important;border-radius:14px!important;overflow:hidden!important;box-shadow:0 14px 36px rgba(7,30,51,.20)!important}
+    .esri-popup__header{background:#fff!important;border-bottom:1px solid #e2e9ee!important}
+    .esri-popup__header-title{padding:13px 14px!important;color:var(--navy-900)!important;font-size:14px!important;font-weight:850!important;line-height:1.25!important}
+    .esri-popup__header-buttons{padding-right:6px!important}
+    .esri-popup__button{color:#5a7181!important}
+    .esri-popup__content{margin:0!important;padding:0!important;max-height:440px!important;color:var(--text)!important}
+    .esri-popup__footer{border-top:1px solid #e2e9ee!important;background:#fbfdfe!important}
+    .esri-popup__navigation{background:#fbfdfe!important}
+    .esri-popup__feature-menu-button{border-left:1px solid #e2e9ee!important}
+    .esri-layer-list{font-size:12px}
+
+    /* Address result popup */
+    .lookup-popup{min-width:300px;background:#fff;font-size:11.5px;line-height:1.4}
+    .lookup-popup .popup-match{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;background:#f7fafc;border-bottom:1px solid #e6edf2;color:#536b7c}
+    .lookup-popup .popup-match-icon{flex:0 0 auto;width:20px;height:20px;display:grid;place-items:center;border-radius:50%;background:#e7f4fb;color:#146ca4;font-size:11px;font-weight:900}
+    .lookup-popup .popup-match-text{min-width:0;overflow-wrap:anywhere}
+    .lookup-popup .popup-match-label{display:block;margin-bottom:1px;color:#7a8d9a;font-size:8.5px;font-weight:850;text-transform:uppercase;letter-spacing:.06em}
+    .lookup-popup .popup-section{padding:12px 14px;border-bottom:1px solid #e9eef2}
+    .lookup-popup .popup-section:last-child{border-bottom:0}
+    .lookup-popup .popup-section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+    .lookup-popup .popup-section-title{display:flex;align-items:center;gap:7px;color:var(--navy-900);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.045em}
+    .lookup-popup .popup-section-dot{width:7px;height:7px;border-radius:50%;background:#c62828}
+    .lookup-popup .popup-section-dot.cip{background:#7c3aed}
+    .lookup-popup .popup-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:10px}
+    .lookup-popup .popup-kpi{min-width:0;padding:7px 8px;border:1px solid #dde6ec;border-radius:8px;background:#f9fbfc}
+    .lookup-popup .popup-kpi span{display:block;color:#7a8d9a;font-size:8px;font-weight:850;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+    .lookup-popup .popup-kpi b{display:block;margin-top:3px;color:var(--navy-900);font-size:13px;line-height:1.15;overflow-wrap:anywhere}
+    .lookup-popup .popup-detail-grid{display:grid;grid-template-columns:110px minmax(0,1fr);gap:6px 10px;align-items:start}
+    .lookup-popup .popup-detail-grid .k{color:#6b7f8d;font-size:10px}
+    .lookup-popup .popup-detail-grid .v{color:#213746;font-size:10.5px;font-weight:750;overflow-wrap:anywhere}
+    .lookup-popup .popup-pill{display:inline-flex;align-items:center;min-height:22px;padding:3px 8px;border-radius:999px;font-size:9px;font-weight:850;white-space:nowrap}
+    .lookup-popup .popup-pill.backlot{background:#fff0e6;color:#9a4c00}
+    .lookup-popup .popup-pill.nonbacklot{background:#eaf7f1;color:#087c59}
+    .lookup-popup .popup-pill.assumed{background:#fff5dc;color:#9a6200}
+    .lookup-popup .popup-pill.cip{background:#f1ebff;color:#6d45b8}
+    .lookup-popup .popup-pill.none{background:#eef3f6;color:#617787}
+    .lookup-popup .popup-project{padding:9px 10px;border:1px solid #e2daf8;border-left:3px solid #7c3aed;border-radius:8px;background:#faf8ff}
+    .lookup-popup .popup-project-title{color:#4f2f8f;font-size:11px;font-weight:850;line-height:1.35;overflow-wrap:anywhere}
+    .lookup-popup .popup-project-meta{margin-top:5px;color:#617787;font-size:9.5px;line-height:1.45}
+    .lookup-popup .popup-no-project{padding:9px 10px;border:1px solid #dbe5eb;border-radius:8px;background:#f8fafb;color:#617787;font-size:10px}
+    @media(max-width:520px){.lookup-popup{min-width:0}.lookup-popup .popup-kpis{grid-template-columns:1fr 1fr}.lookup-popup .popup-kpi:last-child{grid-column:1/-1}.lookup-popup .popup-detail-grid{grid-template-columns:92px minmax(0,1fr)}}
     @media(max-width:980px){:root{--sidebar:340px}.metrics{grid-template-columns:repeat(6,120px)}.search{width:190px}}
     @media(max-width:760px){html,body{overflow:auto}.app{height:auto;min-height:100vh;display:block}.header{min-height:58px}.workspace{display:block}.sidebar{max-height:none;border-right:0}.map-shell{height:55vh;min-height:420px}.results{height:55vh;min-height:420px}.results-toolbar{align-items:flex-start;flex-direction:column}.search{width:100%}}
 
@@ -86,8 +127,9 @@
 
           <div class="input-panel" id="filePanel" hidden>
             <div class="drop-zone" id="dropZone" tabindex="0" role="button">
-              <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" />
+              <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.xlsm,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.ms-excel.sheet.macroEnabled.12" />
               <div><b>Drop a CSV or Excel file here</b><span>or click to browse. Recognized columns include full_address, full address, address, site address, and similar address fields.</span></div>
+              <div class="file-loading" id="fileLoading" hidden><span class="spinner" aria-hidden="true"></span><span id="fileLoadingText">Reading file…</span></div>
             </div>
             <div class="file-meta" id="fileMeta">No file loaded.</div>
           </div>
@@ -97,6 +139,12 @@
             <button class="btn btn-secondary" id="templateBtn" type="button">Template</button>
             <button class="btn btn-danger" id="clearBtn" type="button">Clear</button>
             <button class="btn btn-secondary" id="cancelBtn" type="button" disabled>Cancel</button>
+          </div>
+
+          <div class="progress" id="progress">
+            <div class="progress-head"><b id="progressTitle">Processing</b><span id="progressPercent">0%</span></div>
+            <div class="track"><div class="bar" id="progressBar"></div></div>
+            <div class="progress-detail" id="progressDetail"></div>
           </div>
         </div>
       </section>
@@ -136,11 +184,6 @@
           </div>
           <div class="rules" style="margin-top:9px"><b>Map display:</b> red sewer lines include repeated flow-direction arrows. CIP and HCAD Parcel layers start off and can be enabled from Layers. Use the opacity sliders above when CIP, mains, and manholes overlap. Address matching still requires a strong Houston-area geocode with a compatible house number.</div>
           <details class="advanced"><summary>How sewer, parcel, CIP, and depth are selected</summary><div class="hint">The app matches the address to a nearby HCAD parcel using the house number and location, then checks whether the snapped gravity-sewer segment intersects that parcel. Per the current business rule, intersecting = Backlot and non-intersecting = Non-Backlot. Wastewater CIP is preferred as the primary CIP match. For depth, the app checks the snapped sewer endpoints, then traces upstream before using the fallback depth.</div></details>
-          <div class="progress" id="progress">
-            <div class="progress-head"><b id="progressTitle">Processing</b><span id="progressPercent">0%</span></div>
-            <div class="track"><div class="bar" id="progressBar"></div></div>
-            <div class="progress-detail" id="progressDetail"></div>
-          </div>
         </div>
       </section>
     </aside>
@@ -171,6 +214,7 @@
         <button class="btn btn-secondary view-toggle" id="columnViewBtn" type="button">Show all columns</button>
         <button class="btn btn-secondary" id="downloadCsvBtn" type="button" disabled>Export CSV</button>
         <button class="btn btn-secondary" id="downloadExcelBtn" type="button" disabled>Export Excel</button>
+        <button class="btn btn-secondary" id="downloadShpBtn" type="button" disabled title="Export verified geocoded rows as a point shapefile ZIP">Export SHP</button>
       </div>
     </div>
     <div class="table-wrap" id="tableWrap"><div class="empty">No results yet.</div></div>
@@ -178,8 +222,10 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+<script src="https://unpkg.com/@mapbox/shp-write@0.4.3/shpwrite.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://js.arcgis.com/4.31/"></script>
 <script>
 (() => {
@@ -191,7 +237,12 @@
     cipBaseUrl:"https://geogimstest.houstontx.gov/arcgis/rest/services/CIP/CIPProgramming_gx/MapServer",
     parcelUrl:"https://houstonwatergis.org/arcgis/rest/services/INFORHW/AddressPtsAndParcelsIPS/FeatureServer/1",
     geocodeUrl:"https://geosop1.houstontx.gov/arcgis/rest/services/Geocoders/COH_Locator_Compo/GeocodeServer/geocodeAddresses",
-    geocodeMinScore:85,rowConcurrency:2,geocodeBatchSize:500
+    geocodeMinScore:85,
+    maxRowWorkers:6,
+    geocodeWorkers:3,
+    cipWorkersPerRow:3,
+    geocodeBatchSize:250,
+    requestAttempts:3
   };
 
   const CIP_SPECS = [
@@ -234,7 +285,7 @@
   const PARCEL_FIELDS = ["OBJECTID","HCAD_NUM","LocAddr","LocNum","LocName","city","zip","Site_addr_1","group_cd","group_dscr","landuse_cd","landuse_dscr"].join(",");
 
   const state = {
-    inputMode:"paste",rows:[],originalColumns:[],addressColumn:"Address",fileName:"",results:[],resultMeta:[],controller:null,running:false,startupAddresses:[],
+    inputMode:"paste",rows:[],originalColumns:[],addressColumn:"Address",fileName:"",results:[],resultMeta:[],controller:null,running:false,fileLoading:false,fileLoadGeneration:0,startupAddresses:[],
     manholeNodeCache:new Map(),upstreamLineCache:new Map(),cipCache:new Map(),parcelCache:new Map(),parcelIntersectCache:new Map(),
     mapReady:false,mapView:null,addressLayer:null,Graphic:null,cipLayers:[],parcelLayer:null,showAllColumns:false
   };
@@ -243,6 +294,8 @@
   const safe = v => v == null ? "" : String(v).trim();
   const htmlEscape = value => String(value ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
   const normalizeHeader = v => safe(v).toLowerCase().replace(/[^a-z0-9]/g,"");
+  const LEGACY_OUTPUT_NORMALIZED = new Set([...LEGACY_OUTPUT_COLUMNS].map(normalizeHeader));
+  const isLegacyOutputColumn = name => LEGACY_OUTPUT_NORMALIZED.has(normalizeHeader(name));
   const normalizeAddress = v => safe(v).toUpperCase().replace(/\s+/g," ");
   const sqlValue = v => safe(v).replace(/'/g,"''");
   const round = (v,d=1) => Number.isFinite(Number(v)) ? Number(Number(v).toFixed(d)) : "";
@@ -272,15 +325,28 @@
   }
 
   function setStatus(text,kind="ready"){$("statusText").textContent=text;$("statusPill").className=`status-pill ${kind==="ready"?"":kind}`.trim();}
-  function setRunning(running){
-    state.running=running;
-    ["runBtn","clearBtn","templateBtn","pasteTab","fileTab","fileInput","pasteInput","lineRadius","cipBuffer","depthHops","assumedDepth"].forEach(id=>$(id).disabled=running);
-    $("cancelBtn").disabled=!running;
+  function syncControls(){
+    const busy=state.running||state.fileLoading;
+    ["runBtn","clearBtn","templateBtn","pasteTab","fileTab","fileInput","pasteInput","lineRadius","cipBuffer","depthHops","assumedDepth"].forEach(id=>$(id).disabled=busy);
+    $("cancelBtn").disabled=!state.running;
+    $("dropZone").setAttribute("aria-busy",state.fileLoading?"true":"false");
+  }
+  function setRunning(running){state.running=running;syncControls();}
+  function setFileLoading(loading,text="Reading file…"){
+    state.fileLoading=loading;
+    $("dropZone").classList.toggle("is-loading",loading);
+    $("fileLoading").hidden=!loading;
+    $("fileLoadingText").textContent=text;
+    syncControls();
   }
   function updateProgress(done,total,detail,title="Processing"){
-    $("progress").classList.add("visible");const pct=total?Math.min(100,Math.round(done/total*100)):0;
+    $("progress").classList.add("visible");$("progressBar").classList.remove("indeterminate");const pct=total?Math.min(100,Math.round(done/total*100)):0;
     $("progressTitle").textContent=title;$("progressPercent").textContent=`${pct}%`;$("progressBar").style.width=`${pct}%`;$("progressDetail").textContent=detail||"";
   }
+  function updateIndeterminateProgress(detail,title="Loading file"){
+    $("progress").classList.add("visible");$("progressBar").classList.add("indeterminate");$("progressBar").style.width="38%";$("progressTitle").textContent=title;$("progressPercent").textContent="";$("progressDetail").textContent=detail||"";
+  }
+  function yieldToUi(){return new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));}
   function parsePastedAddresses(){return $("pasteInput").value.split(/\r?\n/).map(v=>v.trim().replace(/^[•●▪◦⁃∙-]\s*/,"")).filter(Boolean);}
   function updatePasteMeta(){const a=parsePastedAddresses();const u=new Set(a.map(normalizeAddress)).size;$("pasteMeta").textContent=`${a.length.toLocaleString()} address${a.length===1?"":"es"}${u!==a.length?` · ${u.toLocaleString()} unique`:""}`;}
 
@@ -313,25 +379,122 @@
     });
   }
   function setInputMode(mode){if(state.running)return;state.inputMode=mode==="file"?"file":"paste";$("pasteTab").classList.toggle("active",state.inputMode==="paste");$("fileTab").classList.toggle("active",state.inputMode==="file");$("pastePanel").hidden=state.inputMode!=="paste";$("filePanel").hidden=state.inputMode!=="file";$("sourceLabel").textContent=state.inputMode==="paste"?"Paste addresses":"Address file";}
-  function detectAddressColumn(columns){const c=columns.map(name=>({name,normalized:normalizeHeader(name)}));for(const p of ["fulladdress","address","siteaddress","propertyaddress","locationaddress","serviceaddress","streetaddress","mailingaddress"]){const f=c.find(x=>x.normalized===p);if(f)return f.name;}return c.find(x=>x.normalized.includes("address")&&!x.normalized.includes("email"))?.name||"";}
-
+  function detectAddressColumn(columns){
+    const c=columns.map((name,index)=>({name,index,normalized:normalizeHeader(name)}));
+    for(const p of ["fulladdress","address","siteaddress","propertyaddress","locationaddress","serviceaddress","streetaddress","mailingaddress"]){const f=c.find(x=>x.normalized===p);if(f)return f.name;}
+    return c.find(x=>x.normalized.includes("address")&&!x.normalized.includes("email"))?.name||"";
+  }
+  function detectAddressColumnIndex(values){
+    const cells=(values||[]).map((value,index)=>({index,normalized:normalizeHeader(value)}));
+    for(const p of ["fulladdress","address","siteaddress","propertyaddress","locationaddress","serviceaddress","streetaddress","mailingaddress"]){const f=cells.find(x=>x.normalized===p);if(f)return f.index;}
+    return cells.find(x=>x.normalized.includes("address")&&!x.normalized.includes("email"))?.index ?? -1;
+  }
+  function uniqueHeaders(values){
+    const used=new Map();
+    return (values||[]).map((value,index)=>{
+      const base=safe(value).replace(/^\uFEFF/,"")||`Column_${index+1}`;
+      const key=base.toLowerCase();const count=(used.get(key)||0)+1;used.set(key,count);
+      return count===1?base:`${base}_${count}`;
+    });
+  }
+  function matrixToAddressTable(matrix,sourceName="file"){
+    const rows=(matrix||[]).filter(row=>Array.isArray(row));
+    if(!rows.length)throw new Error(`${sourceName} has no readable rows.`);
+    const scanLimit=Math.min(30,rows.length);let headerRow=-1,addressIndex=-1;
+    for(let i=0;i<scanLimit;i++){
+      const idx=detectAddressColumnIndex(rows[i]);
+      if(idx>=0){headerRow=i;addressIndex=idx;break;}
+    }
+    if(headerRow<0)throw new Error(`No address column found in the first ${scanLimit} rows. Use full_address, full address, address, site address, or a similar field.`);
+    const width=Math.max(rows[headerRow].length,...rows.slice(headerRow+1,Math.min(rows.length,headerRow+50)).map(r=>r.length));
+    const headerValues=Array.from({length:width},(_,i)=>rows[headerRow][i]??"");
+    const columns=uniqueHeaders(headerValues);
+    const addressColumn=columns[addressIndex];
+    const objects=[];
+    for(let r=headerRow+1;r<rows.length;r++){
+      const source=rows[r]||[];
+      if(!source.some(v=>safe(v)!==""))continue;
+      const obj={};columns.forEach((column,i)=>obj[column]=source[i]??"");objects.push(obj);
+    }
+    if(!objects.length)throw new Error("The file has a header row but no data rows beneath it.");
+    return{rows:objects,columns,addressColumn,headerRow};
+  }
+  function loadScriptOnce(url){
+    return new Promise((resolve,reject)=>{
+      const existing=[...document.scripts].find(script=>script.src===url);
+      if(existing){if(window.XLSX)return resolve();existing.addEventListener("load",resolve,{once:true});existing.addEventListener("error",()=>reject(new Error("Spreadsheet library failed to load.")),{once:true});return;}
+      const script=document.createElement("script");script.src=url;script.async=true;script.onload=resolve;script.onerror=()=>reject(new Error("Spreadsheet library failed to load."));document.head.appendChild(script);
+    });
+  }
+  async function ensureXlsx(){
+    if(window.XLSX?.read)return window.XLSX;
+    const urls=[
+      "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js",
+      "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
+    ];
+    let lastError;
+    for(const url of urls){try{await loadScriptOnce(url);if(window.XLSX?.read)return window.XLSX;}catch(error){lastError=error;}}
+    throw lastError||new Error("Excel support could not be loaded. CSV files still work.");
+  }
+  function parseCsvFile(file){
+    return new Promise((resolve,reject)=>{
+      if(!window.Papa?.parse)return reject(new Error("CSV parser is not available."));
+      Papa.parse(file,{worker:true,header:false,skipEmptyLines:"greedy",complete:result=>{
+        if(result.errors?.length&&!result.data?.length)return reject(new Error(result.errors[0].message||"CSV could not be read."));
+        try{resolve(matrixToAddressTable(result.data||[],file.name));}catch(error){reject(error);}
+      },error:error=>reject(error instanceof Error?error:new Error(String(error||"CSV could not be read.")))});
+    });
+  }
+  async function parseExcelFile(file){
+    const XLSXLib=await ensureXlsx();
+    updateProgress(1,4,"Reading workbook bytes…","Loading Excel file");await yieldToUi();
+    const buffer=await file.arrayBuffer();
+    updateProgress(2,4,"Opening workbook…","Loading Excel file");await yieldToUi();
+    let workbook;
+    try{workbook=XLSXLib.read(buffer,{type:"array",cellDates:false,cellText:true,cellNF:false});}catch(error){throw new Error(`Excel workbook could not be opened: ${error.message||error}`);}
+    if(!workbook.SheetNames?.length)throw new Error("Workbook has no worksheets.");
+    updateProgress(3,4,"Finding the worksheet and address header…","Loading Excel file");await yieldToUi();
+    const failures=[];
+    for(const sheetName of workbook.SheetNames){
+      const sheet=workbook.Sheets[sheetName];if(!sheet?.["!ref"])continue;
+      try{
+        const matrix=XLSXLib.utils.sheet_to_json(sheet,{header:1,defval:"",raw:false,blankrows:false});
+        const table=matrixToAddressTable(matrix,`Worksheet “${sheetName}”`);
+        return{...table,sheetName};
+      }catch(error){failures.push(`${sheetName}: ${error.message}`);}
+    }
+    const summary=failures.slice(0,3).join(" ");
+    throw new Error(`No worksheet with a usable address column was found.${summary?` ${summary}`:""}`);
+  }
   async function loadAddressFile(file){
-    if(!file)return;
+    if(!file||state.running)return;
+    const generation=++state.fileLoadGeneration;
+    setInputMode("file");setFileLoading(true,`Reading ${file.name}…`);setStatus("Loading file","running");updateIndeterminateProgress(`Opening ${file.name}…`,`Loading file`);$("fileMeta").textContent=`Loading ${file.name}…`;await yieldToUi();
     try{
-      const ext=(file.name.split(".").pop()||"").toLowerCase();let rows=[],columns=[];
+      const ext=(file.name.split(".").pop()||"").toLowerCase();let parsed;
       if(ext==="csv"){
-        const text=await file.text();const parsed=Papa.parse(text,{header:true,skipEmptyLines:"greedy",transformHeader:h=>h.replace(/^\uFEFF/,"").trim()});
-        if(parsed.errors?.length&&!parsed.data?.length)throw new Error(parsed.errors[0].message);rows=parsed.data||[];columns=parsed.meta?.fields||Object.keys(rows[0]||{});
-      }else if(ext==="xlsx"||ext==="xls"){
-        const buffer=await file.arrayBuffer();const wb=XLSX.read(buffer,{type:"array",cellDates:false});if(!wb.SheetNames.length)throw new Error("Workbook has no worksheets.");rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:"",raw:false});columns=Object.keys(rows[0]||{});
-      }else throw new Error("Use a CSV, XLSX, or XLS file.");
-      if(!rows.length)throw new Error("The file has no data rows.");
-      const addressColumn=detectAddressColumn(columns);if(!addressColumn)throw new Error("No address column found. Use full_address, full address, address, or a similar address field.");
-      const sourceColumns=columns.filter(c=>!LEGACY_OUTPUT_COLUMNS.has(c));
-      state.rows=rows.map(r=>{const clean={};sourceColumns.forEach(c=>clean[c]=r[c]??"");return clean;});state.originalColumns=sourceColumns;state.addressColumn=addressColumn;state.fileName=file.name;state.inputMode="file";
-      const removed=columns.length-sourceColumns.length;
-      $("fileMeta").innerHTML=`<b>${htmlEscape(file.name)}</b> · ${rows.length.toLocaleString()} row${rows.length===1?"":"s"} · using <b>${htmlEscape(addressColumn)}</b>${removed?` · removed ${removed} prior lookup column${removed===1?"":"s"}`:""}`;setStatus("File loaded","success");
-    }catch(error){state.rows=[];$("fileMeta").textContent=error.message;setStatus("File error","error");}
+        updateIndeterminateProgress("Reading CSV rows in a background parser…","Loading CSV file");
+        parsed=await parseCsvFile(file);
+      }else if(["xlsx","xls","xlsm"].includes(ext)){
+        parsed=await parseExcelFile(file);
+      }else throw new Error("Use a CSV, XLSX, XLS, or XLSM file.");
+      if(generation!==state.fileLoadGeneration)return;
+      updateProgress(4,4,"Preparing address rows…","Loading file");await yieldToUi();
+      const {rows,columns,addressColumn}=parsed;
+      const sourceColumns=columns.filter(c=>!isLegacyOutputColumn(c));
+      if(!sourceColumns.includes(addressColumn))throw new Error(`The detected address column “${addressColumn}” matches a prior lookup output field. Rename the source address field and try again.`);
+      state.rows=rows.map(r=>{const clean={};sourceColumns.forEach(c=>clean[c]=r[c]??"");return clean;});
+      state.originalColumns=sourceColumns;state.addressColumn=addressColumn;state.fileName=file.name;state.inputMode="file";
+      const removed=columns.length-sourceColumns.length;const sheetText=parsed.sheetName?` · sheet <b>${htmlEscape(parsed.sheetName)}</b>`:"";
+      $("fileMeta").innerHTML=`<b>${htmlEscape(file.name)}</b> · ${rows.length.toLocaleString()} row${rows.length===1?"":"s"}${sheetText} · using <b>${htmlEscape(addressColumn)}</b>${parsed.headerRow?` · header row ${parsed.headerRow+1}`:""}${removed?` · removed ${removed} prior lookup column${removed===1?"":"s"}`:""}`;
+      updateProgress(1,1,`${rows.length.toLocaleString()} rows ready for lookup.`,`File ready`);setStatus("File loaded","success");
+      setTimeout(()=>{if(!state.running&&!state.fileLoading)$("progress").classList.remove("visible");},900);
+    }catch(error){
+      if(generation!==state.fileLoadGeneration)return;
+      state.rows=[];state.originalColumns=[];state.fileName="";$("fileMeta").textContent=error.message||"The file could not be read.";updateProgress(1,1,error.message||"The file could not be read.","File error");setStatus("File error","error");
+    }finally{
+      if(generation===state.fileLoadGeneration)setFileLoading(false);
+    }
   }
   function prepareInputRows(){
     if(state.inputMode==="paste"){
@@ -340,7 +503,7 @@
     if(!state.rows.length)throw new Error("Upload an address file first.");return state.rows.map(r=>({...r}));
   }
 
-  async function arcgisPost(url,params,signal,maxAttempts=2){
+  async function arcgisPost(url,params,signal,maxAttempts=CONFIG.requestAttempts){
     const body=new URLSearchParams();for(const [k,v] of Object.entries({f:"json",...params})){if(v!==undefined&&v!==null)body.set(k,typeof v==="string"?v:JSON.stringify(v));}
     let lastError;
     for(let attempt=1;attempt<=maxAttempts;attempt++){
@@ -361,10 +524,22 @@
     const groupsMap=new Map();rows.forEach((row,index)=>{const address=safe(row[state.addressColumn]);if(!address)return;const key=normalizeAddress(address);if(!groupsMap.has(key))groupsMap.set(key,{key,address,indexes:[]});groupsMap.get(key).indexes.push(index);});
     const groups=[...groupsMap.values()],resultByIndex=new Map();let done=0;
     async function processBatch(batch){
-      try{const results=await geocodeBatch(batch,signal);for(const {group,location} of results){const attrs=location?.attributes||{},score=Number(location?.score??attrs.Score??0),x=Number(location?.location?.x??attrs.X??attrs.DisplayX),y=Number(location?.location?.y??attrs.Y??attrs.DisplayY);const value=location&&Number.isFinite(x)&&Number.isFinite(y)?{match:safe(location.address)||safe(attrs.Match_addr)||safe(attrs.LongLabel),score,x,y,city:safe(attrs.City)||safe(attrs.Municipality),region:safe(attrs.Region)||safe(attrs.State)||safe(attrs.StateAbbr),postal:safe(attrs.Postal)||safe(attrs.ZIP),addrType:safe(attrs.Addr_type)}:null;group.indexes.forEach(index=>resultByIndex.set(index,value));done++;updateProgress(done,Math.max(1,groups.length),`Geocoded ${done.toLocaleString()} of ${groups.length.toLocaleString()} unique addresses`,"Geocoding");}}
-      catch(error){if(error.name==="AbortError")throw error;if(batch.length===1){batch[0].indexes.forEach(i=>resultByIndex.set(i,null));done++;return;}const m=Math.ceil(batch.length/2);await processBatch(batch.slice(0,m));await processBatch(batch.slice(m));}
+      try{
+        const results=await geocodeBatch(batch,signal);
+        for(const {group,location} of results){
+          const attrs=location?.attributes||{},score=Number(location?.score??attrs.Score??0),x=Number(location?.location?.x??attrs.X??attrs.DisplayX),y=Number(location?.location?.y??attrs.Y??attrs.DisplayY);
+          const value=location&&Number.isFinite(x)&&Number.isFinite(y)?{match:safe(location.address)||safe(attrs.Match_addr)||safe(attrs.LongLabel),score,x,y,city:safe(attrs.City)||safe(attrs.Municipality),region:safe(attrs.Region)||safe(attrs.State)||safe(attrs.StateAbbr),postal:safe(attrs.Postal)||safe(attrs.ZIP),addrType:safe(attrs.Addr_type)}:null;
+          group.indexes.forEach(index=>resultByIndex.set(index,value));done++;updateProgress(done,Math.max(1,groups.length),`Geocoded ${done.toLocaleString()} of ${groups.length.toLocaleString()} unique addresses · ${Math.min(CONFIG.geocodeWorkers,Math.ceil(groups.length/CONFIG.geocodeBatchSize))} geocode workers`,`Geocoding`);
+        }
+      }catch(error){
+        if(error.name==="AbortError")throw error;
+        if(batch.length===1){batch[0].indexes.forEach(i=>resultByIndex.set(i,null));done++;updateProgress(done,Math.max(1,groups.length),`Geocoded ${done.toLocaleString()} of ${groups.length.toLocaleString()} unique addresses`,`Geocoding`);return;}
+        const m=Math.ceil(batch.length/2);await Promise.all([processBatch(batch.slice(0,m)),processBatch(batch.slice(m))]);
+      }
     }
-    for(let i=0;i<groups.length;i+=CONFIG.geocodeBatchSize)await processBatch(groups.slice(i,i+CONFIG.geocodeBatchSize));return resultByIndex;
+    const batches=[];for(let i=0;i<groups.length;i+=CONFIG.geocodeBatchSize)batches.push(groups.slice(i,i+CONFIG.geocodeBatchSize));
+    await runPool(batches,Math.min(CONFIG.geocodeWorkers,batches.length||1),batch=>processBatch(batch));
+    return resultByIndex;
   }
 
   const geometryPaths=f=>Array.isArray(f?.geometry?.paths)?f.geometry.paths.filter(p=>Array.isArray(p)&&p.length>=2):[];
@@ -464,14 +639,17 @@
   function cipKey(m){return [m.category,m.cipNo,m.projectNo,m.description].map(safe).join("|").toUpperCase();}
   async function findCipMatches(point,signal,s){
     const key=`${point[0].toFixed(5)},${point[1].toFixed(5)}|${s.cipBufferFt}`;if(state.cipCache.has(key))return state.cipCache.get(key);
-    const promise=Promise.allSettled(CIP_SPECS.map(async spec=>{
-      const data=await arcgisQuery(`${CONFIG.cipBaseUrl}/${spec.id}`,{where:"1=1",geometry:{x:point[0],y:point[1],spatialReference:{wkid:4326}},geometryType:"esriGeometryPoint",inSR:4326,spatialRel:"esriSpatialRelIntersects",distance:s.cipBufferFt,units:"esriSRUnit_Foot",outFields:"*",returnGeometry:true,outSR:4326,resultRecordCount:200,returnZ:false,returnM:false},signal);
-      return (data.features||[]).map(f=>normalizeCipFeature(spec,f,point));
-    })).then(settled=>{
-      const merged=[];settled.forEach(r=>{if(r.status==="fulfilled")merged.push(...r.value);});
+    const promise=(async()=>{
+      const merged=[];
+      await runPool(CIP_SPECS,Math.min(CONFIG.cipWorkersPerRow,CIP_SPECS.length),async spec=>{
+        try{
+          const data=await arcgisQuery(`${CONFIG.cipBaseUrl}/${spec.id}`,{where:"1=1",geometry:{x:point[0],y:point[1],spatialReference:{wkid:4326}},geometryType:"esriGeometryPoint",inSR:4326,spatialRel:"esriSpatialRelIntersects",distance:s.cipBufferFt,units:"esriSRUnit_Foot",outFields:"*",returnGeometry:true,outSR:4326,resultRecordCount:200,returnZ:false,returnM:false},signal);
+          return (data.features||[]).map(f=>normalizeCipFeature(spec,f,point));
+        }catch(error){if(error.name==="AbortError")throw error;return[];}
+      },features=>{if(features?.length)merged.push(...features);});
       const dedupe=new Map();for(const m of merged){const k=cipKey(m),existing=dedupe.get(k);if(!existing||m.distanceFt<existing.distanceFt)dedupe.set(k,m);}const matches=[...dedupe.values()];
       matches.sort((a,b)=>(b.wastewater?1:0)-(a.wastewater?1:0)||a.distanceFt-b.distanceFt||a.category.localeCompare(b.category));return matches;
-    }).catch(e=>{state.cipCache.delete(key);throw e;});state.cipCache.set(key,promise);return promise;
+    })().catch(e=>{state.cipCache.delete(key);throw e;});state.cipCache.set(key,promise);return promise;
   }
   function applyCipColumns(out,matches,s){
     out.CIP_Match=matches.length?"Yes":"No";out.CIP_Match_Count=matches.length;
@@ -500,17 +678,27 @@
     out.Notes=notes.join(" ");out.Lookup_Status=depth.assumed?"Completed - depth assumed":"Completed";return{out,meta};
   }
 
-  async function runPool(items,concurrency,worker,onComplete){let next=0;const runners=Array.from({length:Math.min(concurrency,items.length)},async()=>{while(true){const index=next++;if(index>=items.length)return;const value=await worker(items[index],index);onComplete(value,index);}});await Promise.all(runners);}
+  async function runPool(items,concurrency,worker,onComplete=()=>{}){
+    if(!items?.length)return;
+    let next=0;const count=Math.max(1,Math.min(Math.floor(concurrency)||1,items.length));
+    const runners=Array.from({length:count},async()=>{while(true){const index=next++;if(index>=items.length)return;const value=await worker(items[index],index);onComplete(value,index);}});
+    await Promise.all(runners);
+  }
+  function lookupWorkerCount(rowCount){
+    const hardware=Math.max(2,Number(navigator.hardwareConcurrency)||4);
+    const suggested=Math.max(3,Math.min(CONFIG.maxRowWorkers,hardware));
+    return Math.max(1,Math.min(rowCount,suggested));
+  }
   async function runLookup(){
-    if(state.running)return;let rows;try{rows=prepareInputRows();}catch(error){setStatus(error.message,"error");return;}const s=settings();state.controller=new AbortController();const signal=state.controller.signal;state.results=new Array(rows.length);state.resultMeta=new Array(rows.length);state.manholeNodeCache.clear();state.upstreamLineCache.clear();state.cipCache.clear();state.parcelCache.clear();state.parcelIntersectCache.clear();clearResultGraphics();setRunning(true);setStatus("Processing","running");$("downloadCsvBtn").disabled=true;$("downloadExcelBtn").disabled=true;$("searchInput").value="";updateMetrics(rows.length,0,0,0,0,0);renderResults();
+    if(state.running)return;let rows;try{rows=prepareInputRows();}catch(error){setStatus(error.message,"error");return;}const s=settings();state.controller=new AbortController();const signal=state.controller.signal;state.results=new Array(rows.length);state.resultMeta=new Array(rows.length);state.manholeNodeCache.clear();state.upstreamLineCache.clear();state.cipCache.clear();state.parcelCache.clear();state.parcelIntersectCache.clear();clearResultGraphics();setRunning(true);setStatus("Processing","running");$("downloadCsvBtn").disabled=true;$("downloadExcelBtn").disabled=true;$("downloadShpBtn").disabled=true;$("searchInput").value="";updateMetrics(rows.length,0,0,0,0,0);renderResults();
     try{
-      updateProgress(0,1,"Preparing unique addresses…","Geocoding");const geocodes=await geocodeAll(rows,signal);let complete=0,assumed=0,issues=0,cip=0,wastewaterCip=0;updateProgress(0,rows.length,`Starting GIS lookup for ${rows.length.toLocaleString()} rows…`,`Sewer + CIP lookup`);
-      await runPool(rows,CONFIG.rowConcurrency,async(row,index)=>{
+      updateProgress(0,1,"Preparing unique addresses…","Geocoding");const geocodes=await geocodeAll(rows,signal);let complete=0,assumed=0,issues=0,cip=0,wastewaterCip=0;const workers=lookupWorkerCount(rows.length);updateProgress(0,rows.length,`Starting GIS lookup for ${rows.length.toLocaleString()} rows with ${workers} parallel worker${workers===1?"":"s"}…`,`Sewer + CIP lookup`);
+      await runPool(rows,workers,async(row,index)=>{
         try{return await processRow(row,geocodes.get(index),signal,s);}catch(error){if(error.name==="AbortError")throw error;const out={...row};APPEND_COLUMNS.forEach(c=>out[c]="");out.Lookup_Status="GIS error";out.Matched_Address=geocodes.get(index)?.match||"";out.Address_Match="Needs review";out.Notes=error.message||"GIS lookup failed.";return{out,meta:{point:null,cipMatches:[]}};}
       },(result,index)=>{
-        state.results[index]=result.out;state.resultMeta[index]=result.meta;complete++;if(result.out.Lookup_Status==="Completed - depth assumed")assumed++;if(!String(result.out.Lookup_Status||"").startsWith("Completed"))issues++;if(result.out.CIP_Match==="Yes")cip++;if(result.meta?.cipMatches?.some(m=>m.wastewater))wastewaterCip++;updateMetrics(rows.length,complete,cip,wastewaterCip,assumed,issues);updateProgress(complete,rows.length,`Processed ${complete.toLocaleString()} of ${rows.length.toLocaleString()} rows`,`Sewer + CIP lookup`);addResultGraphic(index);if(complete%10===0||complete===rows.length)renderResults();
+        state.results[index]=result.out;state.resultMeta[index]=result.meta;complete++;if(result.out.Lookup_Status==="Completed - depth assumed")assumed++;if(!String(result.out.Lookup_Status||"").startsWith("Completed"))issues++;if(result.out.CIP_Match==="Yes")cip++;if(result.meta?.cipMatches?.some(m=>m.wastewater))wastewaterCip++;updateMetrics(rows.length,complete,cip,wastewaterCip,assumed,issues);updateProgress(complete,rows.length,`Processed ${complete.toLocaleString()} of ${rows.length.toLocaleString()} rows · ${workers} workers`,`Sewer + CIP lookup`);addResultGraphic(index);if(complete%15===0||complete===rows.length)renderResults();
       });
-      renderResults();$("downloadCsvBtn").disabled=false;$("downloadExcelBtn").disabled=false;$("resultsSubtext").textContent=`${rows.length.toLocaleString()} rows processed. Summary view shows sewer size, segment length, parcel, and CIP fields; exports preserve the original input columns.`;setStatus("Completed","success");fitResults();
+      renderResults();$("downloadCsvBtn").disabled=false;$("downloadExcelBtn").disabled=false;$("downloadShpBtn").disabled=!state.resultMeta.some(meta=>Array.isArray(meta?.point)&&meta.point.length===2);$("resultsSubtext").textContent=`${rows.length.toLocaleString()} rows processed. CSV/Excel preserve the original columns; SHP exports verified address points with a field-name mapping.`;setStatus("Completed","success");fitResults();
     }catch(error){if(error.name==="AbortError"){setStatus("Cancelled","error");$("progressDetail").textContent="Processing cancelled.";}else{setStatus("Processing error","error");$("progressDetail").textContent=error.message||"Processing failed.";}}
     finally{setRunning(false);state.controller=null;}
   }
@@ -526,13 +714,105 @@
   }
   function exportColumns(){return[...state.originalColumns,...APPEND_COLUMNS.filter(c=>!state.originalColumns.includes(c))];}
   function exportHeader(column){return COLUMN_LABELS[column]||column;}
+  function downloadBlob(blob,fileName){
+    const url=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=url;a.download=fileName;a.style.display="none";document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }
   function downloadCsv(){const rows=state.results.filter(Boolean);if(!rows.length)return;const fields=exportColumns(),csv=Papa.unparse({fields:fields.map(exportHeader),data:rows.map(r=>fields.map(f=>r[f]??""))});downloadBlob(new Blob(["\uFEFF",csv],{type:"text/csv;charset=utf-8"}),`Address_Sewer_CIP_Lookup_${new Date().toISOString().slice(0,10)}.csv`);}
   function downloadExcel(){const rows=state.results.filter(Boolean);if(!rows.length)return;const fields=exportColumns(),data=rows.map(r=>{const o={};fields.forEach(f=>o[exportHeader(f)]=r[f]??"");return o;}),ws=XLSX.utils.json_to_sheet(data,{header:fields.map(exportHeader)}),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Lookup Results");XLSX.writeFile(wb,`Address_Sewer_CIP_Lookup_${new Date().toISOString().slice(0,10)}.xlsx`);}
+  function dbfFieldMap(columns){
+    const used=new Set(),map=new Map();
+    for(const column of columns){
+      let base=exportHeader(column).toUpperCase().replace(/[^A-Z0-9_]+/g,"_").replace(/^_+|_+$/g,"");
+      if(!base)base="FIELD";if(!/^[A-Z]/.test(base))base=`F_${base}`;base=base.slice(0,10);
+      let name=base,n=1;
+      while(used.has(name)){const suffix=String(n++);name=`${base.slice(0,Math.max(1,10-suffix.length))}${suffix}`.slice(0,10);}
+      used.add(name);map.set(column,name);
+    }
+    return map;
+  }
+  function shapefileValue(value){
+    if(value==null)return"";
+    if(typeof value==="number")return Number.isFinite(value)?value:"";
+    if(typeof value==="boolean")return value;
+    if(value instanceof Date)return value;
+    const text=String(value);
+    const num=Number(text);
+    return text.trim()!==""&&Number.isFinite(num)&&/^[-+]?\d+(?:\.\d+)?$/.test(text.trim())?num:text.slice(0,254);
+  }
+  async function downloadShapefile(){
+    if(!window.shpwrite){setStatus("Shapefile library unavailable","error");return;}
+    const fields=exportColumns(),fieldMap=dbfFieldMap(fields),features=[];
+    state.results.forEach((row,index)=>{
+      const point=state.resultMeta[index]?.point;
+      if(!row||!Array.isArray(point)||point.length!==2||!Number.isFinite(Number(point[0]))||!Number.isFinite(Number(point[1])))return;
+      const properties={};for(const field of fields)properties[fieldMap.get(field)]=shapefileValue(row[field]);
+      features.push({type:"Feature",geometry:{type:"Point",coordinates:[Number(point[0]),Number(point[1])]},properties});
+    });
+    if(!features.length){setStatus("No verified address points to export","error");return;}
+    const btn=$("downloadShpBtn"),oldText=btn.textContent;btn.disabled=true;btn.textContent="Building SHP…";setStatus("Building shapefile","running");
+    try{
+      const geojson={type:"FeatureCollection",features};
+      const shpZip=await Promise.resolve(window.shpwrite.zip(geojson,{folder:"Address_Sewer_CIP_Lookup",filename:"address_lookup",outputType:"blob",compression:"STORE",types:{point:"address_lookup"}}));
+      let finalBlob=shpZip instanceof Blob?shpZip:new Blob([shpZip],{type:"application/zip"});
+      if(window.JSZip){
+        try{
+          const zip=await JSZip.loadAsync(finalBlob);
+          const mappingRows=fields.map(field=>({Shapefile_Field:fieldMap.get(field),Table_Column:exportHeader(field),Internal_Field:field}));
+          zip.file("field_mapping.csv",Papa.unparse(mappingRows));
+          zip.file("README.txt",`Address Sewer + CIP Lookup shapefile\n\nGeometry: verified geocoded address points in WGS 84 (EPSG:4326).\nExported features: ${features.length} of ${state.results.filter(Boolean).length} result rows.\nRows without a verified geocode are not included because a shapefile feature requires geometry.\nDBF field names are limited to 10 characters; see field_mapping.csv for the full table-column names.\n`);
+          finalBlob=await zip.generateAsync({type:"blob",compression:"DEFLATE",compressionOptions:{level:6}});
+        }catch(error){console.warn("Could not add shapefile field mapping to ZIP.",error);}
+      }
+      downloadBlob(finalBlob,`Address_Sewer_CIP_Lookup_${new Date().toISOString().slice(0,10)}.zip`);
+      const omitted=state.results.filter(Boolean).length-features.length;
+      setStatus(omitted?`Shapefile exported · ${features.length} points · ${omitted} row${omitted===1?"":"s"} omitted without verified geometry`:`Shapefile exported · ${features.length} points`,"success");
+    }catch(error){console.error(error);setStatus(`Shapefile export failed: ${error.message||error}`,"error");}
+    finally{btn.textContent=oldText;btn.disabled=!state.resultMeta.some(meta=>Array.isArray(meta?.point)&&meta.point.length===2);}
+  }
   function downloadTemplate(){const ws=XLSX.utils.aoa_to_sheet([["address","source_id","note"],["901 Bagby St, Houston, TX 77002","A-001",""]]),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Addresses");XLSX.writeFile(wb,"Address_Sewer_CIP_Template.xlsx");}
-  function clearAll(){if(state.running)return;state.rows=[];state.results=[];state.resultMeta=[];state.originalColumns=[];state.fileName="";state.showAllColumns=false;$("pasteInput").value="";$("fileInput").value="";$("fileMeta").textContent="No file loaded.";$("searchInput").value="";$("progress").classList.remove("visible");$("downloadCsvBtn").disabled=true;$("downloadExcelBtn").disabled=true;$("resultsSubtext").textContent="Run a lookup to append sewer, parcel, and CIP information to each input row.";$("columnViewBtn").textContent="Show all columns";$("columnViewBtn").classList.remove("active");updatePasteMeta();updateMetrics(0,0,0,0,0,0);renderResults();clearResultGraphics();setStatus("Ready");}
+  function clearAll(){if(state.running||state.fileLoading)return;state.fileLoadGeneration++;state.rows=[];state.results=[];state.resultMeta=[];state.originalColumns=[];state.fileName="";state.showAllColumns=false;$("pasteInput").value="";$("fileInput").value="";$("fileMeta").textContent="No file loaded.";$("searchInput").value="";$("progress").classList.remove("visible");$("progressBar").classList.remove("indeterminate");$("downloadCsvBtn").disabled=true;$("downloadExcelBtn").disabled=true;$("downloadShpBtn").disabled=true;$("resultsSubtext").textContent="Run a lookup to append sewer, parcel, and CIP information to each input row.";$("columnViewBtn").textContent="Show all columns";$("columnViewBtn").classList.remove("active");updatePasteMeta();updateMetrics(0,0,0,0,0,0);renderResults();clearResultGraphics();setStatus("Ready");}
 
-  function popupHtmlForResult(index){const row=state.results[index]||{},address=safe(row[state.addressColumn])||safe(row.Matched_Address);return `<div style="font-size:12px;line-height:1.5;min-width:255px"><b style="font-size:13px">${htmlEscape(address)}</b><div style="margin:4px 0 10px;color:#617787">${htmlEscape(row.Matched_Address||"")}</div><b>Sewer</b><br>${htmlEscape(row.Sewer_Size_in||"—")} in main · ${htmlEscape(row.Sewer_Length_ft||"—")} ft long · ${htmlEscape(row.Sewer_Distance_ft||"—")} ft from address<br>${htmlEscape(row.Pipe_Location||"Unknown")} · ${htmlEscape(row.Property_Type||"Property type unavailable")}<br>Manhole ${htmlEscape(row.Manhole_Number||"—")} · depth ${htmlEscape(row.Manhole_Depth_ft||"—")} ft<br><br><b>Active CIP</b><br>${row.CIP_Match==="Yes"?`${htmlEscape(row.CIP_Category||"Project")} · ${htmlEscape(row.CIP_No||"")}<br>${htmlEscape(row.CIP_Project||"")}${row.CIP_Distance_ft!==""?`<br>${htmlEscape(row.CIP_Distance_ft)} ft from address`:""}`:"No project within buffer"}</div>`;}
-  function addResultGraphic(index){if(!state.mapReady||!state.Graphic||!state.addressLayer)return;const meta=state.resultMeta[index];if(!meta?.point)return;const row=state.results[index]||{},hasCip=row.CIP_Match==="Yes",assumed=row.Lookup_Status==="Completed - depth assumed",symbol={type:"simple-marker",style:"circle",size:9,color:assumed?[217,119,6,235]:hasCip?[109,69,184,235]:[20,108,164,235],outline:{color:[255,255,255,255],width:1.5}};state.addressLayer.add(new state.Graphic({geometry:{type:"point",longitude:meta.point[0],latitude:meta.point[1]},symbol,attributes:{rowIndex:index},popupTemplate:{title:"Address lookup result",content:popupHtmlForResult(index)}}));}
+  function popupHtmlForResult(index){
+    const row=state.results[index]||{};
+    const inputAddress=safe(row[state.addressColumn])||safe(row.Matched_Address)||"Address result";
+    const matched=safe(row.Matched_Address);
+    const sameAddress=inputAddress&&matched&&inputAddress.replace(/\s+/g," ").trim().toUpperCase()===matched.replace(/\s+/g," ").trim().toUpperCase();
+    const pipeLocation=safe(row.Pipe_Location)||"Unknown";
+    const pipeClass=pipeLocation==="Backlot"?"backlot":pipeLocation==="Non-Backlot"?"nonbacklot":"none";
+    const depthSource=safe(row.Depth_Source)||"—";
+    const depthAssumed=/assum/i.test(depthSource)||row.Lookup_Status==="Completed - depth assumed";
+    const cipYes=row.CIP_Match==="Yes";
+    const cipCount=safe(row.CIP_Match_Count)||"0";
+    const matchBlock=matched&&!sameAddress?`<div class="popup-match"><span class="popup-match-icon">✓</span><div class="popup-match-text"><span class="popup-match-label">Matched address</span>${htmlEscape(matched)}</div></div>`:"";
+    const cipBlock=cipYes?`
+      <div class="popup-project">
+        <div class="popup-project-title">${htmlEscape(row.CIP_Project||row.CIP_Category||"Active CIP project")}</div>
+        <div class="popup-project-meta">${htmlEscape(row.CIP_Category||"Project")}${row.CIP_No?` · ${htmlEscape(row.CIP_No)}`:""}${row.CIP_Stage?` · ${htmlEscape(row.CIP_Stage)}`:""}${row.CIP_Distance_ft!==""?`<br>${htmlEscape(row.CIP_Distance_ft)} ft from address`:""}</div>
+      </div>`:`<div class="popup-no-project">No active CIP project found within the configured buffer.</div>`;
+    return `<div class="lookup-popup">
+      ${matchBlock}
+      <section class="popup-section">
+        <div class="popup-section-head"><div class="popup-section-title"><span class="popup-section-dot"></span>Sewer</div><span class="popup-pill ${pipeClass}">${htmlEscape(pipeLocation)}</span></div>
+        <div class="popup-kpis">
+          <div class="popup-kpi"><span>Pipe size</span><b>${htmlEscape(row.Sewer_Size_in||"—")} in</b></div>
+          <div class="popup-kpi"><span>Segment length</span><b>${htmlEscape(row.Sewer_Length_ft||"—")} ft</b></div>
+          <div class="popup-kpi"><span>From address</span><b>${htmlEscape(row.Sewer_Distance_ft||"—")} ft</b></div>
+        </div>
+        <div class="popup-detail-grid">
+          <div class="k">Property type</div><div class="v">${htmlEscape(row.Property_Type||"Unavailable")}</div>
+          <div class="k">Manhole</div><div class="v">${htmlEscape(row.Manhole_Number||"—")}</div>
+          <div class="k">Manhole depth</div><div class="v">${htmlEscape(row.Manhole_Depth_ft||"—")} ft ${depthAssumed?'<span class="popup-pill assumed">Assumed</span>':""}</div>
+        </div>
+      </section>
+      <section class="popup-section">
+        <div class="popup-section-head"><div class="popup-section-title"><span class="popup-section-dot cip"></span>Active CIP</div><span class="popup-pill ${cipYes?"cip":"none"}">${cipYes?`${htmlEscape(cipCount)} match${String(cipCount)==="1"?"":"es"}`:"No match"}</span></div>
+        ${cipBlock}
+      </section>
+    </div>`;
+  }
+  function addResultGraphic(index){if(!state.mapReady||!state.Graphic||!state.addressLayer)return;const meta=state.resultMeta[index];if(!meta?.point)return;const row=state.results[index]||{},address=safe(row[state.addressColumn])||safe(row.Matched_Address)||"Address result",hasCip=row.CIP_Match==="Yes",assumed=row.Lookup_Status==="Completed - depth assumed",symbol={type:"simple-marker",style:"circle",size:9,color:assumed?[217,119,6,235]:hasCip?[109,69,184,235]:[20,108,164,235],outline:{color:[255,255,255,255],width:1.5}};state.addressLayer.add(new state.Graphic({geometry:{type:"point",longitude:meta.point[0],latitude:meta.point[1]},symbol,attributes:{rowIndex:index},popupTemplate:{title:address,content:popupHtmlForResult(index)}}));}
   function rebuildResultGraphics(){if(!state.mapReady)return;clearResultGraphics();state.results.forEach((r,i)=>{if(r)addResultGraphic(i);});}
   function clearResultGraphics(){state.addressLayer?.removeAll();}
   function fitResults(){
@@ -619,8 +899,8 @@
     });
   }
 
-  $("pasteTab").addEventListener("click",()=>setInputMode("paste"));$("fileTab").addEventListener("click",()=>setInputMode("file"));$("pasteInput").addEventListener("input",updatePasteMeta);$("runBtn").addEventListener("click",runLookup);$("clearBtn").addEventListener("click",clearAll);$("cancelBtn").addEventListener("click",()=>state.controller?.abort());$("templateBtn").addEventListener("click",downloadTemplate);$("downloadCsvBtn").addEventListener("click",downloadCsv);$("downloadExcelBtn").addEventListener("click",downloadExcel);$("searchInput").addEventListener("input",renderResults);$("columnViewBtn").addEventListener("click",()=>{state.showAllColumns=!state.showAllColumns;$("columnViewBtn").textContent=state.showAllColumns?"Summary view":"Show all columns";$("columnViewBtn").classList.toggle("active",state.showAllColumns);renderResults();});$("cipOpacity").addEventListener("input",e=>setCipOpacity(e.target.value));$("sewerOpacity").addEventListener("input",e=>setSewerOpacity(e.target.value));$("manholeOpacity").addEventListener("input",e=>setManholeOpacity(e.target.value));$("fitBtn").addEventListener("click",fitResults);$("clearMapBtn").addEventListener("click",clearResultGraphics);
-  $("fileInput").addEventListener("change",e=>loadAddressFile(e.target.files?.[0]));$("dropZone").addEventListener("click",()=>$("fileInput").click());$("dropZone").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("fileInput").click();}});["dragenter","dragover"].forEach(t=>$("dropZone").addEventListener(t,e=>{e.preventDefault();$("dropZone").classList.add("drag");}));["dragleave","drop"].forEach(t=>$("dropZone").addEventListener(t,e=>{e.preventDefault();$("dropZone").classList.remove("drag");}));$("dropZone").addEventListener("drop",e=>{const file=e.dataTransfer?.files?.[0];if(file)loadAddressFile(file);});
+  $("pasteTab").addEventListener("click",()=>setInputMode("paste"));$("fileTab").addEventListener("click",()=>setInputMode("file"));$("pasteInput").addEventListener("input",updatePasteMeta);$("runBtn").addEventListener("click",runLookup);$("clearBtn").addEventListener("click",clearAll);$("cancelBtn").addEventListener("click",()=>state.controller?.abort());$("templateBtn").addEventListener("click",downloadTemplate);$("downloadCsvBtn").addEventListener("click",downloadCsv);$("downloadExcelBtn").addEventListener("click",downloadExcel);$("downloadShpBtn").addEventListener("click",downloadShapefile);$("searchInput").addEventListener("input",renderResults);$("columnViewBtn").addEventListener("click",()=>{state.showAllColumns=!state.showAllColumns;$("columnViewBtn").textContent=state.showAllColumns?"Summary view":"Show all columns";$("columnViewBtn").classList.toggle("active",state.showAllColumns);renderResults();});$("cipOpacity").addEventListener("input",e=>setCipOpacity(e.target.value));$("sewerOpacity").addEventListener("input",e=>setSewerOpacity(e.target.value));$("manholeOpacity").addEventListener("input",e=>setManholeOpacity(e.target.value));$("fitBtn").addEventListener("click",fitResults);$("clearMapBtn").addEventListener("click",clearResultGraphics);
+  $("fileInput").addEventListener("change",e=>loadAddressFile(e.target.files?.[0]));$("dropZone").addEventListener("click",()=>{if(!state.fileLoading&&!state.running)$("fileInput").click();});$("dropZone").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&!state.fileLoading&&!state.running){e.preventDefault();$("fileInput").click();}});["dragenter","dragover"].forEach(t=>$("dropZone").addEventListener(t,e=>{e.preventDefault();$("dropZone").classList.add("drag");}));["dragleave","drop"].forEach(t=>$("dropZone").addEventListener(t,e=>{e.preventDefault();$("dropZone").classList.remove("drag");}));$("dropZone").addEventListener("drop",e=>{const file=e.dataTransfer?.files?.[0];if(file)loadAddressFile(file);});
 
   state.startupAddresses=getUrlAddresses();
   if(state.startupAddresses.length){
