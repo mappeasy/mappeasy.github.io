@@ -91,6 +91,13 @@
             </div>
             <div class="file-meta" id="fileMeta">No file loaded.</div>
           </div>
+
+          <div class="button-row run-row">
+            <button class="btn btn-primary" id="runBtn" type="button">Run lookup</button>
+            <button class="btn btn-secondary" id="templateBtn" type="button">Template</button>
+            <button class="btn btn-danger" id="clearBtn" type="button">Clear</button>
+            <button class="btn btn-secondary" id="cancelBtn" type="button" disabled>Cancel</button>
+          </div>
         </div>
       </section>
 
@@ -128,13 +135,7 @@
             </div>
           </div>
           <div class="rules" style="margin-top:9px"><b>Map display:</b> red sewer lines include repeated flow-direction arrows. CIP and HCAD Parcel layers start off and can be enabled from Layers. Use the opacity sliders above when CIP, mains, and manholes overlap. Address matching still requires a strong Houston-area geocode with a compatible house number.</div>
-          <details class="advanced"><summary>How sewer, parcel, CIP, and depth are selected</summary><div class="hint">The app matches the address to a nearby HCAD parcel using the house number and location, then checks whether the snapped gravity-sewer segment intersects that parcel. Per the current business rule, intersecting = Non-Backlot and non-intersecting = Backlot. Wastewater CIP is preferred as the primary CIP match. For depth, the app checks the snapped sewer endpoints, then traces upstream before using the fallback depth.</div></details>
-          <div class="button-row run-row">
-            <button class="btn btn-primary" id="runBtn" type="button">Run lookup</button>
-            <button class="btn btn-secondary" id="templateBtn" type="button">Template</button>
-            <button class="btn btn-danger" id="clearBtn" type="button">Clear</button>
-            <button class="btn btn-secondary" id="cancelBtn" type="button" disabled>Cancel</button>
-          </div>
+          <details class="advanced"><summary>How sewer, parcel, CIP, and depth are selected</summary><div class="hint">The app matches the address to a nearby HCAD parcel using the house number and location, then checks whether the snapped gravity-sewer segment intersects that parcel. Per the current business rule, intersecting = Backlot and non-intersecting = Non-Backlot. Wastewater CIP is preferred as the primary CIP match. For depth, the app checks the snapped sewer endpoints, then traces upstream before using the fallback depth.</div></details>
           <div class="progress" id="progress">
             <div class="progress-head"><b id="progressTitle">Processing</b><span id="progressPercent">0%</span></div>
             <div class="track"><div class="bar" id="progressBar"></div></div>
@@ -446,7 +447,7 @@
     out.Property_Type=safe(parcel.attributes?.group_dscr);
     if(!nearest){out.Pipe_Location="Unknown";return{parcel,intersects:null};}
     const intersects=await snappedLineIntersectsParcel(nearest.feature,parcel,signal);
-    out.Pipe_Location=intersects===true?"Non-Backlot":intersects===false?"Backlot":"Unknown";
+    out.Pipe_Location=intersects===true?"Backlot":intersects===false?"Non-Backlot":"Unknown";
     return{parcel,intersects};
   }
   const arcDate=v=>{const n=Number(v);if(!Number.isFinite(n)||n<=0)return"";const d=new Date(n);return Number.isNaN(d.getTime())?"":d.toISOString().slice(0,10);};
@@ -494,7 +495,7 @@
     const depth=await resolveManholeDepth(nearest,meta.point,signal,s);meta.depth=depth;out.Manhole_Number=depth.number;out.Manhole_Depth_ft=round(depth.depth,2);out.Depth_Source=depth.source;
     const notes=[];if(depth.assumed)notes.push(`Manhole depth was not available after ${s.depthHops} upstream hops; ${s.assumedDepthFt} ft was assumed.`);if(!out.Sewer_Size_in)notes.push("Pipe size is missing in the sewer layer.");
     if(!parcel)notes.push("No matching HCAD parcel was found near the verified address, so pipe location and property type could not be confirmed.");
-    else if(out.Pipe_Location!=="Unknown")notes.push(`Pipe location classified as ${out.Pipe_Location} using the current parcel-intersection rule.`);
+    else if(out.Pipe_Location!=="Unknown")notes.push(`Pipe location classified as ${out.Pipe_Location}: the snapped sewer ${meta?.parcelIntersectsLine===true?"intersects":"does not intersect"} the matched parcel.`);
     if(cipMatches.length){const ww=cipMatches.some(m=>m.wastewater);notes.push(`${cipMatches.length} active CIP match${cipMatches.length===1?"":"es"} within ${s.cipBufferFt} ft${ww?", including Wastewater":""}.`);}else notes.push(`No active CIP project within ${s.cipBufferFt} ft.`);
     out.Notes=notes.join(" ");out.Lookup_Status=depth.assumed?"Completed - depth assumed":"Completed";return{out,meta};
   }
